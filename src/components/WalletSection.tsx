@@ -36,7 +36,7 @@ export default function WalletSection() {
 
   return (
     <section className="py-16 bg-gradient-to-br from-pepu-white to-pepu-light-green/5">
-      <div className="max-w-6xl mx-auto px-4">
+              <div className="w-full px-4 sm:max-w-6xl sm:mx-auto">
         <div className="text-center mb-12">
           <h2 className="text-4xl font-bold text-pepu-dark-green mb-4">
             Wallet Connection

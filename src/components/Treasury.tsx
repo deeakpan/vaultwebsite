@@ -43,6 +43,13 @@ export default function Treasury() {
 
   const [tokenContracts, setTokenContracts] = useState<TokenContract[]>([]);
   const [isLoadingTokens, setIsLoadingTokens] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+
+  // Filter holdings based on search term
+  const filteredHoldings = treasuryData.holdings.filter(holding =>
+    holding.symbol.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    holding.token.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   // Fetch native token balance
   const { data: nativeBalance, isLoading: nativeLoading } = useBalance({
@@ -298,7 +305,7 @@ export default function Treasury() {
   if (treasuryData.isLoading || isLoadingTokens) {
     return (
       <section id="treasury" className="py-8 md:py-16 bg-gradient-to-br from-pepu-white to-pepu-light-green/5">
-        <div className="max-w-7xl mx-auto px-4">
+        <div className="w-full px-4 sm:max-w-7xl sm:mx-auto">
           <div className="text-center mb-8 md:mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-pepu-dark-green mb-3 md:mb-4">
               Project Wallet & Treasury
@@ -319,7 +326,7 @@ export default function Treasury() {
 
   return (
     <section id="treasury" className="py-8 md:py-16 bg-gradient-to-br from-pepu-white to-pepu-light-green/5">
-      <div className="max-w-7xl mx-auto px-4">
+                  <div className="w-full px-4 sm:max-w-7xl sm:mx-auto">
         <div className="text-center mb-8 md:mb-12">
           <h2 className="text-3xl md:text-4xl font-bold text-pepu-dark-green mb-3 md:mb-4">
             Project Wallet & Treasury
@@ -362,11 +369,25 @@ export default function Treasury() {
                 </div>
               </div>
 
-              {/* Native PEPU Balance - Now shown in holdings list */}
+              {/* Search Bar */}
+              <div className="mb-4">
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="Search holdings (vault)"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full px-4 py-2 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pepu-dark-green focus:border-transparent text-sm bg-white text-black placeholder-gray-500"
+                  />
+                  <svg className="absolute left-3 top-2.5 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </div>
+              </div>
 
               {treasuryData.holdings.length > 0 ? (
-              <div className="space-y-3 md:space-y-4">
-                {treasuryData.holdings.map((holding, index) => {
+              <div className="max-h-96 overflow-y-auto space-y-2 custom-scrollbar">
+                {filteredHoldings.map((holding, index) => {
                   // Find the token contract for this holding
                   const tokenContract = tokenContracts.find(t => t.symbol === holding.symbol);
                   
@@ -381,18 +402,18 @@ export default function Treasury() {
                   }
                   
                   return (
-                    <div key={index} className={`flex items-center justify-between p-3 md:p-4 rounded-lg ${
-                      holding.symbol === 'PEPU' ? 'bg-gradient-to-r from-pepu-dark-green to-pepu-light-green text-white' : 'bg-gray-50'
+                    <div key={index} className={`flex items-center justify-between p-2 rounded-lg ${
+                      holding.symbol === 'PEPU' ? 'bg-gradient-to-r from-pepu-dark-green to-pepu-light-green text-white' : 'bg-gray-50 hover:bg-gray-100 transition-colors'
                     }`}>
-                      <div className="flex items-center space-x-2 md:space-x-3">
-                        <div className="w-3 h-3 rounded-full" style={{
+                      <div className="flex items-center space-x-2">
+                        <div className="w-2 h-2 rounded-full" style={{
                           backgroundColor: holding.symbol === 'PEPU' ? '#FFFFFF' :
                                          index === 0 ? '#8BC34A' : 
                                          index === 1 ? '#F4A300' : 
                                          index === 2 ? '#1B4D3E' : 
                                          index === 3 ? '#FF6B6B' : '#9CA3AF'
                         }}></div>
-                        <span className={`font-semibold text-sm md:text-base ${
+                        <span className={`font-semibold text-sm ${
                           holding.symbol === 'PEPU' ? 'text-white' : 'text-pepu-dark-green'
                         }`}>
                           {holding.symbol}
@@ -400,13 +421,13 @@ export default function Treasury() {
                         </span>
                       </div>
                       <div className="text-right">
-                        <div className={`font-bold text-sm md:text-base ${
+                        <div className={`font-bold text-sm ${
                           holding.symbol === 'PEPU' ? 'text-white' : 'text-pepu-dark-green'
                         }`}>
                           {formatTokenAmount(holding.amount, holding.decimals)} {holding.symbol}
                         </div>
                         {holding.usdValue && (
-                          <div className={`text-xs md:text-sm ${
+                          <div className={`text-xs ${
                             holding.symbol === 'PEPU' ? 'text-white opacity-90' : 'text-gray-500'
                           }`}>
                             <a 
@@ -430,36 +451,17 @@ export default function Treasury() {
                     </div>
                   );
                 })}
+                {filteredHoldings.length === 0 && searchTerm && (
+                  <div className="text-center py-4">
+                    <p className="text-gray-500 text-sm">No tokens found matching "{searchTerm}"</p>
+                  </div>
+                )}
               </div>
               ) : (
                 <div className="text-center py-8">
                   <p className="text-gray-500">No token holdings found</p>
                 </div>
               )}
-
-              <div className="mt-4 md:mt-6 p-3 md:p-4 bg-pepu-light-green/10 rounded-lg">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                  <span className="text-xs md:text-sm text-gray-600">Wallet Address</span>
-                  <a 
-                    href="https://pepuscan.com/address/0xC96694BEA572073D19C41aA9C014Dd3c7C193B8E"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-pepu-yellow-orange hover:underline font-mono text-xs md:text-sm"
-                  >
-                    {formatAddress(treasuryData.walletAddress)}
-                  </a>
-                </div>
-                <div className="mt-2 text-xs text-gray-500">
-                  <a 
-                    href="https://pepuscan.com/address/0xC96694BEA572073D19C41aA9C014Dd3c7C193B8E?tab=tokens"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-pepu-yellow-orange hover:underline"
-                  >
-                    View all token balances on PepuScan →
-                  </a>
-                </div>
-              </div>
             </div>
           </div>
 
@@ -476,12 +478,12 @@ export default function Treasury() {
                   </span>
                 </div>
 
-                <div className="flex items-center justify-between">
-                  <span className="text-gray-600 text-sm md:text-base">ERC20 Tokens</span>
-                  <span className="font-bold text-pepu-yellow-orange text-sm md:text-base">
-                    {treasuryData.holdings.length}
-                  </span>
-                </div>
+                                 <div className="flex items-center justify-between">
+                   <span className="text-gray-600 text-sm md:text-base">ERC20 Tokens</span>
+                   <span className="font-bold text-pepu-yellow-orange text-sm md:text-base">
+                     {treasuryData.holdings.filter(holding => holding.symbol !== 'PEPU').length}
+                   </span>
+                 </div>
 
                 <div className="flex items-center justify-between">
                   <span className="text-gray-600 text-sm md:text-base">Total Value</span>
@@ -490,12 +492,12 @@ export default function Treasury() {
                   </span>
                 </div>
 
-                <div className="flex items-center justify-between">
-                  <span className="text-gray-600 text-sm md:text-base">Network</span>
-                  <span className="font-bold text-pepu-dark-green text-sm md:text-base">
-                    PEPU Chain
-                  </span>
-                </div>
+                                 <div className="flex items-center justify-between">
+                   <span className="text-gray-600 text-sm md:text-base">Network</span>
+                   <span className="font-bold text-pepu-dark-green text-sm md:text-base">
+                     Pepe Unchained
+                   </span>
+                 </div>
               </div>
 
               <div className="mt-4 md:mt-6 p-3 md:p-4 bg-gradient-to-r from-pepu-light-green/20 to-pepu-yellow-orange/20 rounded-lg">
@@ -533,4 +535,4 @@ export default function Treasury() {
       </div>
     </section>
   );
-} 
+}

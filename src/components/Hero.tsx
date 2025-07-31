@@ -4,9 +4,8 @@ import { useState, useEffect } from 'react';
 
 export default function Hero() {
   const [snapshotData, setSnapshotData] = useState({
-    totalHolders: 1250,
     totalRewards: 45000,
-    lastSnapshot: '2024-01-15T14:00:00Z'
+    lastSnapshot: '2025-07-26T07:00:00Z'
   });
 
   const [timeUntilNextSnapshot, setTimeUntilNextSnapshot] = useState('');
@@ -23,11 +22,13 @@ export default function Hero() {
         return;
       }
 
-      const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-      const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
-
-      setTimeUntilNextSnapshot(`${days}d ${hours}h ${minutes}m`);
+      // Format next snapshot date
+      const nextSnapshotDate = new Date(lastSnapshot.getTime() + 14 * 24 * 60 * 60 * 1000);
+      const day = nextSnapshotDate.getDate();
+      const month = nextSnapshotDate.getMonth() + 1; // getMonth() returns 0-11
+      const year = nextSnapshotDate.getFullYear();
+      
+      setTimeUntilNextSnapshot(`${day}/${month}/${year}`);
     };
 
     calculateTimeUntilSnapshot();
@@ -38,7 +39,7 @@ export default function Hero() {
 
   return (
     <section className="py-8 md:py-16 lg:py-24">
-      <div className="max-w-6xl mx-auto px-4">
+      <div className="w-full px-4 sm:max-w-6xl sm:mx-auto">
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
           {/* Main Content */}
           <div className="space-y-6 md:space-y-8">
@@ -59,53 +60,62 @@ export default function Hero() {
               </p>
             </div>
 
-            {/* Core Strengths */}
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-              <div className="bg-white p-4 md:p-6 rounded-xl shadow-lg border border-pepu-light-green/20">
-                <div className="w-10 h-10 md:w-12 md:h-12 bg-pepu-dark-green rounded-lg flex items-center justify-center mb-3 md:mb-4">
-                  <svg className="w-5 h-5 md:w-6 md:h-6 text-pepu-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
-                  </svg>
-                </div>
-                <h3 className="font-bold text-pepu-dark-green mb-2 text-sm md:text-base">Treasury Management</h3>
-                <p className="text-xs md:text-sm text-gray-600">Professional treasury allocation with 70% established projects, 10% high-risk, 20% community-voted</p>
-              </div>
+                         {/* Core Strengths */}
+             <div className="space-y-4 md:space-y-6">
+               <div className="bg-white p-4 md:p-6 rounded-xl shadow-lg border border-pepu-light-green/20">
+                 <div className="flex items-center space-x-3 md:space-x-4">
+                   <div className="w-10 h-10 md:w-12 md:h-12 bg-pepu-dark-green rounded-lg flex items-center justify-center flex-shrink-0">
+                     <svg className="w-5 h-5 md:w-6 md:h-6 text-pepu-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                     </svg>
+                   </div>
+                   <div className="flex-1 min-w-0">
+                     <h3 className="font-bold text-pepu-dark-green text-sm md:text-base mb-1">Treasury Management</h3>
+                     <p className="text-xs md:text-sm text-gray-600 leading-relaxed">70% established, 10% high-risk, 20% community-voted</p>
+                   </div>
+                 </div>
+               </div>
 
-              <div className="bg-white p-4 md:p-6 rounded-xl shadow-lg border border-pepu-light-green/20">
-                <div className="w-10 h-10 md:w-12 md:h-12 bg-pepu-yellow-orange rounded-lg flex items-center justify-center mb-3 md:mb-4">
-                  <svg className="w-5 h-5 md:w-6 md:h-6 text-pepu-dark-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                  </svg>
-                </div>
-                <h3 className="font-bold text-pepu-dark-green mb-2 text-sm md:text-base">Community Rewards</h3>
-                <p className="text-xs md:text-sm text-gray-600">Bi-weekly snapshots reward active holders with automatic distribution</p>
-              </div>
+               <div className="bg-white p-4 md:p-6 rounded-xl shadow-lg border border-pepu-light-green/20">
+                 <div className="flex items-center space-x-3 md:space-x-4">
+                   <div className="w-10 h-10 md:w-12 md:h-12 bg-pepu-yellow-orange rounded-lg flex items-center justify-center flex-shrink-0">
+                     <svg className="w-5 h-5 md:w-6 md:h-6 text-pepu-dark-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                     </svg>
+                   </div>
+                   <div className="flex-1 min-w-0">
+                     <h3 className="font-bold text-pepu-dark-green text-sm md:text-base mb-1">Community Rewards</h3>
+                     <p className="text-xs md:text-sm text-gray-600 leading-relaxed">Bi-weekly snapshots with automatic PEPU distribution</p>
+                   </div>
+                 </div>
+               </div>
 
-              <div className="bg-white p-4 md:p-6 rounded-xl shadow-lg border border-pepu-light-green/20 sm:col-span-2 lg:col-span-1">
-                <div className="w-10 h-10 md:w-12 md:h-12 bg-pepu-light-green rounded-lg flex items-center justify-center mb-3 md:mb-4">
-                  <svg className="w-5 h-5 md:w-6 md:h-6 text-pepu-dark-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                  </svg>
-                </div>
-                <h3 className="font-bold text-pepu-dark-green mb-2 text-sm md:text-base">Active Holders</h3>
-                <p className="text-xs md:text-sm text-gray-600">Growing community of dedicated $Vault holders with increasing engagement</p>
-              </div>
-            </div>
+               <div className="bg-white p-4 md:p-6 rounded-xl shadow-lg border border-pepu-light-green/20">
+                 <div className="flex items-center space-x-3 md:space-x-4">
+                   <div className="w-10 h-10 md:w-12 md:h-12 bg-pepu-light-green rounded-lg flex items-center justify-center flex-shrink-0">
+                     <svg className="w-5 h-5 md:w-6 md:h-6 text-pepu-dark-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                     </svg>
+                   </div>
+                   <div className="flex-1 min-w-0">
+                     <h3 className="font-bold text-pepu-dark-green text-sm md:text-base mb-1">Active Holders</h3>
+                     <p className="text-xs md:text-sm text-gray-600 leading-relaxed">Growing community of dedicated $Vault holders</p>
+                   </div>
+                 </div>
+               </div>
+             </div>
 
-            {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-3 md:gap-4">
-              <button className="bg-pepu-yellow-orange text-pepu-dark-green px-6 py-3 md:px-8 md:py-4 rounded-xl font-bold text-base md:text-lg hover:bg-pepu-yellow-orange/90 transition-colors shadow-lg">
-                Connect Wallet
-              </button>
-              <a 
-                href="https://www.geckoterminal.com/pepe-unchained/pools/0x103ea0ca60f7cb79c1b674b1edf103c625c6b589"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="border-2 border-pepu-dark-green text-pepu-dark-green px-6 py-3 md:px-8 md:py-4 rounded-xl font-bold text-base md:text-lg hover:bg-pepu-dark-green hover:text-pepu-white transition-colors inline-block text-center"
-              >
-                Buy $Vault
-              </a>
-            </div>
+                         {/* CTA Buttons */}
+             <div className="flex flex-col sm:flex-row gap-3 md:gap-4">
+               <a 
+                 href="https://www.geckoterminal.com/pepe-unchained/pools/0x103ea0ca60f7cb79c1b674b1edf103c625c6b589"
+                 target="_blank"
+                 rel="noopener noreferrer"
+                 className="border-2 border-pepu-dark-green text-pepu-dark-green px-6 py-3 md:px-8 md:py-4 rounded-xl font-bold text-base md:text-lg hover:bg-pepu-dark-green hover:text-pepu-white transition-colors inline-block text-center"
+               >
+                 Buy $Vault
+               </a>
+             </div>
           </div>
 
           {/* Live Data Display */}
@@ -114,11 +124,6 @@ export default function Hero() {
               <h3 className="text-xl md:text-2xl font-bold text-pepu-dark-green mb-4 md:mb-6">Live Snapshot Activity</h3>
               
               <div className="space-y-3 md:space-y-4">
-                <div className="flex justify-between items-center p-3 md:p-4 bg-pepu-light-green/10 rounded-lg">
-                  <span className="text-gray-700 text-sm md:text-base">Total Holders</span>
-                  <span className="font-bold text-pepu-dark-green text-sm md:text-base">{snapshotData.totalHolders.toLocaleString()}</span>
-                </div>
-                
                 <div className="flex justify-between items-center p-3 md:p-4 bg-pepu-yellow-orange/10 rounded-lg">
                   <span className="text-gray-700 text-sm md:text-base">Total Rewards Distributed</span>
                   <span className="font-bold text-pepu-yellow-orange text-sm md:text-base">{snapshotData.totalRewards.toLocaleString()} PEPU</span>

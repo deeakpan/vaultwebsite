@@ -10,7 +10,6 @@ import { Chain } from 'wagmi/chains';
 const pepuChain: Chain = {
   id: 97741,
   name: 'Pepe Unchained V2',
-  network: 'pepu-v2',
   nativeCurrency: {
     name: 'Pepe Unchained V2',
     symbol: 'PEPU',

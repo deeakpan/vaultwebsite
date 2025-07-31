@@ -17,6 +17,7 @@ export default function Rewards() {
   const [error, setError] = useState('');
 
   const checkRewards = async () => {
+    console.log('Check rewards function called with wallet:', walletAddress);
     if (!walletAddress.trim()) {
       setError('Please enter a wallet address');
       return;
@@ -29,12 +30,15 @@ export default function Rewards() {
     setError('');
     setRewardData(null);
     try {
+      console.log('Making API request to /api/check-rewards');
       const response = await fetch('/api/check-rewards', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ wallet: walletAddress.trim() }),
       });
+      console.log('API response status:', response.status);
       const result = await response.json();
+      console.log('API response data:', result);
       if (!response.ok) {
         setError(result.error || 'Failed to check rewards');
         return;
@@ -45,6 +49,7 @@ export default function Rewards() {
         setError('No reward data found for this wallet');
       }
     } catch (err) {
+      console.error('Error in checkRewards:', err);
       setError('Network error. Please try again.');
     } finally {
       setIsLoading(false);
@@ -55,16 +60,16 @@ export default function Rewards() {
 
   return (
     <section id="rewards" className="py-16 bg-gradient-to-br from-pepu-yellow-orange/5 to-pepu-light-green/5">
-      <div className="max-w-6xl mx-auto px-4">
+              <div className="w-full px-4 sm:max-w-6xl sm:mx-auto">
         <div className="text-center mb-12">
           <h2 className="text-4xl font-bold text-pepu-dark-green mb-4">
             Check Your Rewards
           </h2>
-                     <p className="text-xl text-black max-w-3xl mx-auto">
-             Enter your wallet address to check your $Vault and $PEPU rewards from our snapshot system.
-           </p>
+          <p className="text-xl text-black max-w-3xl mx-auto">
+            Enter your wallet address to check your $Vault and $PEPU rewards from our snapshot system.
+          </p>
         </div>
-        
+
         <div className="bg-white rounded-2xl shadow-xl border border-pepu-light-green/20 overflow-hidden">
           <div className="grid md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-gray-200">
             {/* Left: Input & Results */}
@@ -77,15 +82,21 @@ export default function Rewards() {
                 id="wallet"
                 value={walletAddress}
                 onChange={(e) => setWalletAddress(e.target.value)}
-                placeholder="e.g. 0x1234...abcd"
-                                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pepu-dark-green focus:border-transparent text-lg bg-gray-50 placeholder-gray-400 text-black"
+                placeholder="Enter a valid wallet address"
+                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-pepu-dark-green focus:border-transparent text-lg bg-gray-50 placeholder-gray-400 text-black ${
+                  walletAddress && !/^0x[a-fA-F0-9]{40}$/.test(walletAddress) 
+                    ? 'border-red-300 focus:ring-red-500 focus:border-red-500' 
+                    : 'border-gray-300'
+                }`}
                 disabled={isLoading}
                 autoComplete="off"
                 spellCheck={false}
               />
-              <div className="text-sm text-black mt-1 mb-4 font-medium">
-                Enter a valid Ethereum wallet address (starts with 0x, 42 characters).
-              </div>
+              {walletAddress && !/^0x[a-fA-F0-9]{40}$/.test(walletAddress) && (
+                <div className="text-sm text-red-600 mt-1 mb-4">
+                  Invalid wallet address format
+                </div>
+              )}
               <button
                 onClick={checkRewards}
                 disabled={isLoading || !walletAddress.trim()}
@@ -108,66 +119,79 @@ export default function Rewards() {
                   </>
                 )}
               </button>
-                             {error && (
-                 <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-                   <p className="text-black text-base font-medium">{error}</p>
-                 </div>
-               )}
+              {error && (
+                <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+                  <p className="text-black text-base font-medium">{error}</p>
+                </div>
+              )}
               {rewardData && (
-                <div className="space-y-6 mt-8">
-                  <div className="p-6 bg-gradient-to-r from-pepu-light-green/20 to-pepu-yellow-orange/20 rounded-xl">
-                    <h3 className="text-xl font-bold text-pepu-dark-green mb-4">
-                      Rewards for <span className="bg-pepu-yellow-orange/20 px-2 py-1 rounded text-pepu-dark-green font-mono">{formatAddress(rewardData.wallet)}</span>
-                    </h3>
-                    <div className="grid md:grid-cols-2 gap-6">
+                <div className="mt-6">
+                  <div className="bg-gradient-to-r from-pepu-light-green/10 to-pepu-yellow-orange/10 rounded-xl p-6 border border-pepu-light-green/20">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-lg font-bold text-pepu-dark-green">
+                        Rewards for {formatAddress(rewardData.wallet)}
+                      </h3>
+                      <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                    </div>
+                    
+                    <div className="space-y-4">
                       {/* Last Airdrop */}
-                      <div className="bg-white rounded-lg p-6 border border-pepu-light-green/30">
-                        <h4 className="text-lg font-semibold text-pepu-dark-green mb-4 flex items-center">
-                          <svg className="w-5 h-5 mr-2 text-pepu-yellow-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <div className="bg-white rounded-lg p-4 border border-gray-200">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-sm font-medium text-gray-600">Last Airdrop</span>
+                          <svg className="w-4 h-4 text-pepu-yellow-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
                           </svg>
-                          Last Airdrop
-                        </h4>
-                                                 <div className="space-y-3">
-                           <div className="flex justify-between items-center">
-                             <span className="text-black">$Vault</span>
-                             <span className="font-bold text-pepu-dark-green text-lg">{parseFloat(rewardData.lastVaultReward).toFixed(2)}</span>
-                           </div>
-                           <div className="flex justify-between items-center">
-                             <span className="text-black">$PEPU</span>
-                             <span className="font-bold text-pepu-yellow-orange text-lg">{parseFloat(rewardData.lastPepuReward).toFixed(2)}</span>
-                           </div>
-                         </div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="text-center">
+                            <div className="text-xs text-gray-500 mb-1">$Vault</div>
+                            <div className="text-lg font-bold text-pepu-dark-green">
+                              {parseFloat(rewardData.lastVaultReward).toFixed(2)}
+                            </div>
+                          </div>
+                          <div className="text-center">
+                            <div className="text-xs text-gray-500 mb-1">$PEPU</div>
+                            <div className="text-lg font-bold text-pepu-yellow-orange">
+                              {parseFloat(rewardData.lastPepuReward).toFixed(2)}
+                            </div>
+                          </div>
+                        </div>
                       </div>
+
                       {/* Total Rewards */}
-                      <div className="bg-white rounded-lg p-6 border border-pepu-yellow-orange/30">
-                        <h4 className="text-lg font-semibold text-pepu-dark-green mb-4 flex items-center">
-                          <svg className="w-5 h-5 mr-2 text-pepu-dark-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <div className="bg-white rounded-lg p-4 border border-gray-200">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-sm font-medium text-gray-600">Total Rewards</span>
+                          <svg className="w-4 h-4 text-pepu-dark-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                           </svg>
-                          Total Rewards
-                        </h4>
-                                                 <div className="space-y-3">
-                           <div className="flex justify-between items-center">
-                             <span className="text-black">$Vault</span>
-                             <span className="font-bold text-pepu-dark-green text-lg">{parseFloat(rewardData.totalVaultReward).toFixed(2)}</span>
-                           </div>
-                           <div className="flex justify-between items-center">
-                             <span className="text-black">$PEPU</span>
-                             <span className="font-bold text-pepu-yellow-orange text-lg">{parseFloat(rewardData.totalPepuReward).toFixed(2)}</span>
-                           </div>
-                         </div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="text-center">
+                            <div className="text-xs text-gray-500 mb-1">$Vault</div>
+                            <div className="text-lg font-bold text-pepu-dark-green">
+                              {parseFloat(rewardData.totalVaultReward).toFixed(2)}
+                            </div>
+                          </div>
+                          <div className="text-center">
+                            <div className="text-xs text-gray-500 mb-1">$PEPU</div>
+                            <div className="text-lg font-bold text-pepu-yellow-orange">
+                              {parseFloat(rewardData.totalPepuReward).toFixed(2)}
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
               )}
             </div>
-            
+
             {/* Right: Write-ups/Info */}
             <div className="p-8 bg-gradient-to-br from-pepu-light-green/5 to-pepu-yellow-orange/5">
               <h3 className="text-2xl font-bold text-pepu-dark-green mb-6">How Rewards Work</h3>
-                             <ul className="text-base text-black space-y-4 mb-8">
+              <ul className="text-base text-black space-y-4 mb-8">
                 <li className="flex items-start">
                   <span className="w-2 h-2 bg-pepu-yellow-orange rounded-full mt-2 mr-3 flex-shrink-0"></span>
                   Snapshots are taken every 14 days automatically
@@ -190,9 +214,9 @@ export default function Rewards() {
                 </li>
               </ul>
               <div className="mt-auto">
-                <a
-                  href="https://t.me/pepuvault"
-                  target="_blank"
+                <a 
+                  href="https://t.me/pepuvault" 
+                  target="_blank" 
                   rel="noopener noreferrer"
                   className="inline-block bg-blue-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-600 transition-colors shadow-md"
                 >

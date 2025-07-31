@@ -33,22 +33,40 @@ body {
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
 }
 
-/* Custom scrollbar */
+/* Hide scrollbar completely */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 0;
+  display: none;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--pepu-white);
+  display: none;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--pepu-light-green);
-  border-radius: 4px;
+  display: none;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--pepu-yellow-orange);
+  display: none;
+}
+
+/* Hide scrollbar for treasury holdings */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 0;
+  display: none;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  display: none;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  display: none;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  display: none;
 }
 
 /* Smooth transitions */

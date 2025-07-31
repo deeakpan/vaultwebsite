@@ -98,7 +98,7 @@ export default function ProjectInfo() {
 
   return (
     <section className="py-16 bg-gradient-to-br from-pepu-dark-green/5 to-pepu-yellow-orange/5">
-      <div className="max-w-6xl mx-auto px-4">
+              <div className="w-full px-4 sm:max-w-6xl sm:mx-auto">
         <div className="text-center mb-12">
           <h2 className="text-4xl font-bold text-pepu-dark-green mb-4">
             Project Information
@@ -109,21 +109,23 @@ export default function ProjectInfo() {
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex justify-center mb-8">
-          <div className="bg-white rounded-xl p-1 shadow-lg border border-pepu-light-green/20">
-            {['tokenomics', 'contracts', 'team', 'roadmap'].map((tab) => (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={`px-6 py-3 rounded-lg font-semibold transition-colors ${
-                  activeTab === tab
-                    ? 'bg-pepu-yellow-orange text-pepu-dark-green'
-                    : 'text-gray-600 hover:text-pepu-dark-green'
-                }`}
-              >
-                {tab.charAt(0).toUpperCase() + tab.slice(1)}
-              </button>
-            ))}
+        <div className="flex justify-center mb-6">
+          <div className="bg-white rounded-lg p-1 shadow-md border border-pepu-light-green/20 max-w-md w-full">
+            <div className="grid grid-cols-4 gap-1">
+              {['tokenomics', 'contracts', 'team', 'roadmap'].map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setActiveTab(tab)}
+                  className={`px-2 py-2 rounded-md text-xs sm:text-sm font-medium transition-colors ${
+                    activeTab === tab
+                      ? 'bg-pepu-yellow-orange text-pepu-dark-green'
+                      : 'text-gray-600 hover:text-pepu-dark-green'
+                  }`}
+                >
+                  {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
@@ -132,11 +134,22 @@ export default function ProjectInfo() {
           {activeTab === 'tokenomics' && (
             <div className="p-8">
               <div className="flex items-center justify-between mb-8">
-                <h3 className="text-2xl font-bold text-pepu-dark-green">Tokenomics & Live Data</h3>
+                <div className="flex items-center space-x-3">
+                  <h3 className="text-xl sm:text-2xl font-bold text-pepu-dark-green">Tokenomics & Live Data</h3>
+                  <button
+                    onClick={fetchVaultStats}
+                    disabled={isRefreshing}
+                    className="flex items-center justify-center bg-pepu-yellow-orange text-pepu-dark-green p-2 rounded-lg hover:bg-pepu-yellow-orange/90 transition-colors disabled:opacity-50"
+                  >
+                    <svg className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                  </button>
+                </div>
                 <button
                   onClick={fetchVaultStats}
                   disabled={isRefreshing}
-                  className="flex items-center space-x-2 bg-pepu-yellow-orange text-pepu-dark-green px-4 py-2 rounded-lg font-semibold hover:bg-pepu-yellow-orange/90 transition-colors disabled:opacity-50"
+                  className="hidden sm:flex items-center space-x-2 bg-pepu-yellow-orange text-pepu-dark-green px-3 py-2 rounded-lg font-semibold hover:bg-pepu-yellow-orange/90 transition-colors disabled:opacity-50 text-sm"
                 >
                   <svg className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
