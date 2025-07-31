@@ -4,6 +4,7 @@
 import Header from '@/components/Header';
 import Hero from '@/components/Hero';
 import Treasury from '@/components/Treasury';
+import Analytics from '@/components/Analytics';
 import Rewards from '@/components/Rewards';
 import News from '@/components/News';
 import WalletSection from '@/components/WalletSection';
@@ -20,6 +21,8 @@ export default function HomePage() {
         <Hero />
         
         <Treasury />
+        
+        <Analytics />
         
         <Rewards />
         

@@ -1,20 +1,27 @@
 'use client';
 
 import { useState } from 'react';
+import { ConnectButton } from '@rainbow-me/rainbowkit';
+import { useAccount, useBalance } from 'wagmi';
+import { FaWallet } from 'react-icons/fa6';
 
-interface AnalyticsProps {
-  isWalletConnected: boolean;
-  vaultBalance: number;
-}
-
-export default function Analytics({ isWalletConnected, vaultBalance }: AnalyticsProps) {
+export default function Analytics() {
   const [query, setQuery] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [response, setResponse] = useState('');
   const [queryHistory, setQueryHistory] = useState<string[]>([]);
 
+  const { address, isConnected } = useAccount();
+  
+  // Get VAULT token balance
+  const { data: vaultBalance } = useBalance({
+    address: address,
+    token: '0x103ea0ca60f7cb79c1b674b1edf103c625c6b589' as `0x${string}`, // VAULT token address
+    chainId: 97741,
+  });
+
   const requiredBalance = 1000000; // 1M $Vault tokens
-  const hasAccess = isWalletConnected && vaultBalance >= requiredBalance;
+  const hasAccess = isConnected && (vaultBalance?.value ? Number(vaultBalance.value) >= requiredBalance : false);
 
   const exampleQueries = [
     "Which wallets are buying large amounts of token XY right now?",
@@ -59,7 +66,7 @@ export default function Analytics({ isWalletConnected, vaultBalance }: Analytics
 
   return (
     <section id="analytics" className="py-8 md:py-16 bg-gradient-to-br from-pepu-dark-green/5 to-pepu-yellow-orange/5">
-              <div className="w-full px-4 sm:max-w-6xl sm:mx-auto">
+      <div className="w-full px-4 sm:max-w-6xl sm:mx-auto">
         <div className="text-center mb-8 md:mb-12">
           <h2 className="text-3xl md:text-4xl font-bold text-pepu-dark-green mb-3 md:mb-4">
             Token Analytics & Insights
@@ -71,22 +78,30 @@ export default function Analytics({ isWalletConnected, vaultBalance }: Analytics
         </div>
 
         {/* Access Control */}
-        {!isWalletConnected ? (
+        {!isConnected ? (
           <div className="bg-white rounded-2xl shadow-xl p-6 md:p-8 text-center border border-pepu-light-green/20">
             <div className="w-12 h-12 md:w-16 md:h-16 bg-pepu-yellow-orange rounded-full flex items-center justify-center mx-auto mb-4">
               <svg className="w-6 h-6 md:w-8 md:h-8 text-pepu-dark-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
               </svg>
             </div>
-            <h3 className="text-xl md:text-2xl font-bold text-pepu-dark-green mb-2">Connect Your Wallet</h3>
+            <h3 className="text-xl md:text-2xl font-bold text-pepu-dark-green mb-2">Wallet Connection</h3>
             <p className="text-gray-600 mb-4 md:mb-6 text-sm md:text-base">
-              Connect your wallet to access AI-powered blockchain analytics
+              Connect your wallet to access personalized features, view your $Vault balance, and participate in community governance.
             </p>
-            <button className="bg-pepu-yellow-orange text-pepu-dark-green px-4 py-2 md:px-6 md:py-3 rounded-lg font-semibold hover:bg-pepu-yellow-orange/90 transition-colors text-sm md:text-base">
-              Connect Wallet
-            </button>
+            <ConnectButton.Custom>
+              {({ openConnectModal }) => (
+                <button 
+                  onClick={openConnectModal}
+                  className="bg-pepu-yellow-orange text-pepu-dark-green px-4 py-2 md:px-6 md:py-3 rounded-lg font-semibold hover:bg-pepu-yellow-orange/90 transition-colors text-sm md:text-base flex items-center gap-2 mx-auto"
+                >
+                  <FaWallet className="w-4 h-4" />
+                  Connect Wallet
+                </button>
+              )}
+            </ConnectButton.Custom>
           </div>
-        ) : vaultBalance < requiredBalance ? (
+        ) : (vaultBalance?.value ? Number(vaultBalance.value) < requiredBalance : true) ? (
           <div className="bg-white rounded-2xl shadow-xl p-6 md:p-8 text-center border border-pepu-light-green/20">
             <div className="w-12 h-12 md:w-16 md:h-16 bg-pepu-yellow-orange rounded-full flex items-center justify-center mx-auto mb-4">
               <svg className="w-6 h-6 md:w-8 md:h-8 text-pepu-dark-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -100,16 +115,21 @@ export default function Analytics({ isWalletConnected, vaultBalance }: Analytics
             <div className="bg-pepu-light-green/10 p-3 md:p-4 rounded-lg mb-4 md:mb-6">
               <div className="flex items-center justify-between">
                 <span className="text-gray-600 text-sm md:text-base">Your Balance:</span>
-                <span className="font-bold text-pepu-dark-green text-sm md:text-base">{formatBalance(vaultBalance)} $Vault</span>
+                <span className="font-bold text-pepu-dark-green text-sm md:text-base">{formatBalance(vaultBalance?.value ? Number(vaultBalance.value) : 0)} $Vault</span>
               </div>
               <div className="flex items-center justify-between mt-1">
                 <span className="text-gray-600 text-sm md:text-base">Required:</span>
                 <span className="font-bold text-pepu-yellow-orange text-sm md:text-base">1.0M $Vault</span>
               </div>
             </div>
-            <button className="bg-pepu-dark-green text-pepu-white px-4 py-2 md:px-6 md:py-3 rounded-lg font-semibold hover:bg-pepu-dark-green/90 transition-colors text-sm md:text-base">
+            <a 
+              href="https://www.geckoterminal.com/pepe-unchained/pools/0x103ea0ca60f7cb79c1b674b1edf103c625c6b589"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-pepu-dark-green text-pepu-white px-4 py-2 md:px-6 md:py-3 rounded-lg font-semibold hover:bg-pepu-dark-green/90 transition-colors text-sm md:text-base inline-block text-center"
+            >
               Buy More $Vault
-            </button>
+            </a>
           </div>
         ) : (
           <div className="grid lg:grid-cols-2 gap-6 md:gap-8">
@@ -211,7 +231,7 @@ export default function Analytics({ isWalletConnected, vaultBalance }: Analytics
                   </div>
                 </div>
                 <p className="text-xs text-gray-600 mt-1">
-                  Your balance: {formatBalance(vaultBalance)} $Vault (✓ Meets requirement)
+                  Your balance: {formatBalance(vaultBalance?.value ? Number(vaultBalance.value) : 0)} $Vault (✓ Meets requirement)
                 </p>
               </div>
             </div>
