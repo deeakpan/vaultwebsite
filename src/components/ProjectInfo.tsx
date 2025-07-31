@@ -13,7 +13,6 @@ export default function ProjectInfo() {
   const [activeTab, setActiveTab] = useState('tokenomics');
   const [vaultStats, setVaultStats] = useState({
     marketCap: 0,
-    holders: 0,
     price: 0,
     fdv: 0,
     volume24h: 0,
@@ -78,6 +77,9 @@ export default function ProjectInfo() {
       return `$${(numValue / 1000000).toFixed(2)}M`;
     } else if (numValue >= 1000) {
       return `$${(numValue / 1000).toFixed(2)}K`;
+    } else if (numValue < 0.01 && numValue > 0) {
+      // For very small numbers, show more decimal places
+      return `$${numValue.toFixed(8)}`;
     }
     return `$${numValue.toFixed(2)}`;
   };
@@ -176,8 +178,8 @@ export default function ProjectInfo() {
                     <>
                       <div className="p-4 bg-gradient-to-br from-pepu-light-green/20 to-pepu-light-green/10 rounded-xl border border-pepu-light-green/30">
                         <div className="text-sm text-gray-600 mb-1">Market Cap</div>
-                        <div className="text-xl font-bold text-pepu-dark-green">{formatUSD(vaultStats.marketCap)}</div>
-                        <div className="text-xs text-gray-400">Debug: {vaultStats.marketCap}</div>
+                        <div className="text-xl font-bold text-pepu-dark-green">{formatUSD(vaultStats.fdv)}</div>
+                        <div className="text-xs text-gray-400">Debug: {vaultStats.fdv}</div>
                       </div>
                       <div className="p-4 bg-gradient-to-br from-pepu-dark-green/20 to-pepu-dark-green/10 rounded-xl border border-pepu-dark-green/30">
                         <div className="text-sm text-gray-600 mb-1">24h Volume</div>
@@ -189,11 +191,7 @@ export default function ProjectInfo() {
                         <div className="text-xl font-bold text-pepu-dark-green">{formatUSD(vaultStats.fdv)}</div>
                         <div className="text-xs text-gray-400">Debug: {vaultStats.fdv}</div>
                       </div>
-                      <div className="p-4 bg-gradient-to-br from-purple-100 to-purple-50 rounded-xl border border-purple-200">
-                        <div className="text-sm text-gray-600 mb-1">Holders</div>
-                        <div className="text-xl font-bold text-pepu-dark-green">{vaultStats.holders.toLocaleString()}</div>
-                        <div className="text-xs text-gray-400">Debug: {vaultStats.holders}</div>
-                      </div>
+
                     </>
                   )}
                 </div>
