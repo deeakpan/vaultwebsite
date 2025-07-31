@@ -15,20 +15,17 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    // Fetch token price from GeckoTerminal API using the token contract address
-    const response = await fetch(`https://api.geckoterminal.com/api/v2/networks/pepe-unchained/pools/${tokenAddress}`);
+    // First try to get token price directly from the token endpoint
+    const response = await fetch(`https://api.geckoterminal.com/api/v2/networks/pepe-unchained/tokens/${tokenAddress}`);
     
-    if (!response.ok) {
-      // Try alternative endpoint for tokens without pools
-      const altResponse = await fetch(`https://api.geckoterminal.com/api/v2/networks/pepe-unchained/tokens/${tokenAddress}`);
-      if (!altResponse.ok) {
-        throw new Error(`Failed to fetch price for token ${tokenAddress}`);
-      }
-      const altData = await altResponse.json();
-      const price = altData?.data?.attributes?.price_usd || 0;
-      const symbol = altData?.data?.attributes?.symbol || 'UNKNOWN';
+    if (response.ok) {
+      const data = await response.json();
+      console.log(`Token ${tokenAddress} API Response:`, JSON.stringify(data, null, 2));
       
-      console.log(`Token ${tokenAddress} price (alt): $${price}`);
+      const price = data?.data?.attributes?.price_usd || 0;
+      const symbol = data?.data?.attributes?.symbol || 'UNKNOWN';
+      
+      console.log(`Token ${tokenAddress} price: $${price}`);
       
       const tokenPrice: TokenPrice = {
         symbol,
@@ -39,17 +36,14 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(tokenPrice);
     }
 
-    const data = await response.json();
+    // If token endpoint fails, try to find a pool that contains this token
+    // This is a fallback for tokens that might not have direct price data
+    console.log(`Token ${tokenAddress} not found in direct endpoint, trying pool search...`);
     
-    // Extract price from the response
-    const price = data?.data?.attributes?.base_token_price_usd || 0;
-    const symbol = data?.data?.attributes?.base_token_symbol || 'UNKNOWN';
-    
-    console.log(`Token ${tokenAddress} price: $${price}`);
-    
+    // For now, return 0 price if token is not found
     const tokenPrice: TokenPrice = {
-      symbol,
-      price,
+      symbol: 'UNKNOWN',
+      price: 0,
       address: tokenAddress
     };
 

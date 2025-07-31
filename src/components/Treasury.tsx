@@ -213,11 +213,21 @@ export default function Treasury() {
         console.log(`PEPU Price: $${pepuPriceValue}`);
 
         // Add native PEPU balance separately
-        if (nativeBalance) {
+        if (nativeBalance && parseFloat(nativeBalance.formatted) > 0) {
           const nativeAmount = parseFloat(nativeBalance.formatted);
           const nativeUsdValue = nativeAmount * pepuPriceValue;
           console.log(`PEPU Amount: ${nativeAmount}, USD Value: $${nativeUsdValue}`);
           totalValue += nativeUsdValue;
+          
+          // Add native balance to holdings for display
+          holdings.push({
+            token: 'Pepe Unchained V2',
+            symbol: 'PEPU',
+            amount: nativeAmount.toString(),
+            decimals: nativeBalance.decimals,
+            usdValue: nativeUsdValue,
+            percentage: 0
+          });
         }
 
         // Add ERC20 token balances with real prices
@@ -352,60 +362,69 @@ export default function Treasury() {
                 </div>
               </div>
 
-              {/* Native PEPU Balance */}
-              {nativeBalance && parseFloat(nativeBalance.formatted) > 0 && (
-                <div className="mb-4 md:mb-6 p-4 md:p-6 bg-gradient-to-r from-pepu-dark-green to-pepu-light-green rounded-xl text-white">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h4 className="text-lg md:text-xl font-bold">Native PEPU Balance</h4>
-                      <p className="text-sm opacity-90">Network native token</p>
-                    </div>
-                    <div className="text-right">
-                      <div className="text-xl md:text-2xl font-bold">{formatTokenAmount(nativeBalance.formatted, nativeBalance.decimals)} PEPU</div>
-                      <div className="text-sm opacity-90">{formatUSD(parseFloat(nativeBalance.formatted) * pepuPrice)}</div>
-                    </div>
-                  </div>
-                </div>
-              )}
+              {/* Native PEPU Balance - Now shown in holdings list */}
 
               {treasuryData.holdings.length > 0 ? (
               <div className="space-y-3 md:space-y-4">
                 {treasuryData.holdings.map((holding, index) => {
                   // Find the token contract for this holding
                   const tokenContract = tokenContracts.find(t => t.symbol === holding.symbol);
-                  const geckoTerminalUrl = tokenContract ? 
-                    `https://www.geckoterminal.com/pepe-unchained/pools/${tokenContract.address}` : 
-                    '#';
+                  
+                  // Set GeckoTerminal URL based on token type
+                  let geckoTerminalUrl = '#';
+                  if (holding.symbol === 'PEPU') {
+                    // Native PEPU token - use the USDT/WPEPU pool
+                    geckoTerminalUrl = 'https://www.geckoterminal.com/pepe-unchained/pools/0x4be3af53800aade09201654cd76d55063c7bde70';
+                  } else if (tokenContract) {
+                    // ERC20 token - try to find a pool or use token page
+                    geckoTerminalUrl = `https://www.geckoterminal.com/pepe-unchained/tokens/${tokenContract.address}`;
+                  }
                   
                   return (
-                    <div key={index} className="flex items-center justify-between p-3 md:p-4 bg-gray-50 rounded-lg">
+                    <div key={index} className={`flex items-center justify-between p-3 md:p-4 rounded-lg ${
+                      holding.symbol === 'PEPU' ? 'bg-gradient-to-r from-pepu-dark-green to-pepu-light-green text-white' : 'bg-gray-50'
+                    }`}>
                       <div className="flex items-center space-x-2 md:space-x-3">
                         <div className="w-3 h-3 rounded-full" style={{
-                          backgroundColor: index === 0 ? '#8BC34A' : 
+                          backgroundColor: holding.symbol === 'PEPU' ? '#FFFFFF' :
+                                         index === 0 ? '#8BC34A' : 
                                          index === 1 ? '#F4A300' : 
                                          index === 2 ? '#1B4D3E' : 
                                          index === 3 ? '#FF6B6B' : '#9CA3AF'
                         }}></div>
-                        <span className="font-semibold text-pepu-dark-green text-sm md:text-base">{holding.symbol}</span>
+                        <span className={`font-semibold text-sm md:text-base ${
+                          holding.symbol === 'PEPU' ? 'text-white' : 'text-pepu-dark-green'
+                        }`}>
+                          {holding.symbol}
+                          {holding.symbol === 'PEPU' && <span className="text-xs opacity-90 ml-1">(Native)</span>}
+                        </span>
                       </div>
                       <div className="text-right">
-                        <div className="font-bold text-pepu-dark-green text-sm md:text-base">
+                        <div className={`font-bold text-sm md:text-base ${
+                          holding.symbol === 'PEPU' ? 'text-white' : 'text-pepu-dark-green'
+                        }`}>
                           {formatTokenAmount(holding.amount, holding.decimals)} {holding.symbol}
                         </div>
                         {holding.usdValue && (
-                          <div className="text-xs md:text-sm text-gray-500">
+                          <div className={`text-xs md:text-sm ${
+                            holding.symbol === 'PEPU' ? 'text-white opacity-90' : 'text-gray-500'
+                          }`}>
                             <a 
                               href={geckoTerminalUrl}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-pepu-yellow-orange hover:underline"
+                              className={`hover:underline ${
+                                holding.symbol === 'PEPU' ? 'text-white' : 'text-pepu-yellow-orange'
+                              }`}
                             >
                               {formatUSD(holding.usdValue)}
                             </a>
                           </div>
                         )}
                         {holding.percentage && (
-                          <div className="text-xs text-gray-400">{holding.percentage.toFixed(1)}%</div>
+                          <div className={`text-xs ${
+                            holding.symbol === 'PEPU' ? 'text-white opacity-75' : 'text-gray-400'
+                          }`}>{holding.percentage.toFixed(1)}%</div>
                         )}
                       </div>
                     </div>

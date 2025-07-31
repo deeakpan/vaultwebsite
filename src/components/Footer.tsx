@@ -61,28 +61,33 @@ export default function Footer() {
             <h4 className="text-lg font-semibold mb-4">Quick Links</h4>
             <ul className="space-y-2">
               <li>
-                <a href="#treasury" className="text-gray-300 hover:text-pepu-yellow-orange transition-colors">
+                <a 
+                  href="https://pepuscan.com/address/0xC96694BEA572073D19C41aA9C014Dd3c7C193B8E" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-gray-300 hover:text-pepu-yellow-orange transition-colors"
+                >
                   Treasury
                 </a>
               </li>
               <li>
-                <a href="#analytics" className="text-gray-300 hover:text-pepu-yellow-orange transition-colors">
-                  Analytics
-                </a>
-              </li>
-              <li>
-                <a href="#rewards" className="text-gray-300 hover:text-pepu-yellow-orange transition-colors">
+                <a 
+                  href="https://t.me/pepuvault_reward_tracker_bot" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-gray-300 hover:text-pepu-yellow-orange transition-colors"
+                >
                   Rewards
                 </a>
               </li>
               <li>
-                <a href="#news" className="text-gray-300 hover:text-pepu-yellow-orange transition-colors">
+                <a 
+                  href="https://t.me/PepeX_AiBot" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-gray-300 hover:text-pepu-yellow-orange transition-colors"
+                >
                   News
-                </a>
-              </li>
-              <li>
-                <a href="#tools" className="text-gray-300 hover:text-pepu-yellow-orange transition-colors">
-                  Tools
                 </a>
               </li>
             </ul>
@@ -94,17 +99,7 @@ export default function Footer() {
             <ul className="space-y-2">
               <li>
                 <a 
-                  href="https://bridge.pepu.io" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="text-gray-300 hover:text-pepu-yellow-orange transition-colors"
-                >
-                  Bridge
-                </a>
-              </li>
-              <li>
-                <a 
-                  href="https://explorer.pepu.io" 
+                  href="https://pepuscan.com" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="text-gray-300 hover:text-pepu-yellow-orange transition-colors"
@@ -114,7 +109,7 @@ export default function Footer() {
               </li>
               <li>
                 <a 
-                  href="https://www.geckoterminal.com/pepu/pools/0x1234567890abcdef" 
+                  href="https://www.geckoterminal.com/pepe-unchained/tokens/0x8746D6Fc80708775461226657a6947497764BBe6" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="text-gray-300 hover:text-pepu-yellow-orange transition-colors"
@@ -124,7 +119,7 @@ export default function Footer() {
               </li>
               <li>
                 <a 
-                  href="https://superbridge.app" 
+                  href="https://superbridge.pepubank.net" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="text-gray-300 hover:text-pepu-yellow-orange transition-colors"

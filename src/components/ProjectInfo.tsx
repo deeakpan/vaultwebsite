@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface Tokenomics {
   category: string;
@@ -11,23 +11,87 @@ interface Tokenomics {
 
 export default function ProjectInfo() {
   const [activeTab, setActiveTab] = useState('tokenomics');
+  const [vaultStats, setVaultStats] = useState({
+    marketCap: 0,
+    holders: 0,
+    price: 0,
+    fdv: 0,
+    volume24h: 0,
+    isLoading: true
+  });
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  // Fetch VAULT token statistics
+  const fetchVaultStats = async () => {
+    try {
+      setIsRefreshing(true);
+      const response = await fetch('/api/vault-stats');
+      if (response.ok) {
+        const data = await response.json();
+        console.log('ProjectInfo - Fetched vault stats:', data);
+        setVaultStats({
+          ...data,
+          isLoading: false
+        });
+        console.log('ProjectInfo - Updated vaultStats state:', {
+          ...data,
+          isLoading: false
+        });
+      } else {
+        console.error('ProjectInfo - Failed to fetch vault stats:', response.status);
+        setVaultStats(prev => ({ ...prev, isLoading: false }));
+      }
+    } catch (error) {
+      console.error('ProjectInfo - Error fetching VAULT stats:', error);
+      setVaultStats(prev => ({ ...prev, isLoading: false }));
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchVaultStats();
+  }, []);
 
   const tokenomics: Tokenomics[] = [
-    { category: 'Treasury', percentage: 30, description: 'Reserved for treasury management and community rewards', color: 'bg-pepu-dark-green' },
-    { category: 'Liquidity', percentage: 25, description: 'Locked for trading liquidity and price stability', color: 'bg-pepu-light-green' },
-    { category: 'Community', percentage: 20, description: 'Distributed to community members and early supporters', color: 'bg-pepu-yellow-orange' },
-    { category: 'Development', percentage: 15, description: 'Funds for ongoing development and partnerships', color: 'bg-blue-500' },
-    { category: 'Team', percentage: 10, description: 'Team allocation with vesting schedule', color: 'bg-purple-500' }
+    { category: 'VAULT Holders', percentage: 55, description: 'Distributed to all VAULT holders proportionally when profits are made', color: 'bg-pepu-dark-green' },
+    { category: 'Reinvestment', percentage: 30, description: 'Retained in project wallet for next investment cycle', color: 'bg-pepu-light-green' },
+    { category: 'Buyback & Burn', percentage: 10, description: 'Used for buyback and burn of VAULT tokens', color: 'bg-pepu-yellow-orange' },
+    { category: 'Loyal Holders', percentage: 5, description: 'Extra rewards for holders who maintain/increase balance between snapshots', color: 'bg-blue-500' }
   ];
 
   const contractAddresses = {
-    vault: '0x8F7F4A2B8C9D1E3F5A7B9C1D3E5F7A9B1C3D5E7F',
-    treasury: '0x1A2B3C4D5E6F7A8B9C1D2E3F4A5B6C7D8E9F0A1B',
-    rewards: '0x2B3C4D5E6F7A8B9C1D2E3F4A5B6C7D8E9F0A1B2C'
+    vault: '0x8746D6Fc80708775461226657a6947497764BBe6',
+    treasury: '0xC96694BEA572073D19C41aA9C014Dd3c7C193B8E',
+    rewards: '0x8746D6Fc80708775461226657a6947497764BBe6' // Same as vault for now
   };
 
   const formatAddress = (address: string) => {
     return `${address.slice(0, 8)}...${address.slice(-6)}`;
+  };
+
+  const formatUSD = (value: number | string) => {
+    const numValue = typeof value === 'string' ? parseFloat(value) : value;
+    if (isNaN(numValue)) return '$0.00';
+    
+    if (numValue >= 1000000) {
+      return `$${(numValue / 1000000).toFixed(2)}M`;
+    } else if (numValue >= 1000) {
+      return `$${(numValue / 1000).toFixed(2)}K`;
+    }
+    return `$${numValue.toFixed(2)}`;
+  };
+
+  const formatNumber = (value: number | string) => {
+    const numValue = typeof value === 'string' ? parseFloat(value) : value;
+    if (isNaN(numValue)) return '0';
+    
+    if (numValue >= 1000000) {
+      return `${(numValue / 1000000).toFixed(2)}M`;
+    } else if (numValue >= 1000) {
+      return `${(numValue / 1000).toFixed(2)}K`;
+    }
+    return numValue.toFixed(0);
   };
 
   return (
@@ -65,58 +129,132 @@ export default function ProjectInfo() {
         <div className="bg-white rounded-2xl shadow-xl border border-pepu-light-green/20 overflow-hidden">
           {activeTab === 'tokenomics' && (
             <div className="p-8">
-              <h3 className="text-2xl font-bold text-pepu-dark-green mb-6">Tokenomics</h3>
+              <div className="flex items-center justify-between mb-8">
+                <h3 className="text-2xl font-bold text-pepu-dark-green">Tokenomics & Live Data</h3>
+                <button
+                  onClick={fetchVaultStats}
+                  disabled={isRefreshing}
+                  className="flex items-center space-x-2 bg-pepu-yellow-orange text-pepu-dark-green px-4 py-2 rounded-lg font-semibold hover:bg-pepu-yellow-orange/90 transition-colors disabled:opacity-50"
+                >
+                  <svg className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                  <span>{isRefreshing ? 'Refreshing...' : 'Refresh Data'}</span>
+                </button>
+              </div>
               
+              {/* Live Statistics Section */}
+              <div className="mb-8">
+                <h4 className="text-xl font-semibold text-pepu-dark-green mb-4 flex items-center">
+                  <div className="w-3 h-3 bg-green-500 rounded-full mr-3 animate-pulse"></div>
+                  Live Market Statistics
+                </h4>
+                
+                {/* Current Price Highlight */}
+                <div className="mb-6 p-6 bg-gradient-to-r from-pepu-yellow-orange/20 to-pepu-yellow-orange/10 rounded-xl border border-pepu-yellow-orange/30">
+                  <div className="text-center">
+                    <div className="text-sm text-gray-600 mb-2">Current VAULT Price</div>
+                    <div className="text-3xl font-bold text-pepu-dark-green">
+                      {formatUSD(vaultStats.price)}
+                    </div>
+                    <div className="text-xs text-gray-500 mt-1">Real-time from GeckoTerminal</div>
+                    <div className="text-xs text-gray-400 mt-1">Debug: {vaultStats.price} (Type: {typeof vaultStats.price})</div>
+                  </div>
+                </div>
+                
+                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {vaultStats.isLoading ? (
+                    Array.from({ length: 4 }).map((_, index) => (
+                      <div key={index} className="p-4 bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl border border-gray-200">
+                        <div className="animate-pulse">
+                          <div className="h-4 bg-gray-300 rounded w-20 mb-2"></div>
+                          <div className="h-6 bg-gray-300 rounded w-16"></div>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <>
+                      <div className="p-4 bg-gradient-to-br from-pepu-light-green/20 to-pepu-light-green/10 rounded-xl border border-pepu-light-green/30">
+                        <div className="text-sm text-gray-600 mb-1">Market Cap</div>
+                        <div className="text-xl font-bold text-pepu-dark-green">{formatUSD(vaultStats.marketCap)}</div>
+                        <div className="text-xs text-gray-400">Debug: {vaultStats.marketCap}</div>
+                      </div>
+                      <div className="p-4 bg-gradient-to-br from-pepu-dark-green/20 to-pepu-dark-green/10 rounded-xl border border-pepu-dark-green/30">
+                        <div className="text-sm text-gray-600 mb-1">24h Volume</div>
+                        <div className="text-xl font-bold text-pepu-dark-green">{formatUSD(vaultStats.volume24h)}</div>
+                        <div className="text-xs text-gray-400">Debug: {vaultStats.volume24h}</div>
+                      </div>
+                      <div className="p-4 bg-gradient-to-br from-blue-100 to-blue-50 rounded-xl border border-blue-200">
+                        <div className="text-sm text-gray-600 mb-1">Fully Diluted Value</div>
+                        <div className="text-xl font-bold text-pepu-dark-green">{formatUSD(vaultStats.fdv)}</div>
+                        <div className="text-xs text-gray-400">Debug: {vaultStats.fdv}</div>
+                      </div>
+                      <div className="p-4 bg-gradient-to-br from-purple-100 to-purple-50 rounded-xl border border-purple-200">
+                        <div className="text-sm text-gray-600 mb-1">Holders</div>
+                        <div className="text-xl font-bold text-pepu-dark-green">{vaultStats.holders.toLocaleString()}</div>
+                        <div className="text-xs text-gray-400">Debug: {vaultStats.holders}</div>
+                      </div>
+                    </>
+                  )}
+                </div>
+              </div>
+
+              {/* Tokenomics Section */}
+              <div className="mb-8">
+                <h4 className="text-xl font-semibold text-pepu-dark-green mb-4">Profit Distribution Structure</h4>
               <div className="grid lg:grid-cols-2 gap-8">
-                <div>
-                  <h4 className="text-lg font-semibold text-pepu-dark-green mb-4">Supply Distribution</h4>
                   <div className="space-y-4">
                     {tokenomics.map((item, index) => (
-                      <div key={index} className="space-y-2">
-                        <div className="flex items-center justify-between">
-                          <span className="font-medium text-pepu-dark-green">{item.category}</span>
-                          <span className="font-bold text-pepu-yellow-orange">{item.percentage}%</span>
+                      <div key={index} className="p-4 bg-white rounded-xl border border-gray-200 shadow-sm">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="font-semibold text-pepu-dark-green">{item.category}</span>
+                          <span className="font-bold text-2xl text-pepu-yellow-orange">{item.percentage}%</span>
                         </div>
-                        <div className="w-full bg-gray-200 rounded-full h-3">
+                        <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
                           <div 
-                            className={`h-3 rounded-full ${item.color}`}
+                            className={`h-2 rounded-full ${item.color}`}
                             style={{ width: `${item.percentage}%` }}
                           ></div>
                         </div>
                         <p className="text-sm text-gray-600">{item.description}</p>
                       </div>
                     ))}
-                  </div>
                 </div>
 
-                <div>
-                  <h4 className="text-lg font-semibold text-pepu-dark-green mb-4">Key Metrics</h4>
                   <div className="space-y-4">
-                    <div className="p-4 bg-pepu-light-green/10 rounded-lg">
+                    <div className="p-6 bg-gradient-to-br from-pepu-light-green/20 to-pepu-light-green/10 rounded-xl border border-pepu-light-green/30">
+                      <h5 className="font-semibold text-pepu-dark-green mb-3">Initial Treasury Setup</h5>
+                      <div className="space-y-3">
                       <div className="flex items-center justify-between">
-                        <span className="text-gray-600">Total Supply</span>
-                        <span className="font-bold text-pepu-dark-green">1,000,000,000</span>
+                          <span className="text-gray-600">Initial PEPU</span>
+                          <span className="font-bold text-pepu-dark-green">100,000 PEPU</span>
+                      </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-gray-600">Initial VAULT</span>
+                          <span className="font-bold text-pepu-dark-green">30,000,000 VAULT</span>
+                    </div>
+                      <div className="flex items-center justify-between">
+                          <span className="text-gray-600">Investment Cycle</span>
+                          <span className="font-bold text-pepu-dark-green">14-16 Days</span>
+                        </div>
                       </div>
                     </div>
                     
-                    <div className="p-4 bg-pepu-yellow-orange/10 rounded-lg">
+                    <div className="p-6 bg-gradient-to-br from-pepu-yellow-orange/20 to-pepu-yellow-orange/10 rounded-xl border border-pepu-yellow-orange/30">
+                      <h5 className="font-semibold text-pepu-dark-green mb-3">Investment Strategy</h5>
+                      <div className="space-y-2 text-sm text-gray-600">
                       <div className="flex items-center justify-between">
-                        <span className="text-gray-600">Circulating Supply</span>
-                        <span className="font-bold text-pepu-yellow-orange">750,000,000</span>
+                          <span>Low Risk (Established Projects)</span>
+                          <span className="font-semibold">70%</span>
                       </div>
+                        <div className="flex items-center justify-between">
+                          <span>High Risk (New Projects)</span>
+                          <span className="font-semibold">10%</span>
                     </div>
-                    
-                    <div className="p-4 bg-pepu-dark-green/10 rounded-lg">
                       <div className="flex items-center justify-between">
-                        <span className="text-gray-600">Holders</span>
-                        <span className="font-bold text-pepu-dark-green">1,250+</span>
-                      </div>
-                    </div>
-                    
-                    <div className="p-4 bg-blue-100 rounded-lg">
-                      <div className="flex items-center justify-between">
-                        <span className="text-gray-600">Market Cap</span>
-                        <span className="font-bold text-blue-600">$2.4M</span>
+                          <span>Community Decision</span>
+                          <span className="font-semibold">20%</span>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -136,7 +274,7 @@ export default function ProjectInfo() {
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-gray-600">Contract Address</span>
                       <a 
-                        href={`https://explorer.pepu.io/address/${contractAddresses.vault}`}
+                        href={`https://pepuscan.com/address/${contractAddresses.vault}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="font-mono text-sm text-pepu-yellow-orange hover:underline"
@@ -154,7 +292,7 @@ export default function ProjectInfo() {
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-gray-600">Contract Address</span>
                       <a 
-                        href={`https://explorer.pepu.io/address/${contractAddresses.treasury}`}
+                        href={`https://pepuscan.com/address/${contractAddresses.treasury}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="font-mono text-sm text-pepu-yellow-orange hover:underline"
@@ -173,7 +311,7 @@ export default function ProjectInfo() {
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-600">Contract Address</span>
                     <a 
-                      href={`https://explorer.pepu.io/address/${contractAddresses.rewards}`}
+                      href={`https://pepuscan.com/address/${contractAddresses.rewards}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="font-mono text-sm text-pepu-yellow-orange hover:underline"

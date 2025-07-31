@@ -4,11 +4,9 @@ import { useState } from 'react';
 import Header from '@/components/Header';
 import Hero from '@/components/Hero';
 import Treasury from '@/components/Treasury';
-import Analytics from '@/components/Analytics';
 import Rewards from '@/components/Rewards';
 import News from '@/components/News';
 import WalletSection from '@/components/WalletSection';
-import Tools from '@/components/Tools';
 import ProjectInfo from '@/components/ProjectInfo';
 import Footer from '@/components/Footer';
 
@@ -44,11 +42,6 @@ export default function HomePage() {
         
         <Treasury />
         
-        <Analytics 
-          isWalletConnected={isWalletConnected}
-          vaultBalance={vaultBalance}
-        />
-        
         <Rewards />
         
         <News />
@@ -60,8 +53,6 @@ export default function HomePage() {
           onConnect={handleWalletConnection}
           onDisconnect={handleWalletDisconnection}
         />
-        
-        <Tools />
         
         <ProjectInfo />
       </main>
