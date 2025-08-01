@@ -39,7 +39,7 @@ export default function Hero() {
 
   return (
     <section className="py-8 md:py-16 lg:py-24">
-      <div className="w-full px-4 sm:max-w-6xl sm:mx-auto">
+      <div className="w-full px-0 md:max-w-6xl md:mx-auto">
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
           {/* Main Content */}
           <div className="space-y-6 md:space-y-8">
@@ -108,7 +108,7 @@ export default function Hero() {
                          {/* CTA Buttons */}
              <div className="flex flex-col sm:flex-row gap-3 md:gap-4">
                <a 
-                 href="https://www.geckoterminal.com/pepe-unchained/pools/0x103ea0ca60f7cb79c1b674b1edf103c625c6b589"
+                 href="https://www.geckoterminal.com/pepe-unchained/pools/0x8746D6Fc80708775461226657a6947497764BBe6"
                  target="_blank"
                  rel="noopener noreferrer"
                  className="border-2 border-pepu-dark-green text-pepu-dark-green px-6 py-3 md:px-8 md:py-4 rounded-xl font-bold text-base md:text-lg hover:bg-pepu-dark-green hover:text-pepu-white transition-colors inline-block text-center"

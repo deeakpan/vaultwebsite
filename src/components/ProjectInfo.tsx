@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend, LabelList } from 'recharts';
 
 interface Tokenomics {
   category: string;
@@ -53,10 +54,18 @@ export default function ProjectInfo() {
   }, []);
 
   const tokenomics: Tokenomics[] = [
-    { category: 'VAULT Holders', percentage: 55, description: 'Distributed to all VAULT holders proportionally when profits are made', color: 'bg-pepu-dark-green' },
-    { category: 'Reinvestment', percentage: 30, description: 'Retained in project wallet for next investment cycle', color: 'bg-pepu-light-green' },
-    { category: 'Buyback & Burn', percentage: 10, description: 'Used for buyback and burn of VAULT tokens', color: 'bg-pepu-yellow-orange' },
-    { category: 'Loyal Holders', percentage: 5, description: 'Extra rewards for holders who maintain/increase balance between snapshots', color: 'bg-blue-500' }
+    { category: 'Snapshot Distribution', percentage: 60, description: 'Distributed to all eligible holders at each snapshot.', color: 'bg-pepu-yellow-orange' },
+    { category: 'Added to Vault Pot', percentage: 20, description: 'Added to the vault pot for future rewards and growth.', color: 'bg-orange-500' },
+    { category: 'Loyalty Rewards', percentage: 10, description: 'Extra rewards for loyal holders.', color: 'bg-pink-500' },
+    { category: 'Buyback & Burn', percentage: 10, description: 'Used for buyback and burn of VAULT tokens.', color: 'bg-fuchsia-500' }
+  ];
+
+  // Chart data with hex colors for recharts
+  const chartData = [
+    { name: 'Snapshot Distribution', value: 60, color: '#f59e0b' },
+    { name: 'Added to Vault Pot', value: 20, color: '#f97316' },
+    { name: 'Loyalty Rewards', value: 10, color: '#ec4899' },
+    { name: 'Buyback & Burn', value: 10, color: '#a855f7' }
   ];
 
   const contractAddresses = {
@@ -98,7 +107,7 @@ export default function ProjectInfo() {
 
   return (
     <section className="py-16 bg-gradient-to-br from-pepu-dark-green/5 to-pepu-yellow-orange/5">
-              <div className="w-full px-4 sm:max-w-6xl sm:mx-auto">
+              <div className="w-full px-0 md:max-w-6xl md:mx-auto">
         <div className="text-center mb-12">
           <h2 className="text-4xl font-bold text-pepu-dark-green mb-4">
             Project Information
@@ -130,7 +139,7 @@ export default function ProjectInfo() {
         </div>
 
         {/* Tab Content */}
-        <div className="bg-white rounded-2xl shadow-xl border border-pepu-light-green/20 overflow-hidden">
+        <div className="bg-white rounded-2xl shadow-xl border border-pepu-light-green/20 overflow-hidden w-full sm:max-w-full px-0">
           {activeTab === 'tokenomics' && (
             <div className="p-8">
               <div className="flex items-center justify-between mb-8">
@@ -173,11 +182,10 @@ export default function ProjectInfo() {
                       {formatUSD(vaultStats.price)}
                     </div>
                     <div className="text-xs text-gray-500 mt-1">Real-time from GeckoTerminal</div>
-                    <div className="text-xs text-gray-400 mt-1">Debug: {vaultStats.price} (Type: {typeof vaultStats.price})</div>
                   </div>
                 </div>
                 
-                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="grid grid-cols-3 md:grid-cols-2 lg:grid-cols-4 gap-2 md:gap-4">
                   {vaultStats.isLoading ? (
                     Array.from({ length: 4 }).map((_, index) => (
                       <div key={index} className="p-4 bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl border border-gray-200">
@@ -189,20 +197,17 @@ export default function ProjectInfo() {
                     ))
                   ) : (
                     <>
-                      <div className="p-4 bg-gradient-to-br from-pepu-light-green/20 to-pepu-light-green/10 rounded-xl border border-pepu-light-green/30">
-                        <div className="text-sm text-gray-600 mb-1">Market Cap</div>
-                        <div className="text-xl font-bold text-pepu-dark-green">{formatUSD(vaultStats.fdv)}</div>
-                        <div className="text-xs text-gray-400">Debug: {vaultStats.fdv}</div>
+                      <div className="p-2 sm:p-4 bg-gradient-to-br from-pepu-light-green/20 to-pepu-light-green/10 rounded-xl border border-pepu-light-green/30">
+                        <div className="text-xs sm:text-sm text-gray-600 mb-1">Market Cap</div>
+                        <div className="text-base sm:text-xl font-bold text-pepu-dark-green">{formatUSD(vaultStats.fdv)}</div>
                       </div>
-                      <div className="p-4 bg-gradient-to-br from-pepu-dark-green/20 to-pepu-dark-green/10 rounded-xl border border-pepu-dark-green/30">
-                        <div className="text-sm text-gray-600 mb-1">24h Volume</div>
-                        <div className="text-xl font-bold text-pepu-dark-green">{formatUSD(vaultStats.volume24h)}</div>
-                        <div className="text-xs text-gray-400">Debug: {vaultStats.volume24h}</div>
+                      <div className="p-2 sm:p-4 bg-gradient-to-br from-pepu-dark-green/20 to-pepu-dark-green/10 rounded-xl border border-pepu-dark-green/30">
+                        <div className="text-xs sm:text-sm text-gray-600 mb-1">24h Volume</div>
+                        <div className="text-base sm:text-xl font-bold text-pepu-dark-green">{formatUSD(vaultStats.volume24h)}</div>
                       </div>
-                      <div className="p-4 bg-gradient-to-br from-blue-100 to-blue-50 rounded-xl border border-blue-200">
-                        <div className="text-sm text-gray-600 mb-1">Fully Diluted Value</div>
-                        <div className="text-xl font-bold text-pepu-dark-green">{formatUSD(vaultStats.fdv)}</div>
-                        <div className="text-xs text-gray-400">Debug: {vaultStats.fdv}</div>
+                      <div className="p-2 sm:p-4 bg-gradient-to-br from-blue-100 to-blue-50 rounded-xl border border-blue-200">
+                        <div className="text-xs sm:text-sm text-gray-600 mb-1">Fully Diluted Value</div>
+                        <div className="text-base sm:text-xl font-bold text-pepu-dark-green">{formatUSD(vaultStats.fdv)}</div>
                       </div>
 
                     </>
@@ -212,6 +217,39 @@ export default function ProjectInfo() {
 
               {/* Tokenomics Section */}
               <div className="mb-8">
+                <div className="w-full flex justify-center mb-6">
+                  {/* Pie chart for profit distribution */}
+                  <div className="w-full max-w-md">
+                    <ResponsiveContainer width="100%" height={300}>
+                      <PieChart>
+                        <Pie
+                          data={chartData}
+                          cx="50%"
+                          cy="50%"
+                          outerRadius={100}
+                          fill="#8884d8"
+                          paddingAngle={2}
+                          dataKey="value"
+                        >
+                          {chartData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.color} />
+                          ))}
+                          <LabelList 
+                            dataKey="name" 
+                            position="outside" 
+                            formatter={(value) => value}
+                            fontSize={12}
+                            fill="#374151"
+                          />
+                        </Pie>
+                        <Tooltip 
+                          formatter={(value, name) => [`${value}%`, name]}
+                          labelStyle={{ color: '#1f2937' }}
+                        />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
                 <h4 className="text-xl font-semibold text-pepu-dark-green mb-4">Profit Distribution Structure</h4>
               <div className="grid lg:grid-cols-2 gap-8">
                   <div className="space-y-4">

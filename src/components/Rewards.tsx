@@ -60,7 +60,7 @@ export default function Rewards() {
 
   return (
     <section id="rewards" className="py-16 bg-gradient-to-br from-pepu-yellow-orange/5 to-pepu-light-green/5">
-              <div className="w-full px-4 sm:max-w-6xl sm:mx-auto">
+              <div className="w-full px-0 md:max-w-6xl md:mx-auto">
         <div className="text-center mb-12">
           <h2 className="text-4xl font-bold text-pepu-dark-green mb-4">
             Check Your Rewards

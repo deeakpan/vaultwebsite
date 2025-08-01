@@ -1,42 +1,40 @@
 'use client';
 
 import { ConnectButton } from '@rainbow-me/rainbowkit';
-import { useAccount, useDisconnect } from 'wagmi';
+import { useAccount, useDisconnect, useBalance } from 'wagmi';
 
 export default function WalletSection() {
   const { address, isConnected } = useAccount();
   const { disconnect } = useDisconnect();
 
-  // Placeholder/mock for vaultBalance, replace with actual logic if needed
-  const vaultBalance = 0;
+  // Get actual VAULT token balance
+  const { data: vaultBalanceData } = useBalance({
+    address: address,
+    token: '0x8746D6Fc80708775461226657a6947497764BBe6' as `0x${string}`, // VAULT token address
+    chainId: 97741,
+  });
 
   const formatAddress = (address: string) => {
     return `${address.slice(0, 6)}...${address.slice(-4)}`;
   };
 
-  const formatBalance = (balance: number) => {
-    if (balance >= 1000000) {
-      return `${(balance / 1000000).toFixed(1)}M`;
+  const formatBalance = (balance: bigint) => {
+    // Convert BigInt to string to avoid precision loss, then parse
+    const balanceStr = balance.toString();
+    const balanceNumber = parseFloat(balanceStr) / Math.pow(10, 18);
+    
+    if (balanceNumber >= 1000000) {
+      return `${(balanceNumber / 1000000).toFixed(1)}M`;
     }
-    if (balance >= 1000) {
-      return `${(balance / 1000).toFixed(1)}K`;
+    if (balanceNumber >= 1000) {
+      return `${(balanceNumber / 1000).toFixed(1)}K`;
     }
-    return balance.toString();
-  };
-
-  const formatUSD = (balance: number) => {
-    const usdValue = balance * 0.0001;
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(usdValue);
+    return balanceNumber.toFixed(2);
   };
 
   return (
     <section className="py-16 bg-gradient-to-br from-pepu-white to-pepu-light-green/5">
-              <div className="w-full px-4 sm:max-w-6xl sm:mx-auto">
+              <div className="w-full px-0 md:max-w-6xl md:mx-auto">
         <div className="text-center mb-12">
           <h2 className="text-4xl font-bold text-pepu-dark-green mb-4">
             Wallet Connection
@@ -80,13 +78,7 @@ export default function WalletSection() {
                 <div className="p-4 bg-pepu-yellow-orange/10 rounded-lg">
                   <div className="flex items-center justify-between">
                     <span className="text-gray-600">$Vault Balance</span>
-                    <span className="font-bold text-pepu-yellow-orange">{formatBalance(vaultBalance)}</span>
-                  </div>
-                </div>
-                <div className="p-4 bg-pepu-dark-green/10 rounded-lg">
-                  <div className="flex items-center justify-between">
-                    <span className="text-gray-600">USD Value</span>
-                    <span className="font-bold text-pepu-dark-green">{formatUSD(vaultBalance)}</span>
+                    <span className="font-bold text-pepu-yellow-orange">{formatBalance(vaultBalanceData?.value || BigInt(0))}</span>
                   </div>
                 </div>
                 <button
@@ -149,8 +141,8 @@ export default function WalletSection() {
                       </div>
                       <span className="font-semibold text-pepu-dark-green">AI Analytics</span>
                     </div>
-                    <span className={`text-sm ${isConnected && vaultBalance >= 1000000 ? 'text-green-600' : 'text-gray-500'}`}>
-                      {isConnected && vaultBalance >= 1000000 ? 'Available' : '1M+ Required'}
+                    <span className={`text-sm ${isConnected && vaultBalanceData?.value && parseFloat(vaultBalanceData.value.toString()) / Math.pow(10, 18) >= 1000000 ? 'text-green-600' : 'text-gray-500'}`}>
+                      {isConnected && vaultBalanceData?.value && parseFloat(vaultBalanceData.value.toString()) / Math.pow(10, 18) >= 1000000 ? 'Available' : '1M+ Required'}
                     </span>
                   </div>
                 </div>

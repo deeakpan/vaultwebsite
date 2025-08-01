@@ -27,7 +27,7 @@ const pepuChain: Chain = {
 
 const config = getDefaultConfig({
   appName: 'Pepu Vault',
-  projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || 'default_project_id_for_development',
+  projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || 'a67f93628aabda4e00a754a60a815ea3',
   chains: [pepuChain],
   ssr: true,
   transports: {

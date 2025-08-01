@@ -181,7 +181,7 @@ export default function Tools() {
               Get started with $Vault tokens and join the community.
             </p>
             <a 
-              href="https://www.geckoterminal.com/pepe-unchained/pools/0x103ea0ca60f7cb79c1b674b1edf103c625c6b589"
+              href="https://www.geckoterminal.com/pepe-unchained/pools/0x8746D6Fc80708775461226657a6947497764BBe6"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-block bg-pepu-yellow-orange text-pepu-dark-green px-4 py-2 rounded-lg font-semibold hover:bg-pepu-yellow-orange/90 transition-colors"

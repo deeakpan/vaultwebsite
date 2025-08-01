@@ -132,7 +132,7 @@ export default function Treasury() {
       // Fallback to known tokens
       setTokenContracts([
         {
-          address: '0x103ea0ca60f7cb79c1b674b1edf103c625c6b589',
+          address: '0x8746D6Fc80708775461226657a6947497764BBe6',
           symbol: 'VAULT',
           name: 'Vault Token',
           decimals: 18
@@ -326,7 +326,7 @@ export default function Treasury() {
 
   return (
     <section id="treasury" className="py-8 md:py-16 bg-gradient-to-br from-pepu-white to-pepu-light-green/5">
-                  <div className="w-full px-4 sm:max-w-7xl sm:mx-auto">
+                  <div className="w-full px-0 md:max-w-7xl md:mx-auto">
         <div className="text-center mb-8 md:mb-12">
           <h2 className="text-3xl md:text-4xl font-bold text-pepu-dark-green mb-3 md:mb-4">
             Project Wallet & Treasury
