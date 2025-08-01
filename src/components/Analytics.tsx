@@ -109,7 +109,7 @@ export default function Analytics() {
               </div>
             </div>
             <a 
-              href="https://www.geckoterminal.com/pepe-unchained/pools/0x8746D6Fc80708775461226657a6947497764BBe6"
+              href="https://pepuswap.com/#/swap?outputCurrency=0x8746d6fc80708775461226657a6947497764bbe6"
               target="_blank"
               rel="noopener noreferrer"
               className="bg-pepu-dark-green text-pepu-white px-4 py-2 md:px-6 md:py-3 rounded-lg font-semibold hover:bg-pepu-dark-green/90 transition-colors text-sm md:text-base inline-block text-center"
