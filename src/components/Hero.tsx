@@ -2,6 +2,15 @@
 
 import { useState, useEffect } from 'react';
 
+interface Partner {
+  id?: string;
+  name: string;
+  description: string;
+  link: string;
+  logo_url: string;
+  created_at?: string;
+}
+
 export default function Hero() {
   const [snapshotData, setSnapshotData] = useState({
     totalRewards: 1250000,
@@ -10,8 +19,20 @@ export default function Hero() {
   });
   const [treasuryValue, setTreasuryValue] = useState('$2.4M');
   const [isLoadingTreasury, setIsLoadingTreasury] = useState(true);
+  const [partners, setPartners] = useState<Partner[]>([]);
+  const [isLoadingPartners, setIsLoadingPartners] = useState(true);
+  const [rewardPartner, setRewardPartner] = useState<Partner | null>(null);
+  const [nextAuctionDate, setNextAuctionDate] = useState<Date | null>(null);
 
   const [timeUntilNextSnapshot, setTimeUntilNextSnapshot] = useState('');
+
+  // Calculate next auction date (every 14 days)
+  const calculateNextAuctionDate = () => {
+    const now = new Date();
+    const lastSnapshot = new Date(snapshotData.lastSnapshot);
+    const nextAuction = new Date(lastSnapshot.getTime() + 14 * 24 * 60 * 60 * 1000); // 14 days
+    setNextAuctionDate(nextAuction);
+  };
 
   // Fetch treasury data
   const fetchTreasuryData = async () => {
@@ -31,8 +52,31 @@ export default function Hero() {
     }
   };
 
+  // Fetch partners data
+  const fetchPartnersData = async () => {
+    try {
+      setIsLoadingPartners(true);
+      const response = await fetch('/api/partners');
+      if (response.ok) {
+        const data = await response.json();
+        setPartners(data.partners || []);
+        
+        // Show the latest partner (last row)
+        if (data.partners && data.partners.length > 0) {
+          setRewardPartner(data.partners[0]); // First item is the latest due to DESC order
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching partners data:', error);
+    } finally {
+      setIsLoadingPartners(false);
+    }
+  };
+
   useEffect(() => {
     fetchTreasuryData();
+    fetchPartnersData();
+    calculateNextAuctionDate();
   }, []);
 
   useEffect(() => {
@@ -61,6 +105,21 @@ export default function Hero() {
 
     return () => clearInterval(interval);
   }, [snapshotData.lastSnapshot]);
+
+  // Check if today is auction day
+  const isTodayAuctionDay = () => {
+    if (!nextAuctionDate) return false;
+    const today = new Date();
+    return today.toDateString() === nextAuctionDate.toDateString();
+  };
+
+  // Format auction date
+  const formatAuctionDate = (date: Date) => {
+    const day = date.getDate();
+    const month = date.getMonth() + 1;
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
 
   return (
     <section className="py-8 md:py-16 lg:py-24">
@@ -159,6 +218,48 @@ export default function Hero() {
                   <span className="font-bold text-pepu-dark-green text-sm md:text-base">{timeUntilNextSnapshot}</span>
                 </div>
               </div>
+
+              {/* Reward Partner Section */}
+              {rewardPartner && (
+                <div className="mt-4 md:mt-6 p-4 md:p-5 bg-gradient-to-r from-pepu-yellow-orange/20 to-pepu-light-green/20 rounded-xl border border-pepu-yellow-orange/30">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-3 h-3 bg-pepu-yellow-orange rounded-full animate-pulse"></div>
+                    <span className="text-sm md:text-base font-bold text-pepu-dark-green">
+                      {isTodayAuctionDay() 
+                        ? "Today's Reward Partner" 
+                        : `Reward Partner (${formatAuctionDate(nextAuctionDate!)})`
+                      }
+                    </span>
+                  </div>
+                  <div className="mt-3 flex items-center space-x-3">
+                    {rewardPartner.logo_url && (
+                      <div className="w-12 h-12 md:w-14 md:h-14 flex items-center justify-center">
+                        <img 
+                          src={rewardPartner.logo_url} 
+                          alt={rewardPartner.name}
+                          className="w-full h-full object-contain"
+                        />
+                      </div>
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-bold text-pepu-dark-green text-sm md:text-base truncate">
+                        {rewardPartner.name}
+                      </h4>
+                      <p className="text-xs md:text-sm text-gray-600 mt-1 line-clamp-2">
+                        {rewardPartner.description}
+                      </p>
+                    </div>
+                  </div>
+                  <a 
+                    href={rewardPartner.link} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center mt-3 text-pepu-yellow-orange text-xs md:text-sm font-semibold hover:underline"
+                  >
+                    Visit Partner →
+                  </a>
+                </div>
+              )}
 
               <div className="mt-4 md:mt-6 p-3 md:p-4 bg-gradient-to-r from-pepu-light-green/20 to-pepu-yellow-orange/20 rounded-lg">
                 <div className="flex items-center space-x-2">
