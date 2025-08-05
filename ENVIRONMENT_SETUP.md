@@ -15,7 +15,7 @@ SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
 ### 1. Supabase Project URL
 - Go to your Supabase project dashboard
 - Copy the URL from the project settings
-- Format: `https://your-project-id.supabase.co`
+- Format: https://nqldexmenxmlznetqnlx.supabase.co
 
 ### 2. Supabase Service Role Key
 - In your Supabase dashboard, go to Settings > API

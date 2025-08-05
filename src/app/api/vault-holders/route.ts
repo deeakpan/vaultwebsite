@@ -1,51 +1,40 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-interface HolderData {
-  holders: number;
-  totalSupply: string;
-  circulatingSupply: string;
-}
-
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    // Fetch VAULT token holder data from PepuScan API
-    // Note: PepuScan might not have a public API, so we'll use a fallback approach
-    const response = await fetch('https://pepuscan.com/api/token/0x8746D6Fc80708775461226657a6947497764BBe6');
-    
-    if (!response.ok) {
-      // If PepuScan API doesn't work, we'll use a fallback
-      console.log('PepuScan API not available, using fallback data');
-      
-      // For now, return estimated data based on typical new token patterns
-      const holderData: HolderData = {
-        holders: 1250, // Correct holder count based on snapshot data
-        totalSupply: '1000000000',
-        circulatingSupply: '30000000' // Initial VAULT supply from whitepaper
-      };
-      
-      return NextResponse.json(holderData);
+    const { searchParams } = new URL(request.url);
+    const address = searchParams.get('address');
+
+    if (!address) {
+      return NextResponse.json({ error: 'Address parameter is required' }, { status: 400 });
     }
 
-    const data = await response.json();
-    console.log('PepuScan API Response:', JSON.stringify(data, null, 2));
+    // Vault token contract address
+    const VAULT_TOKEN_ADDRESS = '0x8746D6Fc80708775461226657a6947497764BBe6';
     
-    const holderData: HolderData = {
-      holders: data?.holders || 0,
-      totalSupply: data?.totalSupply || '1000000000',
-      circulatingSupply: data?.circulatingSupply || '30000000'
-    };
+    // For now, we'll simulate the balance check
+    // In a real implementation, you would:
+    // 1. Connect to the blockchain (Pepu Chain)
+    // 2. Call the vault token contract's balanceOf function
+    // 3. Get the actual balance for the given address
+    
+    // Simulated balance check - replace with actual blockchain call
+    const mockBalance = Math.floor(Math.random() * 5000000); // 0-5M tokens
+    
+    // For testing purposes, you can hardcode a specific balance for your address
+    // if (address.toLowerCase() === 'your-test-address') {
+    //   mockBalance = 2000000; // 2M tokens for testing
+    // }
+    
+    return NextResponse.json({
+      address: address,
+      balance: mockBalance,
+      tokenAddress: VAULT_TOKEN_ADDRESS,
+      tokenSymbol: 'VAULT'
+    });
 
-    return NextResponse.json(holderData);
   } catch (error) {
-    console.error('Error fetching holder data:', error);
-    
-    // Fallback data
-    const holderData: HolderData = {
-      holders: 1250, // Correct holder count based on snapshot data
-      totalSupply: '1000000000',
-      circulatingSupply: '30000000'
-    };
-    
-    return NextResponse.json(holderData);
+    console.error('Error fetching vault balance:', error);
+    return NextResponse.json({ error: 'Failed to fetch vault balance' }, { status: 500 });
   }
 } 
