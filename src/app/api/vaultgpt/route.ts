@@ -1,9 +1,288 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { readFile } from 'fs/promises';
+import { join } from 'path';
 import OpenAI from 'openai';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
+
+// GeckoTerminal API Configuration (from HiveFi)
+const GECKO_TERMINAL_API = "https://api.geckoterminal.com/api/v2";
+const PEPE_UNCHAINED_NETWORK = "pepe-unchained";
+
+// Dynamic token database that gets loaded from JSON file
+let KNOWN_TOKENS: Record<string, string> = {};
+let lastTokenUpdate = 0;
+const TOKEN_CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
+// Load tokens from JSON file
+async function loadTokensFromJSON(): Promise<Record<string, string>> {
+  try {
+    const filePath = join(process.cwd(), 'pepe-unchained-tokens.json');
+    const content = await readFile(filePath, 'utf-8');
+    const tokenData = JSON.parse(content);
+    
+    // Convert all keys to lowercase for easier matching
+    const normalizedTokens: Record<string, string> = {};
+    if (tokenData.tokens) {
+      for (const [key, value] of Object.entries(tokenData.tokens)) {
+        normalizedTokens[key.toLowerCase()] = value as string;
+      }
+    }
+    
+    console.log(`📄 Loaded ${Object.keys(normalizedTokens).length} tokens from JSON file`);
+    return normalizedTokens;
+  } catch (error) {
+    console.error('Failed to load tokens from JSON:', error);
+    return {};
+  }
+}
+
+// Fallback hardcoded tokens (subset for safety)
+function getFallbackTokens(): Record<string, string> {
+  return {
+    'pepu': '0x4be3af53800aade09201654cd76d55063c7bde70',
+    'pepe unchained': '0x4be3af53800aade09201654cd76d55063c7bde70',
+    'penk': '0x82144c93bd531e46f31033fe22d1055af17a514c',
+    '$penk': '0x82144c93bd531e46f31033fe22d1055af17a514c',
+    'pepu bank': '0x82144c93bd531e46f31033fe22d1055af17a514c',
+    'spring': '0x28dd14d951cc1b9ff32bdc27dcc7da04fbfe3af6',
+    '$spring': '0x28dd14d951cc1b9ff32bdc27dcc7da04fbfe3af6',
+    'springfield': '0x28dd14d951cc1b9ff32bdc27dcc7da04fbfe3af6',
+    'vault': '0x8746d6fc80708775461226657a6947497764bbe6',
+    '$vault': '0x8746d6fc80708775461226657a6947497764bbe6',
+    'pepu vault': '0x8746d6fc80708775461226657a6947497764bbe6',
+  };
+}
+
+// Cached token loading function
+async function getKnownTokens(): Promise<Record<string, string>> {
+  const now = Date.now();
+  
+  // Return cached tokens if still valid
+  if (Object.keys(KNOWN_TOKENS).length > 0 && (now - lastTokenUpdate) < TOKEN_CACHE_DURATION) {
+    return KNOWN_TOKENS;
+  }
+  
+  // Load from JSON file
+  const tokens = await loadTokensFromJSON();
+  
+  // Fallback if loading fails
+  if (Object.keys(tokens).length === 0) {
+    console.warn('Failed to load JSON tokens, using fallback');
+    KNOWN_TOKENS = getFallbackTokens();
+  } else {
+    KNOWN_TOKENS = tokens;
+  }
+  
+  lastTokenUpdate = now;
+  console.log(`✅ Loaded ${Object.keys(KNOWN_TOKENS).length} tokens`);
+  return KNOWN_TOKENS;
+}
+
+// Updated helper function to find token address by name/symbol
+async function findTokenAddress(query: string): Promise<string | null> {
+  const tokens = await getKnownTokens();
+  const q = query.toLowerCase().trim();
+  return tokens[q] || null;
+}
+
+interface GeckoTerminalResponse<T> {
+  success: boolean;
+  data?: T;
+  error?: string;
+}
+
+interface Pool {
+  id: string;
+  attributes: {
+    name: string;
+    base_token: {
+      symbol: string;
+      name: string;
+      address: string;
+    };
+    quote_token: {
+      symbol: string;
+      name: string;
+      address: string;
+    };
+    base_token_price_usd: string;
+    quote_token_price_usd: string;
+    fdv_usd: string;
+    market_cap_usd: string;
+    volume_usd: {
+      h24: string;
+      h6: string;
+      h1: string;
+    };
+    price_change_percentage: {
+      h24: string;
+      h6: string;
+      h1: string;
+    };
+    reserve_in_usd: string;
+    transactions: {
+      h24: {
+        count: number;
+      };
+    };
+  };
+}
+
+interface Token {
+  id: string;
+  attributes: {
+    symbol: string;
+    name: string;
+    address: string;
+    price_usd: string;
+  };
+}
+
+// GeckoTerminal API Client (adapted from HiveFi)
+class GeckoTerminalClient {
+  private async makeRequest<T>(endpoint: string): Promise<GeckoTerminalResponse<T>> {
+    try {
+      console.log(`🦎 GeckoTerminal API: ${endpoint}`);
+      
+      const response = await fetch(`${GECKO_TERMINAL_API}${endpoint}`, {
+        headers: {
+          'Accept': 'application/json;version=20230302'
+        }
+      });
+
+      if (!response.ok) {
+        return {
+          success: false,
+          error: `API Error: ${response.status} ${response.statusText}`
+        };
+      }
+
+      const data = await response.json();
+      return {
+        success: true,
+        data
+      };
+    } catch (error) {
+      console.error('GeckoTerminal API Error:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      };
+    }
+  }
+
+  // Search pools on Pepe Unchained network
+  async searchPools(query: string): Promise<GeckoTerminalResponse<{ data: Pool[] }>> {
+    return this.makeRequest(`/search/pools?network=${PEPE_UNCHAINED_NETWORK}&query=${encodeURIComponent(query)}`);
+  }
+
+  // Search tokens by symbol/name (adding missing functionality)
+  async searchTokens(query: string): Promise<GeckoTerminalResponse<{ data: Token[] }>> {
+    return this.makeRequest(`/search/tokens?network=${PEPE_UNCHAINED_NETWORK}&query=${encodeURIComponent(query)}`);
+  }
+
+  // Get trending pools on Pepe Unchained
+  async getTrendingPools(): Promise<GeckoTerminalResponse<{ data: Pool[] }>> {
+    return this.makeRequest(`/networks/${PEPE_UNCHAINED_NETWORK}/trending_pools`);
+  }
+
+  // Get new pools on Pepe Unchained
+  async getNewPools(): Promise<GeckoTerminalResponse<{ data: Pool[] }>> {
+    return this.makeRequest(`/networks/${PEPE_UNCHAINED_NETWORK}/new_pools`);
+  }
+
+  // Get top pools on Pepe Unchained
+  async getTopPools(limit: number = 100): Promise<GeckoTerminalResponse<{ data: Pool[] }>> {
+    return this.makeRequest(`/networks/${PEPE_UNCHAINED_NETWORK}/pools?page=1&limit=${limit}`);
+  }
+
+  // Get specific pool info
+  async getPoolInfo(poolAddress: string): Promise<GeckoTerminalResponse<{ data: Pool }>> {
+    return this.makeRequest(`/networks/${PEPE_UNCHAINED_NETWORK}/pools/${poolAddress}`);
+  }
+
+  // Get token info by address - Updated to use actual response structure
+  async getTokenInfo(tokenAddress: string): Promise<GeckoTerminalResponse<any>> {
+    return this.makeRequest(`/networks/${PEPE_UNCHAINED_NETWORK}/tokens/${tokenAddress}`);
+  }
+
+  // Get token pools
+  async getTokenPools(tokenAddress: string): Promise<GeckoTerminalResponse<{ data: Pool[] }>> {
+    return this.makeRequest(`/networks/${PEPE_UNCHAINED_NETWORK}/tokens/${tokenAddress}/pools`);
+  }
+
+  // Get network stats (adapted from HiveFi)
+  async getNetworkStats() {
+    const topPoolsResponse = await this.getTopPools(50);
+    if (!topPoolsResponse.success || !topPoolsResponse.data) {
+      return null;
+    }
+
+    const pools = topPoolsResponse.data.data;
+    const totalLiquidity = pools.reduce((sum, pool) => 
+      sum + parseFloat(pool.attributes.reserve_in_usd || '0'), 0
+    );
+    const totalVolume24h = pools.reduce((sum, pool) => 
+      sum + parseFloat(pool.attributes.volume_usd?.h24 || '0'), 0
+    );
+
+    return {
+      total_pools: pools.length,
+      total_liquidity: totalLiquidity,
+      total_volume_24h: totalVolume24h,
+      top_pools: pools.slice(0, 10).map(pool => this.formatPoolInfo(pool))
+    };
+  }
+
+  // Format pool info (from HiveFi pattern) - Fixed for actual API structure
+  private formatPoolInfo(pool: any) {
+    // Handle both pool and token data structures
+    const attrs = pool.attributes || {};
+    
+    if (attrs.base_token && attrs.quote_token) {
+      // This is pool data
+      return {
+        name: attrs.name,
+        base_token: {
+          symbol: attrs.base_token.symbol,
+          name: attrs.base_token.name,
+          address: attrs.base_token.address,
+          price_usd: parseFloat(attrs.base_token_price_usd || '0')
+        },
+        quote_token: {
+          symbol: attrs.quote_token.symbol,
+          name: attrs.quote_token.name,
+          address: attrs.quote_token.address,
+          price_usd: parseFloat(attrs.quote_token_price_usd || '0')
+        },
+        market_cap: parseFloat(attrs.fdv_usd || '0'),
+        volume_24h: parseFloat(attrs.volume_usd?.h24 || '0'),
+        price_change_24h: parseFloat(attrs.price_change_percentage?.h24 || '0'),
+        liquidity: parseFloat(attrs.reserve_in_usd || '0'),
+        transactions_24h: attrs.transactions?.h24?.count || 0,
+        pool_address: pool.id
+      };
+    } else {
+      // This is token data - format accordingly
+      return {
+        name: attrs.name,
+        symbol: attrs.symbol,
+        address: attrs.address,
+        price: parseFloat(attrs.price_usd || '0'),
+        market_cap: parseFloat(attrs.fdv_usd || '0'),
+        volume_24h: parseFloat(attrs.volume_usd?.h24 || '0'),
+        liquidity: parseFloat(attrs.total_reserve_in_usd || '0'),
+        pool_address: pool.id || ''
+      };
+    }
+  }
+}
+
+// Initialize client
+const geckoClient = new GeckoTerminalClient();
 
 export async function POST(request: NextRequest) {
   try {
@@ -13,32 +292,44 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Message is required' }, { status: 400 });
     }
 
-    console.log('🚀 VaultGPT comprehensive analysis:', message);
+    console.log('🚀 VaultGPT Enhanced Analysis:', message);
 
-    // Analyze user intent with natural language processing
+    // Analyze user intent
     const userIntent = await analyzeUserIntent(message);
     console.log('🧠 User intent:', userIntent);
 
-    // Gather ALL available data based on intent
-    const comprehensiveData = await gatherAllMarketData(userIntent);
-    console.log('📊 Data sources loaded:', Object.keys(comprehensiveData));
+    // Search for tokens using dynamic loading
+    const searchResults = await searchForTokens(userIntent.tokens);
+    console.log('🔍 Search results:', searchResults.map(r => r.symbol));
 
-    // Generate intelligent response using all data
-    const response = await generateIntelligentResponse(message, userIntent, comprehensiveData);
+    // Get additional market data
+    const marketData = await getMarketData(userIntent, searchResults);
+
+    // Generate response
+    const response = await generateResponse(message, userIntent, searchResults, marketData);
 
     return NextResponse.json({ 
       response,
-      intent: userIntent,
-      dataSources: Object.keys(comprehensiveData),
-      comprehensiveData
+      tokensFound: searchResults.length,
+      tokens: searchResults.map(t => ({ 
+        symbol: t.symbol, 
+        name: t.name, 
+        price: t.price,
+        market_cap: t.market_cap || null,
+        volume_24h: t.volume_24h || null,
+        price_change_24h: t.price_change_24h || null,
+        liquidity: t.liquidity || null,
+        address: t.address || '',
+        source: t.source 
+      }))
     });
 
   } catch (error) {
-    console.error('❌ VaultGPT Comprehensive Error:', error);
+    console.error('❌ VaultGPT Error:', error);
     return NextResponse.json(
       { 
         error: 'Analysis failed',
-        response: "I'm having trouble accessing comprehensive market data. Please try again."
+        response: "I'm having trouble accessing market data. Please try again."
       }, 
       { status: 500 }
     );
@@ -47,29 +338,36 @@ export async function POST(request: NextRequest) {
 
 async function analyzeUserIntent(message: string) {
   const completion = await openai.chat.completions.create({
-    model: "gpt-4o",
+    model: "gpt-4o-mini",
     messages: [
       {
         role: "system",
-        content: `You are an advanced intent analyzer for cryptocurrency market analysis. Extract:
+        content: `Analyze the crypto query and extract information. Look for:
 
-TOKENS MENTIONED: Find all token names, symbols, or contract addresses
-ANALYSIS TYPE: What kind of analysis is requested
-COMPARISON TYPE: Are they comparing tokens or asking for rankings
-TIME CONTEXT: What timeframe are they interested in
-SPECIFIC METRICS: What data points do they want
+TOKENS: Any token names, symbols, addresses mentioned
+QUERY TYPES:
+- "tell me about X" = token analysis
+- "X price" = price query  
+- "compare X and Y" = comparison
+- "trending" = trending analysis
+- "top gainers/losers" = performance ranking
+- "new tokens/launches" = new listings
+- "volume leaders" = volume analysis
+- "best performing" = performance analysis
+- "analyze X" = deep analysis
+- "X vs Y" = comparison
+- "market overview" = general market
+- "what's hot" = trending
+- Contract addresses (0x...)
 
 Return JSON with:
 {
-  "tokens": ["token1", "token2"] or [],
-  "analysisType": "price|performance|comparison|trending|new_launches|holders|trading|ecosystem|general",
-  "comparisonType": "vs_market|vs_token|top_performers|gainers_losers|rankings|none",
-  "timeframe": "1h|6h|24h|7d|30d|all_time|recent",
-  "specificMetrics": ["price", "volume", "market_cap", "holders", "liquidity", "trades"],
-  "contextualQuery": "brief description of what they want",
+  "tokens": ["token1", "token2"],
+  "analysisType": "price|performance|comparison|trending|new_launches|volume|market_overview|deep_analysis|gainers_losers|general",
+  "queryType": "single_token|comparison|market_wide|trending|address_lookup|general",
   "needsMarketContext": boolean,
-  "needsEcosystemData": boolean,
-  "priority": "urgent|high|medium|low"
+  "timeframe": "1h|24h|7d|recent",
+  "specificRequest": "brief description of what user wants"
 }`
       },
       {
@@ -80,576 +378,740 @@ Return JSON with:
     response_format: { type: "json_object" }
   });
 
-  return JSON.parse(completion.choices[0].message.content || '{}');
+  const result = JSON.parse(completion.choices[0].message.content || '{}');
+  
+  // Enhanced token extraction patterns
+  const lowerMessage = message.toLowerCase();
+  const words = message.split(/\s+/);
+  
+  // Pattern: "tell me about X", "about X", "analyze X"
+  const aboutPattern = /(tell me about|about|analyze|info on|check|lookup)\s+(\w+)/i;
+  const aboutMatch = message.match(aboutPattern);
+  if (aboutMatch) {
+    const token = aboutMatch[2];
+    if (!result.tokens) result.tokens = [];
+    if (!result.tokens.includes(token)) {
+      result.tokens.push(token);
+    }
+  }
+  
+  // Pattern: "X price", "X performance" 
+  const pricePattern = /(\w+)\s+(price|performance|chart|stats)/i;
+  const priceMatch = message.match(pricePattern);
+  if (priceMatch) {
+    const token = priceMatch[1];
+    if (!result.tokens) result.tokens = [];
+    if (!result.tokens.includes(token)) {
+      result.tokens.push(token);
+    }
+  }
+  
+  // Pattern: Contract addresses
+  const addressPattern = /0x[a-fA-F0-9]{40}/g;
+  const addresses = message.match(addressPattern);
+  if (addresses) {
+    if (!result.tokens) result.tokens = [];
+    addresses.forEach(addr => {
+      if (!result.tokens.includes(addr)) {
+        result.tokens.push(addr);
+      }
+    });
+    result.queryType = "address_lookup";
+  }
+  
+  // Pattern: "X vs Y", "compare X and Y"
+  const vsPattern = /(\w+)\s+(vs|versus|compared to)\s+(\w+)/i;
+  const comparePattern = /compare\s+(\w+)\s+(and|with)\s+(\w+)/i;
+  const vsMatch = message.match(vsPattern) || message.match(comparePattern);
+  if (vsMatch) {
+    if (!result.tokens) result.tokens = [];
+    if (vsMatch[1] && !result.tokens.includes(vsMatch[1])) result.tokens.push(vsMatch[1]);
+    if (vsMatch[3] && !result.tokens.includes(vsMatch[3])) result.tokens.push(vsMatch[3]);
+    result.analysisType = "comparison";
+    result.queryType = "comparison";
+  }
+
+  return result;
 }
 
-async function gatherAllMarketData(intent: any) {
-  console.log('📡 Gathering comprehensive market data...');
+async function searchForTokens(tokens: string[]) {
+  if (!tokens || tokens.length === 0) return [];
   
-  const dataPromises = [];
+  const results = [];
   
-  // Always get PEPU data (your proven method)
-  dataPromises.push(
-    getPEPUComprehensiveData().then(data => ({ pepuData: data }))
-  );
-  
-  // Get presale ecosystem data
-  dataPromises.push(
-    getPresaleEcosystemData().then(data => ({ presaleData: data }))
-  );
-  
-  // Get trending and market context
-  dataPromises.push(
-    getTrendingMarketData().then(data => ({ trendingData: data }))
-  );
-  
-  // Get gainers/losers if comparison requested
-  if (intent.comparisonType?.includes('gainers') || intent.analysisType === 'performance') {
-    dataPromises.push(
-      getGainersLosersData().then(data => ({ gainersLosersData: data }))
-    );
+  for (const token of tokens.slice(0, 5)) {
+    console.log(`🔍 Searching for: ${token}`);
+    
+    // Check if it's a contract address
+    if (token.startsWith('0x') && token.length === 42) {
+      console.log(`📍 Contract address detected: ${token}`);
+      const tokenData = await getTokenByAddress(token);
+      if (tokenData) {
+        results.push(tokenData);
+        continue;
+      }
+    }
+    
+    // Strategy 1: Check dynamic tokens database first
+    const knownAddress = await findTokenAddress(token);
+    if (knownAddress) {
+      console.log(`✅ Found in database: ${token} -> ${knownAddress}`);
+      const tokenData = await getTokenByAddress(knownAddress);
+      if (tokenData) {
+        results.push(tokenData);
+        continue;
+      }
+    }
+    
+    // Strategy 2: Dynamic search - scan all pools for uncommon tokens
+    const tokenData = await dynamicTokenSearch(token);
+    if (tokenData) {
+      results.push(tokenData);
+      console.log(`✅ Found via dynamic search: ${tokenData.symbol}`);
+      continue;
+    }
+    
+    console.log(`❌ Not found: ${token}`);
   }
   
-  // Get new launches if relevant
-  if (intent.analysisType === 'new_launches' || intent.needsEcosystemData) {
-    dataPromises.push(
-      getNewLaunchesData().then(data => ({ newLaunchesData: data }))
-    );
-  }
-  
-  // Get specific token data if tokens mentioned
-  if (intent.tokens && intent.tokens.length > 0) {
-    dataPromises.push(
-      getSpecificTokensData(intent.tokens).then(data => ({ specificTokensData: data }))
-    );
-  }
-  
-  // Get broader market context
-  if (intent.needsMarketContext) {
-    dataPromises.push(
-      getBroaderMarketContext().then(data => ({ marketContextData: data }))
-    );
-  }
-  
-  // Get advanced trading data
-  if (intent.specificMetrics.includes('trades') || intent.analysisType === 'trading') {
-    dataPromises.push(
-      getAdvancedTradingData(intent.tokens).then(data => ({ tradingData: data }))
-    );
-  }
-  
-  const results = await Promise.all(dataPromises);
-  return results.reduce((acc, result) => ({ ...acc, ...result }), {});
+  return results;
 }
 
-async function getPEPUComprehensiveData() {
+// Dynamic search for uncommon tokens by scanning all pools
+async function dynamicTokenSearch(query: string) {
   try {
-    console.log('💎 Getting comprehensive PEPU data...');
+    console.log(`🔍 Dynamic search for: ${query}`);
     
-    const response = await fetch('https://api.geckoterminal.com/api/v2/networks/pepe-unchained/pools/0x4be3af53800aade09201654cd76d55063c7bde70');
+    // Get all pools and scan for matching tokens
+    const poolsResponse = await geckoClient.getTopPools(200); // Get more pools
+    if (!poolsResponse.success || !poolsResponse.data?.data) {
+      return null;
+    }
     
-    if (!response.ok) return null;
+    const pools = poolsResponse.data.data;
+    let bestMatch = null;
+    let bestVolume = 0;
     
-    const data = await response.json();
-    const attrs = data?.data?.attributes || {};
-    
-    // Get additional PEPU pool data
-    const poolInfoResponse = await fetch(`https://api.geckoterminal.com/api/v2/networks/pepe-unchained/pools/0x4be3af53800aade09201654cd76d55063c7bde70/info`);
-    const poolInfo = poolInfoResponse.ok ? await poolInfoResponse.json() : null;
-    
-    // Get OHLCV data for trend analysis
-    const ohlcvResponse = await fetch(`https://api.geckoterminal.com/api/v2/networks/pepe-unchained/pools/0x4be3af53800aade09201654cd76d55063c7bde70/ohlcv/day`);
-    const ohlcvData = ohlcvResponse.ok ? await ohlcvResponse.json() : null;
-    
-    return {
-      symbol: 'PEPU',
-      name: 'Pepe Unchained',
-      price: attrs.quote_token_price_usd || 0,
-      market_cap: attrs.fdv_usd || 0,
-      volume_24h: attrs.volume_usd?.h24 || 0,
-      volume_7d: attrs.volume_usd?.h168 || 0,
-      price_changes: attrs.price_change_percentage || {},
-      liquidity: attrs.reserve_in_usd || 0,
-      transactions: attrs.transactions || {},
-      pool_created_at: attrs.pool_created_at,
-      pool_info: poolInfo?.data?.attributes || null,
-      ohlcv_data: ohlcvData?.data?.attributes?.ohlcv_list || null,
-      network: 'pepe-unchained',
-      pool_address: '0x4be3af53800aade09201654cd76d55063c7bde70'
-    };
-  } catch (error) {
-    console.error('PEPU comprehensive data error:', error);
-    return null;
-  }
-}
-
-async function getPresaleEcosystemData() {
-  try {
-    console.log('🚀 Getting presale ecosystem data...');
-    
-    const query = `
-      query EcosystemQuery {
-        presales {
-          blockNumber
-          blockTimestamp
-          data
-          id
-          isEnd
-          minter
-          name
-          pairAddress
-          paymentToken
-          presaleAmount
-          raisedAmount
-          saleAmount
-          symbol
-          token
-          totalSupply
-          transactionHash
+    // Search through all tokens in all pools
+    for (const pool of pools) {
+      const baseToken = pool.attributes?.base_token;
+      const quoteToken = pool.attributes?.quote_token;
+      
+      if (baseToken && tokenMatches(baseToken, query)) {
+        const volume = parseFloat(pool.attributes.volume_usd?.h24 || '0');
+        // Prioritize pools with higher volume for more accurate data
+        if (volume > bestVolume) {
+          bestMatch = {
+            token: baseToken,
+            pool: pool,
+            isBase: true
+          };
+          bestVolume = volume;
         }
       }
-    `;
-
-    const response = await fetch('https://pepu-mainnet2-pumppad.0sum.io/subgraphs/name/launchpad/graphql', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ query }),
-    });
-
-    if (!response.ok) return null;
-    
-    const data = await response.json();
-    const presales = data.data?.presales || [];
-    
-    // Analyze presale data
-    const activePresales = presales.filter((p: any) => !p.isEnd);
-    const completedPresales = presales.filter((p: any) => p.isEnd);
-    const recentLaunches = presales
-      .filter((p: any) => p.blockTimestamp)
-      .sort((a: any, b: any) => b.blockTimestamp - a.blockTimestamp)
-      .slice(0, 10);
-    
-    // Calculate ecosystem metrics
-    const totalRaised = presales.reduce((sum: number, p: any) => sum + (parseFloat(p.raisedAmount) || 0), 0);
-    const avgRaised = presales.length > 0 ? totalRaised / presales.length : 0;
-    
-    return {
-      total_presales: presales.length,
-      active_presales: activePresales.length,
-      completed_presales: completedPresales.length,
-      recent_launches: recentLaunches,
-      total_raised: totalRaised,
-      average_raise: avgRaised,
-      ecosystem_activity: activePresales.length > 5 ? 'high' : activePresales.length > 2 ? 'medium' : 'low',
-      latest_launches: recentLaunches.slice(0, 5)
-    };
-  } catch (error) {
-    console.error('Presale ecosystem data error:', error);
-    return null;
-  }
-}
-
-async function getTrendingMarketData() {
-  try {
-    console.log('📈 Getting trending market data...');
-    
-    // Get trending pools on Pepe Unchained
-    const trendingResponse = await fetch('https://api.geckoterminal.com/api/v2/networks/pepe-unchained/trending_pools');
-    const trendingData = trendingResponse.ok ? await trendingResponse.json() : null;
-    
-    // Get new pools
-    const newPoolsResponse = await fetch('https://api.geckoterminal.com/api/v2/networks/pepe-unchained/new_pools');
-    const newPoolsData = newPoolsResponse.ok ? await newPoolsResponse.json() : null;
-    
-    // Get top pools by volume
-    const topPoolsResponse = await fetch('https://api.geckoterminal.com/api/v2/networks/pepe-unchained/pools?page=1');
-    const topPoolsData = topPoolsResponse.ok ? await topPoolsResponse.json() : null;
-    
-    return {
-      trending_pools: trendingData?.data || [],
-      new_pools: newPoolsData?.data || [],
-      top_pools: topPoolsData?.data || [],
-      market_activity: (trendingData?.data?.length || 0) > 5 ? 'high' : 'moderate',
-      network_growth: (newPoolsData?.data?.length || 0) > 10 ? 'rapid' : 'steady'
-    };
-  } catch (error) {
-    console.error('Trending market data error:', error);
-    return null;
-  }
-}
-
-async function getGainersLosersData() {
-  try {
-    console.log('📊 Getting gainers/losers data...');
-    
-    // Get CoinGecko gainers/losers for broader market context
-    const gainersLosersResponse = await fetch('https://api.coingecko.com/api/v3/coins/top_gainers_losers?vs_currency=usd&duration=24h', {
-      headers: { 'Accept': 'application/json' }
-    });
-    
-    const gainersLosersData = gainersLosersResponse.ok ? await gainersLosersResponse.json() : null;
-    
-    // Get Pepe Unchained specific performance data
-    const pepuPoolsResponse = await fetch('https://api.geckoterminal.com/api/v2/networks/pepe-unchained/pools?page=1');
-    const pepuPools = pepuPoolsResponse.ok ? await pepuPoolsResponse.json() : null;
-    
-    // Analyze Pepe Unchained performance
-    const pepuGainers: any[] = [];
-    const pepuLosers: any[] = [];
-    
-    if (pepuPools?.data) {
-      pepuPools.data.forEach((pool: any) => {
-        const change24h = pool.attributes?.price_change_percentage?.h24 || 0;
-        const poolData = {
-          name: pool.attributes?.name || 'Unknown',
-          symbol: pool.attributes?.base_token?.symbol || 'Unknown',
-          price_change_24h: change24h,
-          volume_24h: pool.attributes?.volume_usd?.h24 || 0,
-          address: pool.attributes?.base_token?.address
-        };
-        
-        if (change24h > 5) {
-          pepuGainers.push(poolData);
-        } else if (change24h < -5) {
-          pepuLosers.push(poolData);
+      
+      if (quoteToken && tokenMatches(quoteToken, query)) {
+        const volume = parseFloat(pool.attributes.volume_usd?.h24 || '0');
+        // Prioritize pools with higher volume for more accurate data
+        if (volume > bestVolume) {
+          bestMatch = {
+            token: quoteToken,
+            pool: pool,
+            isBase: false
+          };
+          bestVolume = volume;
         }
+      }
+    }
+    
+    if (bestMatch) {
+      const { token, pool, isBase } = bestMatch;
+      console.log(`✅ Best match found for ${query}:`, {
+        symbol: token.symbol,
+        volume: pool.attributes.volume_usd?.h24,
+        liquidity: pool.attributes.reserve_in_usd,
+        price_change: pool.attributes.price_change_percentage?.h24
       });
-    }
-    
+   
     return {
-      global_gainers: gainersLosersData?.top_gainers || [],
-      global_losers: gainersLosersData?.top_losers || [],
-      pepu_gainers: pepuGainers.sort((a, b) => b.price_change_24h - a.price_change_24h).slice(0, 10),
-      pepu_losers: pepuLosers.sort((a, b) => a.price_change_24h - b.price_change_24h).slice(0, 10),
-      market_sentiment: pepuGainers.length > pepuLosers.length ? 'bullish' : 'bearish'
-    };
-  } catch (error) {
-    console.error('Gainers/losers data error:', error);
-    return null;
-  }
-}
-
-async function getNewLaunchesData() {
-  try {
-    console.log('🆕 Getting new launches data...');
-    
-    // Get CoinGecko new listings
-    const newListingsResponse = await fetch('https://api.coingecko.com/api/v3/coins/list/new', {
-      headers: { 'Accept': 'application/json' }
-    });
-    
-    const newListings = newListingsResponse.ok ? await newListingsResponse.json() : null;
-    
-    return {
-      global_new_listings: newListings || [],
-      recent_count: newListings?.length || 0,
-      launch_activity: (newListings?.length || 0) > 50 ? 'high' : 'moderate'
-    };
-  } catch (error) {
-    console.error('New launches data error:', error);
-    return null;
-  }
-}
-
-async function getSpecificTokensData(tokens: string[]) {
-  try {
-    console.log('🎯 Getting specific tokens data:', tokens);
-    
-    const tokenResults = [];
-    
-    for (const token of tokens.slice(0, 5)) { // Limit to 5 tokens
-      if (token.startsWith('0x') && token.length === 42) {
-        // Contract address
-        const tokenData = await getTokenByAddress(token);
-        if (tokenData) tokenResults.push(tokenData);
-      } else {
-        // Search by name/symbol
-        const tokenData = await searchTokenComprehensive(token);
-        if (tokenData) tokenResults.push(tokenData);
-      }
-    }
-    
-    return tokenResults;
-  } catch (error) {
-    console.error('Specific tokens data error:', error);
-    return [];
-  }
-}
-
-async function getTokenByAddress(address: string) {
-  try {
-    // Try Pepe Unchained first
-    const response = await fetch(`https://api.geckoterminal.com/api/v2/networks/pepe-unchained/tokens/${address}`);
-    
-    if (response.ok) {
-      const data = await response.json();
-      const attrs = data?.data?.attributes || {};
-      
-      // Get additional data
-      const poolsResponse = await fetch(`https://api.geckoterminal.com/api/v2/networks/pepe-unchained/tokens/${address}/pools`);
-      const poolsData = poolsResponse.ok ? await poolsResponse.json() : null;
-      
-      return {
-        symbol: attrs.symbol || 'UNKNOWN',
-        name: attrs.name || 'Unknown',
-        address: address,
-        price: attrs.price_usd || 0,
-        network: 'pepe-unchained',
-        pools: poolsData?.data || [],
-        source: 'direct_lookup'
+        symbol: token.symbol,
+        name: token.name,
+        address: token.address,
+        price: isBase ? parseFloat(pool.attributes.base_token_price_usd || '0') : parseFloat(pool.attributes.quote_token_price_usd || '0'),
+        market_cap: parseFloat(pool.attributes.fdv_usd || '0'),
+        volume_24h: parseFloat(pool.attributes.volume_usd?.h24 || '0'),
+        price_change_24h: parseFloat(pool.attributes.price_change_percentage?.h24 || '0'),
+        liquidity: parseFloat(pool.attributes.reserve_in_usd || '0'),
+        transactions_24h: pool.attributes.transactions?.h24?.count || 0,
+        pool_address: pool.id,
+        source: 'dynamic_pool_scan'
       };
     }
     
     return null;
   } catch (error) {
-    console.error('Token by address error:', error);
+    console.error('Dynamic search error:', error);
     return null;
   }
 }
 
-async function searchTokenComprehensive(query: string) {
-  try {
-    // Search Pepe Unchained pools
-    const searchResponse = await fetch(`https://api.geckoterminal.com/api/v2/search/pools?query=${encodeURIComponent(query)}&network=pepe-unchained`);
+// Data validation function to ensure accuracy
+function validateTokenData(tokenData: any) {
+  const validation = {
+    isValid: true,
+    warnings: [] as string[],
+    confidence: 'high' as 'high' | 'medium' | 'low'
+  };
+  
+  // Check for unrealistic values
+  if (tokenData.volume_24h > 0) {
+    // Volume should not be more than 10x market cap (unrealistic)
+    if (tokenData.market_cap > 0 && tokenData.volume_24h > tokenData.market_cap * 10) {
+      validation.warnings.push('Volume appears unusually high relative to market cap');
+      validation.confidence = 'medium';
+    }
     
-    if (searchResponse.ok) {
-      const searchData = await searchResponse.json();
-      const pools = searchData.data || [];
+    // Volume should not be 0 if there's significant liquidity
+    if (tokenData.volume_24h === 0 && tokenData.liquidity > 1000) {
+      validation.warnings.push('Zero volume despite significant liquidity - data may be stale');
+      validation.confidence = 'low';
+    }
+  }
+  
+  // Check liquidity consistency
+  if (tokenData.liquidity > 0) {
+    // Liquidity should not be more than 5x market cap (unrealistic)
+    if (tokenData.market_cap > 0 && tokenData.liquidity > tokenData.market_cap * 5) {
+      validation.warnings.push('Liquidity appears unusually high relative to market cap');
+      validation.confidence = 'medium';
+    }
+  }
+  
+  // Check price change consistency
+  if (tokenData.price_change_24h !== 0) {
+    // Extreme price changes should have corresponding volume
+    if (Math.abs(tokenData.price_change_24h) > 50 && tokenData.volume_24h < 1000) {
+      validation.warnings.push('Large price change with low volume - data may be unreliable');
+      validation.confidence = 'low';
+    }
+  }
+  
+  if (validation.warnings.length > 0) {
+    validation.isValid = false;
+  }
+  
+  return validation;
+}
+
+// Get real-time data from multiple sources for cross-validation
+async function getRealTimeTokenData(address: string) {
+  try {
+    console.log(`🔄 Getting real-time data for ${address} from multiple sources...`);
+    
+    // Source 1: Direct token info
+    const tokenResponse = await geckoClient.getTokenInfo(address);
+    
+    // Source 2: Token pools
+    const poolsResponse = await geckoClient.getTokenPools(address);
+    
+    // Source 3: Search in top pools
+    const topPoolsResponse = await geckoClient.getTopPools(200);
+    
+    const dataSources = [];
+    
+    if (tokenResponse.success && tokenResponse.data?.data) {
+      const tokenVolume = parseFloat(tokenResponse.data.data.attributes.volume_usd?.h24 || '0');
+      const tokenLiquidity = parseFloat(tokenResponse.data.data.attributes.total_reserve_in_usd || '0');
+      console.log(`📊 Token Info Source - Volume: $${tokenVolume}, Liquidity: $${tokenLiquidity}`);
       
-      for (const pool of pools.slice(0, 3)) {
+      dataSources.push({
+        source: 'token_info',
+        volume: tokenVolume,
+        liquidity: tokenLiquidity,
+        price: parseFloat(tokenResponse.data.data.attributes.price_usd || '0'),
+        weight: 0.3 // Lower weight for potentially stale data
+      });
+    }
+    
+    if (poolsResponse.success && poolsResponse.data?.data && poolsResponse.data.data.length > 0) {
+      // Get the pool with highest volume
+      const bestPool = poolsResponse.data.data.reduce((best, current) => {
+        const currentVolume = parseFloat(current.attributes.volume_usd?.h24 || '0');
+        const bestVolume = parseFloat(best.attributes.volume_usd?.h24 || '0');
+        return currentVolume > bestVolume ? current : best;
+      });
+      
+      const poolVolume = parseFloat(bestPool.attributes.volume_usd?.h24 || '0');
+      const poolLiquidity = parseFloat(bestPool.attributes.reserve_in_usd || '0');
+      console.log(`🏊 Pool Source - Volume: $${poolVolume}, Liquidity: $${poolLiquidity} (Pool: ${bestPool.id})`);
+      
+      dataSources.push({
+        source: 'token_pools',
+        volume: poolVolume,
+        liquidity: poolLiquidity,
+        price: parseFloat(bestPool.attributes.base_token_price_usd || '0'),
+        weight: 0.7, // Higher weight for pool data
+        poolId: bestPool.id
+      });
+    }
+    
+    if (topPoolsResponse.success && topPoolsResponse.data?.data) {
+      // Find this token in top pools
+      for (const pool of topPoolsResponse.data.data) {
         const baseToken = pool.attributes?.base_token;
         const quoteToken = pool.attributes?.quote_token;
         
-        if (baseToken && matchesToken(baseToken, query)) {
-          return formatComprehensiveTokenData(pool, baseToken, 'base');
-        }
-        
-        if (quoteToken && matchesToken(quoteToken, query)) {
-          return formatComprehensiveTokenData(pool, quoteToken, 'quote');
+        if (baseToken?.address?.toLowerCase() === address.toLowerCase() || 
+            quoteToken?.address?.toLowerCase() === address.toLowerCase()) {
+          
+          const topPoolVolume = parseFloat(pool.attributes.volume_usd?.h24 || '0');
+          const topPoolLiquidity = parseFloat(pool.attributes.reserve_in_usd || '0');
+          console.log(`🔝 Top Pool Source - Volume: $${topPoolVolume}, Liquidity: $${topPoolLiquidity} (Pool: ${pool.id})`);
+          
+          dataSources.push({
+            source: 'top_pools',
+            volume: topPoolVolume,
+            liquidity: topPoolLiquidity,
+            price: parseFloat(pool.attributes.base_token_price_usd || '0'),
+            weight: 0.8, // Highest weight for top pool data
+            poolId: pool.id
+          });
+          break;
         }
       }
     }
     
-    return null;
+    if (dataSources.length === 0) {
+      return null;
+    }
+    
+    // Calculate weighted averages, prioritizing the most reliable sources
+    let totalWeightedVolume = 0;
+    let totalWeightedLiquidity = 0;
+    let totalWeightedPrice = 0;
+    let totalWeight = 0;
+    
+    console.log(`\n📊 Data Source Analysis:`);
+    dataSources.forEach((source, index) => {
+      console.log(`  ${index + 1}. ${source.source} (Weight: ${source.weight})`);
+      console.log(`     Volume: $${source.volume}, Liquidity: $${source.liquidity}`);
+      console.log(`     Pool ID: ${source.poolId || 'N/A'}`);
+    });
+    
+    // SIMPLE FIX: Just pick the source with the highest volume (most active trading)
+    // This avoids the weighted averaging that was causing wrong values
+    const bestSource = dataSources.reduce((best, current) => {
+      return current.volume > best.volume ? current : best;
+    });
+    
+    console.log(`\n🎯 SELECTED BEST SOURCE: ${bestSource.source}`);
+    console.log(`  Volume: $${bestSource.volume}, Liquidity: $${bestSource.liquidity}`);
+    console.log(`  Pool ID: ${bestSource.poolId || 'N/A'}`);
+    
+    return {
+      volume_24h: bestSource.volume,
+      liquidity: bestSource.liquidity,
+      price: bestSource.price,
+      dataSources: dataSources.length,
+      sourceBreakdown: dataSources.map(s => `${s.source}: $${s.liquidity}`),
+      selectedSource: bestSource.source
+    };
   } catch (error) {
-    console.error('Comprehensive token search error:', error);
+    console.error('Error getting real-time token data:', error);
     return null;
   }
 }
 
-function matchesToken(token: any, query: string): boolean {
-  if (!token) return false;
-  
-  const q = query.toLowerCase();
-  const symbol = token.symbol?.toLowerCase() || '';
-  const name = token.name?.toLowerCase() || '';
-  
-  return symbol === q || name === q || symbol.includes(q) || name.includes(q);
+async function getTokenByAddress(address: string) {
+  try {
+    // First try to get token info
+    const tokenResponse = await geckoClient.getTokenInfo(address);
+    
+    if (!tokenResponse.success || !tokenResponse.data?.data) {
+      return null;
+    }
+    
+    const tokenData = tokenResponse.data.data;
+    
+    // Try to get more accurate data from pools
+    const poolsResponse = await geckoClient.getTokenPools(address);
+    let poolData = null;
+    let bestVolume = 0;
+    let bestLiquidity = 0;
+    
+    if (poolsResponse.success && poolsResponse.data?.data && poolsResponse.data.data.length > 0) {
+      // Get the pool with highest volume AND liquidity for most accurate data
+      const pools = poolsResponse.data.data;
+      
+      // Find the best pool based on both volume and liquidity
+      for (const pool of pools) {
+        const volume = parseFloat(pool.attributes.volume_usd?.h24 || '0');
+        const liquidity = parseFloat(pool.attributes.reserve_in_usd || '0');
+        
+        // Score based on both volume and liquidity (weighted)
+        const score = (volume * 0.7) + (liquidity * 0.3);
+        const bestScore = (bestVolume * 0.7) + (bestLiquidity * 0.3);
+        
+        if (score > bestScore) {
+          poolData = pool;
+          bestVolume = volume;
+          bestLiquidity = liquidity;
+        }
+      }
+      
+      console.log(`✅ Found best pool data for ${address}:`, {
+        volume: poolData?.attributes.volume_usd?.h24,
+        liquidity: poolData?.attributes.reserve_in_usd,
+        price_change: poolData?.attributes.price_change_percentage?.h24,
+        pool_id: poolData?.id
+      });
+    }
+    
+    // Also try to get data from top pools to cross-reference
+    const topPoolsResponse = await geckoClient.getTopPools(100);
+    let crossReferenceData = null;
+    
+    if (topPoolsResponse.success && topPoolsResponse.data?.data) {
+      const topPools = topPoolsResponse.data.data;
+      
+      // Look for this token in top pools for cross-reference
+      for (const pool of topPools) {
+        const baseToken = pool.attributes?.base_token;
+        const quoteToken = pool.attributes?.quote_token;
+        
+        if ((baseToken && baseToken.address === address) || (quoteToken && quoteToken.address === address)) {
+          const volume = parseFloat(pool.attributes.volume_usd?.h24 || '0');
+          const liquidity = parseFloat(pool.attributes.reserve_in_usd || '0');
+          
+          // Use this data if it's better than what we have
+          if (volume > bestVolume || liquidity > bestLiquidity) {
+            crossReferenceData = pool;
+            bestVolume = Math.max(bestVolume, volume);
+            bestLiquidity = Math.max(bestLiquidity, liquidity);
+            console.log(`✅ Found better cross-reference data for ${address}:`, {
+              volume: pool.attributes.volume_usd?.h24,
+              liquidity: pool.attributes.reserve_in_usd,
+              source: 'top_pools_cross_reference'
+            });
+          }
+        }
+      }
+    }
+    
+    // Use the best available data
+    const finalPoolData = crossReferenceData || poolData;
+    
+    // Get real-time data from multiple sources for cross-validation
+    const realTimeData = await getRealTimeTokenData(address);
+    
+    // Validate data quality
+    const volume = realTimeData?.volume_24h || (finalPoolData ? parseFloat(finalPoolData.attributes.volume_usd?.h24 || '0') : parseFloat(tokenData.attributes.volume_usd?.h24 || '0'));
+    const liquidity = realTimeData?.liquidity || (finalPoolData ? parseFloat(finalPoolData.attributes.reserve_in_usd || '0') : parseFloat(tokenData.attributes.total_reserve_in_usd || '0'));
+    
+    // Data quality indicators
+    const dataQuality = {
+      hasPoolData: !!finalPoolData,
+      hasCrossReference: !!crossReferenceData,
+      hasRealTimeData: !!realTimeData,
+      volumeSource: realTimeData ? 'real_time_cross_validation' : (finalPoolData ? 'pool_data' : 'token_data'),
+      liquiditySource: realTimeData ? 'real_time_cross_validation' : (finalPoolData ? 'pool_data' : 'token_data'),
+      dataConsistency: 'unknown'
+    };
+    
+    console.log(`📊 Data quality for ${address}:`, dataQuality);
+    
+    const tokenResult = {
+      symbol: tokenData.attributes.symbol,
+      name: tokenData.attributes.name,
+      address: tokenData.attributes.address,
+      price: realTimeData?.price || parseFloat(tokenData.attributes.price_usd || '0'),
+      market_cap: parseFloat(tokenData.attributes.fdv_usd || '0'),
+      // Use the best available data
+      volume_24h: volume,
+      price_change_24h: finalPoolData ? parseFloat(finalPoolData.attributes.price_change_percentage?.h24 || '0') : 0,
+      liquidity: liquidity,
+      transactions_24h: finalPoolData ? (finalPoolData.attributes.transactions?.h24?.count || 0) : 0,
+      pool_address: finalPoolData ? finalPoolData.id : '',
+      source: realTimeData ? 'real_time_validation' : (finalPoolData ? (crossReferenceData ? 'cross_referenced_pool' : 'pool_lookup') : 'direct_lookup'),
+      data_quality: dataQuality,
+      validation: {} as any // Will be set below
+    };
+    
+    // Validate the data
+    const validation = validateTokenData(tokenResult);
+    tokenResult.validation = validation;
+    
+    if (validation.warnings.length > 0) {
+      console.log(`⚠️ Data validation warnings for ${address}:`, validation.warnings);
+    }
+    
+    return tokenResult;
+  } catch (error) {
+    console.error('Error in getTokenByAddress:', error);
+    return null;
+  }
 }
 
-function formatComprehensiveTokenData(pool: any, token: any, type: 'base' | 'quote') {
-  const attrs = pool.attributes || {};
-  const transactions = attrs.transactions || {};
+async function searchByPools(query: string) {
+  const response = await geckoClient.searchPools(query);
+  
+  if (!response.success || !response.data?.data) {
+    return null;
+  }
+
+  const pools = response.data.data;
+  
+  // Find best matching pool
+  for (const pool of pools) {
+    const baseToken = pool.attributes.base_token;
+    const quoteToken = pool.attributes.quote_token;
+    
+    if (tokenMatches(baseToken, query)) {
+      return {
+        symbol: baseToken.symbol,
+        name: baseToken.name,
+        address: baseToken.address,
+        price: parseFloat(pool.attributes.base_token_price_usd || '0'),
+        market_cap: parseFloat(pool.attributes.fdv_usd || '0'),
+        volume_24h: parseFloat(pool.attributes.volume_usd?.h24 || '0'),
+        price_change_24h: parseFloat(pool.attributes.price_change_percentage?.h24 || '0'),
+        liquidity: parseFloat(pool.attributes.reserve_in_usd || '0'),
+        transactions_24h: pool.attributes.transactions?.h24?.count || 0,
+        pool_address: pool.id,
+        source: 'pool_search'
+      };
+    }
+    
+    if (tokenMatches(quoteToken, query)) {
+      return {
+        symbol: quoteToken.symbol,
+        name: quoteToken.name,
+        address: quoteToken.address,
+        price: parseFloat(pool.attributes.quote_token_price_usd || '0'),
+        market_cap: parseFloat(pool.attributes.fdv_usd || '0'),
+        volume_24h: parseFloat(pool.attributes.volume_usd?.h24 || '0'),
+        price_change_24h: parseFloat(pool.attributes.price_change_percentage?.h24 || '0'),
+        liquidity: parseFloat(pool.attributes.reserve_in_usd || '0'),
+        transactions_24h: pool.attributes.transactions?.h24?.count || 0,
+        pool_address: pool.id,
+        source: 'pool_search'
+      };
+    }
+  }
+  
+  return null;
+}
+
+async function searchByTokens(query: string) {
+  // Note: This endpoint may not exist, but following HiveFi pattern
+  const response = await geckoClient.searchTokens(query);
+  
+  if (!response.success || !response.data?.data) {
+    return null;
+  }
+
+  const tokens = response.data.data;
+  const bestMatch = tokens.find(token => tokenMatches(token.attributes, query));
+  
+  if (!bestMatch) return null;
   
   return {
-    symbol: token.symbol || 'UNKNOWN',
-    name: token.name || 'Unknown',
-    address: token.address || '',
-    price: type === 'base' ? (attrs.base_token_price_usd || 0) : (attrs.quote_token_price_usd || 0),
-    market_cap: attrs.fdv_usd || 0,
-    volume_24h: attrs.volume_usd?.h24 || 0,
-    price_changes: attrs.price_change_percentage || {},
-    liquidity: attrs.reserve_in_usd || 0,
-    transactions: transactions,
-    pool_address: pool.id,
-    network: 'pepe-unchained',
-    source: 'pool_search'
+    symbol: bestMatch.attributes.symbol,
+    name: bestMatch.attributes.name,
+    address: bestMatch.attributes.address,
+    price: parseFloat(bestMatch.attributes.price_usd || '0'),
+    market_cap: 0, // Token search doesn't provide this
+    volume_24h: 0, // Token search doesn't provide this
+    price_change_24h: 0, // Token search doesn't provide this
+    liquidity: 0, // Token search doesn't provide this
+    transactions_24h: 0, // Token search doesn't provide this
+    pool_address: '', // Token search doesn't provide this
+    source: 'token_search'
   };
 }
 
-async function getBroaderMarketContext() {
-  try {
-    console.log('🌍 Getting broader market context...');
-    
-    // Get global crypto market data
-    const globalResponse = await fetch('https://api.coingecko.com/api/v3/global', {
-      headers: { 'Accept': 'application/json' }
-    });
-    
-    const globalData = globalResponse.ok ? await globalResponse.json() : null;
-    
-    // Get trending searches
-    const trendingResponse = await fetch('https://api.coingecko.com/api/v3/search/trending', {
-      headers: { 'Accept': 'application/json' }
-    });
-    
-    const trendingData = trendingResponse.ok ? await trendingResponse.json() : null;
-    
-    return {
-      global_market_cap: globalData?.data?.total_market_cap?.usd || 0,
-      market_cap_change_24h: globalData?.data?.market_cap_change_percentage_24h_usd || 0,
-      active_cryptocurrencies: globalData?.data?.active_cryptocurrencies || 0,
-      trending_searches: trendingData?.coins || [],
-      market_dominance: globalData?.data?.market_cap_percentage || {}
-    };
-  } catch (error) {
-    console.error('Broader market context error:', error);
-    return null;
+function tokenMatches(token: any, query: string): boolean {
+  if (!token) return false;
+  
+  const q = query.toLowerCase().trim();
+  const symbol = (token.symbol || '').toLowerCase();
+  const name = (token.name || '').toLowerCase();
+  
+  // Exact matches first
+  if (symbol === q || name === q) return true;
+  
+  // Partial matches for longer queries
+  if (q.length > 2) {
+    if (symbol.includes(q) || name.includes(q)) return true;
   }
+  
+  return false;
 }
 
-async function getAdvancedTradingData(tokens: string[]) {
-  try {
-    console.log('⚡ Getting advanced trading data...');
-    
-    const tradingData = [];
-    
-    for (const token of tokens.slice(0, 3)) {
-      if (token.startsWith('0x')) {
-        // Get trades data for contract
-        const tradesResponse = await fetch(`https://api.geckoterminal.com/api/v2/networks/pepe-unchained/tokens/${token}/trades`);
+async function getMarketData(intent: any, tokens: any[]) {
+  const marketData: any = {};
+  
+  // Always get PEPU data
+  const pepuResponse = await geckoClient.getTokenInfo('0x4be3af53800aade09201654cd76d55063c7bde70');
+  if (pepuResponse.success && pepuResponse.data) {
+    const pepuData = pepuResponse.data.data;
+    marketData.pepu = {
+      symbol: pepuData.attributes.symbol,
+      name: pepuData.attributes.name,
+      price: parseFloat(pepuData.attributes.price_usd || '0'),
+      market_cap: parseFloat(pepuData.attributes.fdv_usd || '0'),
+      volume_24h: parseFloat(pepuData.attributes.volume_usd?.h24 || '0'),
+      liquidity: parseFloat(pepuData.attributes.total_reserve_in_usd || '0')
+    };
+  }
+  
+  // Get different data based on analysis type
+  switch (intent.analysisType) {
+    case 'trending':
+      const trendingResponse = await geckoClient.getTrendingPools();
+      if (trendingResponse.success && trendingResponse.data) {
+        marketData.trending = trendingResponse.data.data.slice(0, 10);
+      }
+      break;
+      
+    case 'new_launches':
+      const newPoolsResponse = await geckoClient.getNewPools();
+      if (newPoolsResponse.success && newPoolsResponse.data) {
+        marketData.new_launches = newPoolsResponse.data.data.slice(0, 10);
+      }
+      break;
+      
+    case 'volume':
+    case 'gainers_losers':
+    case 'performance':
+      const topPoolsResponse = await geckoClient.getTopPools(50);
+      if (topPoolsResponse.success && topPoolsResponse.data) {
+        const pools = topPoolsResponse.data.data;
         
-        if (tradesResponse.ok) {
-          const trades = await tradesResponse.json();
-          tradingData.push({
-            token: token,
-            recent_trades: trades.data || [],
-            trade_count: trades.data?.length || 0
-          });
+        // Sort by volume for volume leaders
+        if (intent.analysisType === 'volume') {
+          marketData.volume_leaders = pools
+            .sort((a, b) => parseFloat(b.attributes.volume_usd?.h24 || '0') - parseFloat(a.attributes.volume_usd?.h24 || '0'))
+            .slice(0, 10);
+        }
+        
+        // Sort by price change for gainers/losers
+        if (intent.analysisType === 'gainers_losers' || intent.analysisType === 'performance') {
+          const gainers = pools
+            .filter(p => parseFloat(p.attributes.price_change_percentage?.h24 || '0') > 0)
+            .sort((a, b) => parseFloat(b.attributes.price_change_percentage?.h24 || '0') - parseFloat(a.attributes.price_change_percentage?.h24 || '0'))
+            .slice(0, 5);
+            
+          const losers = pools
+            .filter(p => parseFloat(p.attributes.price_change_percentage?.h24 || '0') < 0)
+            .sort((a, b) => parseFloat(a.attributes.price_change_percentage?.h24 || '0') - parseFloat(b.attributes.price_change_percentage?.h24 || '0'))
+            .slice(0, 5);
+            
+          marketData.gainers = gainers;
+          marketData.losers = losers;
         }
       }
-    }
-    
-    return tradingData;
-  } catch (error) {
-    console.error('Advanced trading data error:', error);
-    return [];
+      break;
+      
+    case 'market_overview':
+      // Get comprehensive market data
+      const networkStats = await geckoClient.getNetworkStats();
+      if (networkStats) {
+        marketData.network = networkStats;
+      }
+      
+      const overviewPools = await geckoClient.getTopPools(20);
+      if (overviewPools.success && overviewPools.data) {
+        marketData.top_pools = overviewPools.data.data.slice(0, 10);
+      }
+      break;
   }
+  
+  return marketData;
 }
 
-async function generateIntelligentResponse(message: string, intent: any, comprehensiveData: any) {
-  const systemPrompt = `You are VaultGPT, an advanced cryptocurrency market intelligence system with access to comprehensive real-time data.
+async function generateResponse(message: string, intent: any, tokens: any[], marketData: any) {
+  if (tokens.length === 0 && intent.tokens?.length > 0) {
+    return `I searched for "${intent.tokens.join(', ')}" on the Pepe Unchained network but couldn't find any matching tokens. The tokens may not exist on this network or might be using different names/symbols.`;
+  }
+  
+  const systemPrompt = `You are VaultGPT, an expert analyst for the Pepe Unchained ecosystem.
 
-DATA SOURCES AVAILABLE:
-- Pepe Unchained native token (PEPU) with full pool analytics
-- Complete presale ecosystem data from GraphQL
-- Trending pools and new launches on Pepe Unchained
-- Global gainers/losers from CoinGecko
-- New token listings and market context
-- Advanced trading data and transaction analysis
-- OHLCV chart data and technical indicators
-
-ANALYSIS CAPABILITIES:
-- Multi-timeframe price analysis (1h, 6h, 24h, 7d)
-- Ecosystem health and growth metrics
-- Comparative performance analysis
-- Market sentiment and trend identification
-- Risk assessment with specific metrics
-- Trading opportunities and recommendations
-
-USER INTENT CONTEXT:
-${JSON.stringify(intent, null, 2)}
-
-RESPONSE GUIDELINES:
-- Use all available data sources for comprehensive analysis
-- Provide specific numbers, percentages, and metrics
-- Give clear investment insights and recommendations
-- Compare tokens and market performance when relevant
-- Explain trends and provide context
-- Use plain text formatting (no markdown)
-- Be confident and data-driven
-
-Focus on what the user specifically asked for while providing comprehensive market intelligence.`;
+Provide detailed analysis using the provided data. Be specific with numbers and metrics.
+If tokens were found, analyze their performance. If trending data is available, highlight key trends.
+Always mention this is specifically for the Pepe Unchained network.`;
 
   try {
     const completion = await openai.chat.completions.create({
-      model: "gpt-4o",
+      model: "gpt-4o-mini",
       messages: [
         { role: "system", content: systemPrompt },
         { 
           role: "system", 
-          content: `COMPREHENSIVE MARKET DATA:
-${JSON.stringify(comprehensiveData, null, 2)}`
+          content: `FOUND TOKENS: ${JSON.stringify(tokens, null, 2)}\nMARKET DATA: ${JSON.stringify(marketData, null, 2)}`
         },
         { role: "user", content: message }
       ],
-      temperature: 0.4,
-      max_tokens: 1500,
+      temperature: 0.3,
+      max_tokens: 800,
     });
 
     return completion.choices[0].message.content;
   } catch (error) {
-    console.error('Intelligent response generation error:', error);
-    
-    // Comprehensive fallback using all data
-    return generateComprehensiveFallback(message, intent, comprehensiveData);
+    console.error('Response generation error:', error);
+    return generateFallbackResponse(tokens, marketData);
   }
 }
 
-function generateComprehensiveFallback(message: string, intent: any, data: any) {
-  let response = "VaultGPT Comprehensive Market Analysis\n\n";
+function generateFallbackResponse(tokens: any[], marketData: any) {
+  let response = "VaultGPT Analysis - Pepe Unchained Network\n\n";
   
-  // PEPU Analysis
-  if (data.pepuData) {
-    const pepu = data.pepuData;
-    response += `PEPE UNCHAINED (PEPU) ANALYSIS:\n`;
-    response += `Current Price: $${pepu.price?.toFixed(8) || 'N/A'}\n`;
-    response += `Market Cap: $${pepu.market_cap?.toLocaleString() || 'N/A'}\n`;
-    response += `24h Volume: $${pepu.volume_24h?.toLocaleString() || 'N/A'}\n`;
-    
-    if (pepu.price_changes) {
-      response += `Price Changes - 1h: ${pepu.price_changes.h1?.toFixed(2) || 'N/A'}% | 24h: ${pepu.price_changes.h24?.toFixed(2) || 'N/A'}%\n`;
-    }
-    
-    response += `Liquidity: $${pepu.liquidity?.toLocaleString() || 'N/A'}\n\n`;
-  }
-  
-  // Ecosystem Health
-  if (data.presaleData) {
-    const ecosystem = data.presaleData;
-    response += `ECOSYSTEM HEALTH:\n`;
-    response += `Total Presales: ${ecosystem.total_presales || 0}\n`;
-    response += `Active Launches: ${ecosystem.active_presales || 0}\n`;
-    response += `Activity Level: ${ecosystem.ecosystem_activity || 'unknown'}\n`;
-    response += `Total Raised: $${ecosystem.total_raised?.toLocaleString() || 'N/A'}\n\n`;
-  }
-  
-  // Market Performance
-  if (data.gainersLosersData) {
-    const performance = data.gainersLosersData;
-    response += `MARKET PERFORMANCE:\n`;
-    response += `Pepe Unchained Gainers: ${performance.pepu_gainers?.length || 0}\n`;
-    response += `Pepe Unchained Losers: ${performance.pepu_losers?.length || 0}\n`;
-    response += `Market Sentiment: ${performance.market_sentiment || 'neutral'}\n\n`;
-    
-    if (performance.pepu_gainers?.length > 0) {
-      response += `Top Pepe Unchained Gainer: ${performance.pepu_gainers[0].symbol} (+${performance.pepu_gainers[0].price_change_24h.toFixed(2)}%)\n`;
-    }
-  }
-  
-  // Trending Data
-  if (data.trendingData) {
-    const trending = data.trendingData;
-    response += `TRENDING ANALYSIS:\n`;
-    response += `Trending Pools: ${trending.trending_pools?.length || 0}\n`;
-    response += `New Pools: ${trending.new_pools?.length || 0}\n`;
-    response += `Network Growth: ${trending.network_growth || 'steady'}\n\n`;
-  }
-  
-  // Specific Token Data
-  if (data.specificTokensData?.length > 0) {
-    response += `SPECIFIC TOKEN ANALYSIS:\n`;
-    data.specificTokensData.forEach((token: any) => {
-      response += `${token.name} (${token.symbol}):\n`;
-      response += `  Price: $${token.price?.toFixed(8) || 'N/A'}\n`;
-      response += `  Market Cap: $${token.market_cap?.toLocaleString() || 'N/A'}\n`;
-      response += `  24h Volume: $${token.volume_24h?.toLocaleString() || 'N/A'}\n`;
-      response += `  Network: ${token.network}\n\n`;
+  if (tokens.length > 0) {
+    response += "FOUND TOKENS:\n";
+    tokens.forEach((token, index) => {
+      response += `${index + 1}. ${token.name} (${token.symbol})\n`;
+      response += `   Price: ${token.price.toFixed(8)}\n`;
+      response += `   Market Cap: ${token.market_cap?.toLocaleString() || 'N/A'}\n`;
+      response += `   24h Volume: ${token.volume_24h?.toLocaleString() || 'N/A'}\n`;
+      response += `   24h Change: ${token.price_change_24h?.toFixed(2) || 'N/A'}%\n`;
+      response += `   Source: ${token.source}\n\n`;
     });
   }
   
-  response += `Data Sources: ${Object.keys(data).join(', ')}\n`;
-  response += `Analysis Type: ${intent.analysisType || 'comprehensive'}\n`;
+  if (marketData.pepu) {
+    response += "PEPE UNCHAINED (PEPU):\n";
+    response += `Price: ${marketData.pepu.price.toFixed(8)}\n`;
+    response += `Market Cap: ${marketData.pepu.market_cap.toLocaleString()}\n`;
+    response += `24h Volume: ${marketData.pepu.volume_24h.toLocaleString()}\n`;
+    response += `Liquidity: ${marketData.pepu.liquidity.toLocaleString()}\n\n`;
+  }
+  
+  if (marketData.network) {
+    response += "NETWORK STATS:\n";
+    response += `Total Pools: ${marketData.network.total_pools}\n`;
+    response += `Total Liquidity: ${marketData.network.total_liquidity.toLocaleString()}\n`;
+    response += `24h Volume: ${marketData.network.total_volume_24h.toLocaleString()}\n`;
+  }
   
   return response;
+}
+
+// Optional: Add an endpoint to manually refresh tokens
+export async function PATCH(request: NextRequest) {
+  try {
+    KNOWN_TOKENS = {};
+    lastTokenUpdate = 0;
+    
+    const tokens = await getKnownTokens();
+    
+    return NextResponse.json({
+      message: 'Tokens refreshed successfully',
+      tokenCount: Object.keys(tokens).length
+    });
+  } catch (error) {
+    return NextResponse.json(
+      { error: 'Failed to refresh tokens' },
+      { status: 500 }
+    );
+  }
 }

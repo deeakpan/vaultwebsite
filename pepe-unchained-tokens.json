@@ -1,0 +1,189 @@
+{
+  "lastUpdated": "2025-08-17T21:18:44.926Z",
+  "network": "pepe-unchained",
+  "totalTokens": 20,
+  "previousCount": 0,
+  "newTokensAdded": 20,
+  "tokens": {
+    "$rosie": "0xa10ef3c7aabce556e3cbc66f14ee30a8d5982255",
+    "rosie": "0xa10ef3c7aabce556e3cbc66f14ee30a8d5982255",
+    "booost": "0x910c1acdbefc866f2cb2c482e044582e44395152",
+    "bobby booost": "0x910c1acdbefc866f2cb2c482e044582e44395152",
+    "$booost": "0x910c1acdbefc866f2cb2c482e044582e44395152",
+    "dawgz": "0x153b5ae0ff770ebe5c30b1de751d8820b2505774",
+    "d.a.w.g.z": "0x153b5ae0ff770ebe5c30b1de751d8820b2505774",
+    "$dawgz": "0x153b5ae0ff770ebe5c30b1de751d8820b2505774",
+    "dgt": "0x3cb51202e41890c89b2a46bd5c921e2d55665637",
+    "degen time": "0x3cb51202e41890c89b2a46bd5c921e2d55665637",
+    "$dgt": "0x3cb51202e41890c89b2a46bd5c921e2d55665637",
+    "gyd": "0x631420b5cd6342b3609e59e6e41b4c8aaddf93af",
+    "gameyard": "0x631420b5cd6342b3609e59e6e41b4c8aaddf93af",
+    "$gyd": "0x631420b5cd6342b3609e59e6e41b4c8aaddf93af",
+    "hora": "0xd42fabf08d04d1eb5c69f770c6e049832b69d788",
+    "holderradar": "0xd42fabf08d04d1eb5c69f770c6e049832b69d788",
+    "$hora": "0xd42fabf08d04d1eb5c69f770c6e049832b69d788",
+    "mfg": "0x434dd2afe3baf277ffcfe9bef9787eda6b4c38d5",
+    "matrixfrog": "0x434dd2afe3baf277ffcfe9bef9787eda6b4c38d5",
+    "$mfg": "0x434dd2afe3baf277ffcfe9bef9787eda6b4c38d5",
+    "$penk": "0x82144c93bd531e46f31033fe22d1055af17a514c",
+    "pepu bank": "0x82144c93bd531e46f31033fe22d1055af17a514c",
+    "penk": "0x82144c93bd531e46f31033fe22d1055af17a514c",
+    "museum": "0xc77e40977a04982a8c0810c396d1c75c9b016152",
+    "pepu museum": "0xc77e40977a04982a8c0810c396d1c75c9b016152",
+    "$museum": "0xc77e40977a04982a8c0810c396d1c75c9b016152",
+    "$vault": "0x8746d6fc80708775461226657a6947497764bbe6",
+    "pepu vault": "0x8746d6fc80708775461226657a6947497764bbe6",
+    "vault": "0x8746d6fc80708775461226657a6947497764bbe6",
+    "pstars": "0x901db3533a321e64f3da4468138935ed01e19345",
+    "pepustars": "0x901db3533a321e64f3da4468138935ed01e19345",
+    "$pstars": "0x901db3533a321e64f3da4468138935ed01e19345",
+    "safef": "0xc2fc08b595d9333fa7d641e526d15c6a37d8d44d",
+    "safeyield falcon syc": "0xc2fc08b595d9333fa7d641e526d15c6a37d8d44d",
+    "$safef": "0xc2fc08b595d9333fa7d641e526d15c6a37d8d44d",
+    "$spring": "0x28dd14d951cc1b9ff32bdc27dcc7da04fbfe3af6",
+    "springfield": "0x28dd14d951cc1b9ff32bdc27dcc7da04fbfe3af6",
+    "spring": "0x28dd14d951cc1b9ff32bdc27dcc7da04fbfe3af6",
+    "usdt": "0x06f69a40c33c5a4cd038bbe1da689d4d636ec448",
+    "tether usd": "0x06f69a40c33c5a4cd038bbe1da689d4d636ec448",
+    "$usdt": "0x06f69a40c33c5a4cd038bbe1da689d4d636ec448",
+    "tosh": "0x0b52dfa17542f30f3072c53ca5061120c74d86e9",
+    "$tosh": "0x0b52dfa17542f30f3072c53ca5061120c74d86e9",
+    "usdc": "0x20fb684bfc1abaad3acec5712f2aa30bd494df74",
+    "usd coin": "0x20fb684bfc1abaad3acec5712f2aa30bd494df74",
+    "$usdc": "0x20fb684bfc1abaad3acec5712f2aa30bd494df74",
+    "weth": "0x7ccc51754216c04d4bb1210630cca16e5430aa70",
+    "wrapped ether": "0x7ccc51754216c04d4bb1210630cca16e5430aa70",
+    "$weth": "0x7ccc51754216c04d4bb1210630cca16e5430aa70",
+    "wpepu": "0xf9cf4a16d26979b929be7176bac4e7084975fcb8",
+    "wrapped pepu": "0xf9cf4a16d26979b929be7176bac4e7084975fcb8",
+    "$wpepu": "0xf9cf4a16d26979b929be7176bac4e7084975fcb8",
+    "yash": "0xb7fbb045a14a5d7d6e55dbbf7005ec138eaddde9",
+    "yashix": "0xb7fbb045a14a5d7d6e55dbbf7005ec138eaddde9",
+    "$yash": "0xb7fbb045a14a5d7d6e55dbbf7005ec138eaddde9",
+    "zen": "0xd2e6a84bed4fd60c3387c7f487d9748f94b35c23",
+    "zenmonkey": "0xd2e6a84bed4fd60c3387c7f487d9748f94b35c23",
+    "$zen": "0xd2e6a84bed4fd60c3387c7f487d9748f94b35c23"
+  },
+  "tokenDetails": {
+    "0xa10ef3c7aabce556e3cbc66f14ee30a8d5982255": {
+      "symbol": "$Rosie",
+      "name": "$Rosie",
+      "decimals": 18,
+      "address": "0xa10ef3c7aabce556e3cbc66f14ee30a8d5982255"
+    },
+    "0x910c1acdbefc866f2cb2c482e044582e44395152": {
+      "symbol": "Booost",
+      "name": "Bobby Booost",
+      "decimals": 18,
+      "address": "0x910c1acdbefc866f2cb2c482e044582e44395152"
+    },
+    "0x153b5ae0ff770ebe5c30b1de751d8820b2505774": {
+      "symbol": "DAWGZ",
+      "name": "D.A.W.G.Z",
+      "decimals": 18,
+      "address": "0x153b5ae0ff770ebe5c30b1de751d8820b2505774"
+    },
+    "0x3cb51202e41890c89b2a46bd5c921e2d55665637": {
+      "symbol": "DGT",
+      "name": "Degen Time",
+      "decimals": 18,
+      "address": "0x3cb51202e41890c89b2a46bd5c921e2d55665637"
+    },
+    "0x631420b5cd6342b3609e59e6e41b4c8aaddf93af": {
+      "symbol": "GYD",
+      "name": "Gameyard",
+      "decimals": 18,
+      "address": "0x631420b5cd6342b3609e59e6e41b4c8aaddf93af"
+    },
+    "0xd42fabf08d04d1eb5c69f770c6e049832b69d788": {
+      "symbol": "HoRa",
+      "name": "HolderRadar",
+      "decimals": 18,
+      "address": "0xd42fabf08d04d1eb5c69f770c6e049832b69d788"
+    },
+    "0x434dd2afe3baf277ffcfe9bef9787eda6b4c38d5": {
+      "symbol": "MFG",
+      "name": "MatrixFrog",
+      "decimals": 18,
+      "address": "0x434dd2afe3baf277ffcfe9bef9787eda6b4c38d5"
+    },
+    "0x82144c93bd531e46f31033fe22d1055af17a514c": {
+      "symbol": "$PENK",
+      "name": "PEPU BANK",
+      "decimals": 18,
+      "address": "0x82144c93bd531e46f31033fe22d1055af17a514c"
+    },
+    "0xc77e40977a04982a8c0810c396d1c75c9b016152": {
+      "symbol": "MUSEUM",
+      "name": "Pepu Museum",
+      "decimals": 18,
+      "address": "0xc77e40977a04982a8c0810c396d1c75c9b016152"
+    },
+    "0x8746d6fc80708775461226657a6947497764bbe6": {
+      "symbol": "$VAULT",
+      "name": "PEPU VAULT",
+      "decimals": 18,
+      "address": "0x8746d6fc80708775461226657a6947497764bbe6"
+    },
+    "0x901db3533a321e64f3da4468138935ed01e19345": {
+      "symbol": "PSTARS",
+      "name": "PepuStars",
+      "decimals": 18,
+      "address": "0x901db3533a321e64f3da4468138935ed01e19345"
+    },
+    "0xc2fc08b595d9333fa7d641e526d15c6a37d8d44d": {
+      "symbol": "SafeF",
+      "name": "Safeyield Falcon SYC",
+      "decimals": 18,
+      "address": "0xc2fc08b595d9333fa7d641e526d15c6a37d8d44d"
+    },
+    "0x28dd14d951cc1b9ff32bdc27dcc7da04fbfe3af6": {
+      "symbol": "$SPRING",
+      "name": "Springfield",
+      "decimals": 18,
+      "address": "0x28dd14d951cc1b9ff32bdc27dcc7da04fbfe3af6"
+    },
+    "0x06f69a40c33c5a4cd038bbe1da689d4d636ec448": {
+      "symbol": "USDT",
+      "name": "Tether USD",
+      "decimals": 6,
+      "address": "0x06f69a40c33c5a4cd038bbe1da689d4d636ec448"
+    },
+    "0x0b52dfa17542f30f3072c53ca5061120c74d86e9": {
+      "symbol": "TOSH",
+      "name": "TOSH",
+      "decimals": 18,
+      "address": "0x0b52dfa17542f30f3072c53ca5061120c74d86e9"
+    },
+    "0x20fb684bfc1abaad3acec5712f2aa30bd494df74": {
+      "symbol": "USDC",
+      "name": "USD Coin",
+      "decimals": 6,
+      "address": "0x20fb684bfc1abaad3acec5712f2aa30bd494df74"
+    },
+    "0x7ccc51754216c04d4bb1210630cca16e5430aa70": {
+      "symbol": "WETH",
+      "name": "Wrapped Ether",
+      "decimals": 18,
+      "address": "0x7ccc51754216c04d4bb1210630cca16e5430aa70"
+    },
+    "0xf9cf4a16d26979b929be7176bac4e7084975fcb8": {
+      "symbol": "WPEPU",
+      "name": "Wrapped PEPU",
+      "decimals": 18,
+      "address": "0xf9cf4a16d26979b929be7176bac4e7084975fcb8"
+    },
+    "0xb7fbb045a14a5d7d6e55dbbf7005ec138eaddde9": {
+      "symbol": "YASH",
+      "name": "YASHIX",
+      "decimals": 18,
+      "address": "0xb7fbb045a14a5d7d6e55dbbf7005ec138eaddde9"
+    },
+    "0xd2e6a84bed4fd60c3387c7f487d9748f94b35c23": {
+      "symbol": "Zen",
+      "name": "Zenmonkey",
+      "decimals": 18,
+      "address": "0xd2e6a84bed4fd60c3387c7f487d9748f94b35c23"
+    }
+  }
+}
