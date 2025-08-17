@@ -127,7 +127,7 @@ export default function VaultGPTModal({ isOpen, onClose }: VaultGPTModalProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const VAULT_TOKEN_ADDRESS = '0x8746D6Fc80708775461226657a6947497764BBe6';
-  const MINIMUM_VAULT_BALANCE = 0;
+  const MINIMUM_VAULT_BALANCE = 6000000; // 6 million tokens required
 
   const { data: vaultBalance, isLoading: isCheckingBalance } = useBalance({
     address,
@@ -386,7 +386,7 @@ export default function VaultGPTModal({ isOpen, onClose }: VaultGPTModalProps) {
                   </svg>
                 </div>
                 <h3 className="text-lg font-semibold text-black mb-2">Insufficient Vault Balance</h3>
-                <p className="text-base text-gray-600 mb-2">You need at least 1,000,000 $Vault tokens to access VaultGPT</p>
+                <p className="text-base text-gray-600 mb-2">You need at least 6,000,000 $Vault tokens to access VaultGPT</p>
                 <p className="text-sm text-gray-500 mb-4">Current balance: {vaultBalance?.formatted ? Number(vaultBalance.formatted).toLocaleString() : '0'} $Vault</p>
                 <a 
                   href="https://pepuswap.com/#/swap?outputCurrency=0x8746D6Fc80708775461226657a6947497764BBe6"
