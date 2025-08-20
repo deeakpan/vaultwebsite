@@ -199,6 +199,12 @@ export default function Hero() {
               >
                 Buy $Vault
               </a>
+              <a 
+                href="/bridge"
+                className="bg-pepu-yellow-orange text-pepu-dark-green px-4 py-2 md:px-8 md:py-4 rounded-xl font-bold text-sm md:text-lg hover:bg-pepu-yellow-orange/90 transition-colors inline-block text-center"
+              >
+                Bridge Assets
+              </a>
             </div>
           </div>
 
