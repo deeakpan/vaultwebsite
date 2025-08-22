@@ -30,7 +30,7 @@ export default function AdminPage() {
     logo: null as File | null
   });
 
-  const ADMIN_WALLET = '0x62942BbBb86482bFA0C064d0262E23Ca04ea99C5';
+  const ADMIN_WALLET = '0xC96694BEA572073D19C41aA9C014Dd3c7C193B8E';
 
   useEffect(() => {
     if (isConnected && address) {
