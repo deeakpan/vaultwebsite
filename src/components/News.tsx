@@ -33,8 +33,8 @@ export default function News() {
     {
       id: '3',
       type: 'snapshot',
-      title: 'Snapshot Alert: 24 Hours Remaining',
-      description: 'Next $Vault snapshot in 24 hours. Ensure your balance is stable.',
+      title: 'Next Snapshot: September 28th',
+      description: 'Next $Vault snapshot scheduled for September 28th. Ensure your balance is stable.',
       timestamp: '1 hour ago',
       priority: 'high'
     },

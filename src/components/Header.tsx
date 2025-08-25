@@ -46,7 +46,7 @@ export default function Header() {
             <a href="#tools" className="hover:text-pepu-yellow-orange transition-colors text-sm md:text-base">
               Tools
             </a>
-            <a href="/bridge" className="hover:text-pepu-yellow-orange transition-colors text-sm md:text-base">
+            <a href="#bridge" className="hover:text-pepu-yellow-orange transition-colors text-sm md:text-base">
               Bridge
             </a>
             <a href="/admin" className="hover:text-pepu-yellow-orange transition-colors text-sm md:text-base">
@@ -134,7 +134,7 @@ export default function Header() {
               <a href="#tools" className="hover:text-pepu-yellow-orange transition-colors text-sm py-2">
                 Tools
               </a>
-              <a href="/bridge" className="hover:text-pepu-yellow-orange transition-colors text-sm py-2">
+              <a href="#bridge" className="hover:text-pepu-yellow-orange transition-colors text-sm py-2">
                 Bridge
               </a>
               <a href="/admin" className="hover:text-pepu-yellow-orange transition-colors text-sm py-2">

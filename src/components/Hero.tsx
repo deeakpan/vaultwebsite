@@ -14,8 +14,8 @@ interface Partner {
 export default function Hero() {
   const [snapshotData, setSnapshotData] = useState({
     totalRewards: 1250000,
-    lastSnapshot: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // 7 days ago
-    nextSnapshot: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)  // 7 days from now
+    lastSnapshot: new Date('2024-09-14'), // Last snapshot was September 14th
+    nextSnapshot: new Date('2024-09-28')  // Next snapshot is September 28th
   });
   const [treasuryValue, setTreasuryValue] = useState('$2.4M');
   const [isLoadingTreasury, setIsLoadingTreasury] = useState(true);
@@ -169,7 +169,7 @@ export default function Hero() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <h3 className="font-bold text-pepu-dark-green text-sm md:text-base mb-1">Community Rewards</h3>
-                    <p className="text-xs md:text-sm text-gray-600 leading-relaxed">Bi-weekly snapshots with automatic PEPU distribution</p>
+                    <p className="text-xs md:text-sm text-gray-600 leading-relaxed">Next snapshot: September 28th with automatic PEPU distribution</p>
                   </div>
                 </div>
               </div>
@@ -278,9 +278,9 @@ export default function Hero() {
               <div className="mt-4 md:mt-6 p-3 md:p-4 bg-gradient-to-r from-pepu-light-green/20 to-pepu-yellow-orange/20 rounded-lg">
                 <div className="flex items-center space-x-2">
                   <div className="w-3 h-3 bg-pepu-yellow-orange rounded-full animate-pulse"></div>
-                  <span className="text-xs md:text-sm font-semibold text-pepu-dark-green">14 Days</span>
+                  <span className="text-xs md:text-sm font-semibold text-pepu-dark-green">Sept 28</span>
                 </div>
-                <p className="text-xs md:text-sm text-gray-600 mt-1">Snapshot Cycle</p>
+                <p className="text-xs md:text-sm text-gray-600 mt-1">Next Snapshot</p>
               </div>
             </div>
           </div>

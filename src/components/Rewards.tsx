@@ -66,7 +66,7 @@ export default function Rewards() {
             Check Your Rewards
           </h2>
           <p className="text-xl text-black max-w-3xl mx-auto">
-            Enter your wallet address to check your $Vault and $PEPU rewards from our snapshot system.
+            Enter your wallet address to check your $Vault and $PEPU rewards from our snapshot system. Next snapshot: September 28th.
           </p>
         </div>
 
@@ -194,7 +194,7 @@ export default function Rewards() {
               <ul className="text-base text-black space-y-4 mb-8">
                 <li className="flex items-start">
                   <span className="w-2 h-2 bg-pepu-yellow-orange rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                  Snapshots are taken every 14 days automatically
+                  Next snapshot: September 28th (every 14 days automatically)
                 </li>
                 <li className="flex items-start">
                   <span className="w-2 h-2 bg-pepu-yellow-orange rounded-full mt-2 mr-3 flex-shrink-0"></span>
