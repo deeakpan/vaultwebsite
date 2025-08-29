@@ -14,8 +14,8 @@ interface Partner {
 export default function Hero() {
   const [snapshotData, setSnapshotData] = useState({
     totalRewards: 1250000,
-    lastSnapshot: new Date('2024-09-14'), // Last snapshot was September 14th
-    nextSnapshot: new Date('2024-09-28')  // Next snapshot is September 28th
+    lastSnapshot: new Date('2025-09-14'), // Last snapshot was September 14th
+    nextSnapshot: new Date('2025-09-28')  // Next snapshot is September 28th
   });
   const [treasuryValue, setTreasuryValue] = useState('$2.4M');
   const [isLoadingTreasury, setIsLoadingTreasury] = useState(true);
@@ -239,7 +239,7 @@ export default function Hero() {
                   </div>
                   <div className="mt-3 flex items-center space-x-3">
                     {rewardPartner.logo_url && (
-                      <div className="w-12 h-12 md:w-14 md:h-14 flex items-center justify-center">
+                      <div className="w-16 h-16 md:w-20 md:h-20 flex items-center justify-center">
                         <img 
                           src={rewardPartner.logo_url} 
                           alt={rewardPartner.name}
