@@ -127,7 +127,7 @@ export default function VaultGPTModal({ isOpen, onClose }: VaultGPTModalProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const VAULT_TOKEN_ADDRESS = '0x8746D6Fc80708775461226657a6947497764BBe6';
-  const MINIMUM_VAULT_BALANCE = 1000000; // 1 million tokens required
+  const MINIMUM_VAULT_BALANCE = 0; // No tokens required
 
   const { data: vaultBalance, isLoading: isCheckingBalance } = useBalance({
     address,
