@@ -1,187 +1,441 @@
 {
-  "lastUpdated": "2025-08-17T21:18:44.926Z",
+  "lastUpdated": "2025-09-16T10:06:25.753Z",
   "network": "pepe-unchained",
-  "totalTokens": 20,
-  "previousCount": 0,
-  "newTokensAdded": 20,
+  "totalTokens": 54,
+  "previousCount": 53,
+  "newTokensAdded": 1,
   "tokens": {
+    "$anon": "0x3e7f421dc6f79a0b9268f6c90ffc54a32cbe10e6",
+    "anon": "0x3e7f421dc6f79a0b9268f6c90ffc54a32cbe10e6",
+    "$croft": "0x91e861bbfcfdc763a0f56e6a8dc5f1821ad0d467",
+    "croft": "0x91e861bbfcfdc763a0f56e6a8dc5f1821ad0d467",
+    "$land": "0x94a702b1b8c825346d6bf9e91d3ca48a75c42fde",
+    "land": "0x94a702b1b8c825346d6bf9e91d3ca48a75c42fde",
+    "$luxurious": "0xf5cb0ffe8df1e931bd8c1cd5be84ed4d8e1400f7",
+    "luxurious": "0xf5cb0ffe8df1e931bd8c1cd5be84ed4d8e1400f7",
+    "$matrix": "0x14718f534d85a9a204755e2a8ff52d1f181e2d4e",
+    "matrix": "0x14718f534d85a9a204755e2a8ff52d1f181e2d4e",
+    "$pboss": "0x58fe33c75faec8d8276442026a412b1d58ed4d96",
+    "pboss": "0x58fe33c75faec8d8276442026a412b1d58ed4d96",
+    "$penk": "0x82144c93bd531e46f31033fe22d1055af17a514c",
+    "penk": "0x82144c93bd531e46f31033fe22d1055af17a514c",
+    "$pmg": "0x583f86b8bbc57ce57cfe49b1105befac41aaaa73",
+    "pmg": "0x583f86b8bbc57ce57cfe49b1105befac41aaaa73",
     "$rosie": "0xa10ef3c7aabce556e3cbc66f14ee30a8d5982255",
     "rosie": "0xa10ef3c7aabce556e3cbc66f14ee30a8d5982255",
+    "$sft": "0x17309d9cf30c75abf1e063a4b075ee5c9439ba4a",
+    "sft": "0x17309d9cf30c75abf1e063a4b075ee5c9439ba4a",
+    "$spring": "0x28dd14d951cc1b9ff32bdc27dcc7da04fbfe3af6",
+    "spring": "0x28dd14d951cc1b9ff32bdc27dcc7da04fbfe3af6",
+    "$take": "0x1b4f32da513a0ff5fd7461ef79d3b365579caeec",
+    "take": "0x1b4f32da513a0ff5fd7461ef79d3b365579caeec",
+    "$trend": "0x2506a6f5006a458a77940490b6f0b57a3bc78f41",
+    "trend": "0x2506a6f5006a458a77940490b6f0b57a3bc78f41",
+    "$vault": "0x8746d6fc80708775461226657a6947497764bbe6",
+    "vault": "0x8746d6fc80708775461226657a6947497764bbe6",
+    "bog": "0x473e280563fe023d45e256af977f2cce2d88638c",
+    "$bog": "0x473e280563fe023d45e256af977f2cce2d88638c",
     "booost": "0x910c1acdbefc866f2cb2c482e044582e44395152",
-    "bobby booost": "0x910c1acdbefc866f2cb2c482e044582e44395152",
     "$booost": "0x910c1acdbefc866f2cb2c482e044582e44395152",
+    "corn": "0xefd166899b74e86775f3d07112de50cb81cdcc55",
+    "$corn": "0xefd166899b74e86775f3d07112de50cb81cdcc55",
     "dawgz": "0x153b5ae0ff770ebe5c30b1de751d8820b2505774",
-    "d.a.w.g.z": "0x153b5ae0ff770ebe5c30b1de751d8820b2505774",
     "$dawgz": "0x153b5ae0ff770ebe5c30b1de751d8820b2505774",
     "dgt": "0x3cb51202e41890c89b2a46bd5c921e2d55665637",
-    "degen time": "0x3cb51202e41890c89b2a46bd5c921e2d55665637",
     "$dgt": "0x3cb51202e41890c89b2a46bd5c921e2d55665637",
+    "doge": "0x32178893e94441af111c1cc70b923f3238aac10d",
+    "$doge": "0x32178893e94441af111c1cc70b923f3238aac10d",
+    "dsafe": "0x0ddc98c6f8a8356977770ed8972b7bfd777d40b4",
+    "$dsafe": "0x0ddc98c6f8a8356977770ed8972b7bfd777d40b4",
+    "gnrl": "0x217267f5a1db08dbdafefb391103484918258d52",
+    "$gnrl": "0x217267f5a1db08dbdafefb391103484918258d52",
     "gyd": "0x631420b5cd6342b3609e59e6e41b4c8aaddf93af",
-    "gameyard": "0x631420b5cd6342b3609e59e6e41b4c8aaddf93af",
     "$gyd": "0x631420b5cd6342b3609e59e6e41b4c8aaddf93af",
     "hora": "0xd42fabf08d04d1eb5c69f770c6e049832b69d788",
-    "holderradar": "0xd42fabf08d04d1eb5c69f770c6e049832b69d788",
     "$hora": "0xd42fabf08d04d1eb5c69f770c6e049832b69d788",
+    "ibiza final boss": "0xfd298778e52f46a0246bef32215c5e2ce2362a6f",
+    "$ibiza final boss": "0xfd298778e52f46a0246bef32215c5e2ce2362a6f",
+    "inoera": "0x3da11abd95ca4c2338d09c433f2f0e1052f3b3cd",
+    "$inoera": "0x3da11abd95ca4c2338d09c433f2f0e1052f3b3cd",
+    "jewelry": "0x86449d0e0dcbd880183cf7c20c7734a5a794b212",
+    "$jewelry": "0x86449d0e0dcbd880183cf7c20c7734a5a794b212",
+    "king": "0x9012edfb05d1a6d73746bc22822372f4b74acd06",
+    "$king": "0x9012edfb05d1a6d73746bc22822372f4b74acd06",
+    "luh": "0x7927c8b06b586b03845a706d3f6301ceea923b68",
+    "$luh": "0x7927c8b06b586b03845a706d3f6301ceea923b68",
     "mfg": "0x434dd2afe3baf277ffcfe9bef9787eda6b4c38d5",
-    "matrixfrog": "0x434dd2afe3baf277ffcfe9bef9787eda6b4c38d5",
     "$mfg": "0x434dd2afe3baf277ffcfe9bef9787eda6b4c38d5",
-    "$penk": "0x82144c93bd531e46f31033fe22d1055af17a514c",
-    "pepu bank": "0x82144c93bd531e46f31033fe22d1055af17a514c",
-    "penk": "0x82144c93bd531e46f31033fe22d1055af17a514c",
+    "mia": "0xc60a507756f5e092c36c858a2a7703f120630a23",
+    "$mia": "0xc60a507756f5e092c36c858a2a7703f120630a23",
+    "mmt": "0x9007d8c13c0f2cd544bd7e6ed7e5f44a1318d2f2",
+    "$mmt": "0x9007d8c13c0f2cd544bd7e6ed7e5f44a1318d2f2",
     "museum": "0xc77e40977a04982a8c0810c396d1c75c9b016152",
-    "pepu museum": "0xc77e40977a04982a8c0810c396d1c75c9b016152",
     "$museum": "0xc77e40977a04982a8c0810c396d1c75c9b016152",
-    "$vault": "0x8746d6fc80708775461226657a6947497764bbe6",
-    "pepu vault": "0x8746d6fc80708775461226657a6947497764bbe6",
-    "vault": "0x8746d6fc80708775461226657a6947497764bbe6",
+    "pepp": "0xef528d8db1bca0f0f8c63c78f62f692c1e449b94",
+    "$pepp": "0xef528d8db1bca0f0f8c63c78f62f692c1e449b94",
+    "plock": "0x74ded13443829a08eb912f7a7f4f1a0f3906d387",
+    "$plock": "0x74ded13443829a08eb912f7a7f4f1a0f3906d387",
+    "popcapy": "0xdb138933b25ea59487f0a57a72787888beff7d2b",
+    "$popcapy": "0xdb138933b25ea59487f0a57a72787888beff7d2b",
+    "pph": "0x9000cbd63241355ff1fbe1593b700cb8ac42a342",
+    "$pph": "0x9000cbd63241355ff1fbe1593b700cb8ac42a342",
     "pstars": "0x901db3533a321e64f3da4468138935ed01e19345",
-    "pepustars": "0x901db3533a321e64f3da4468138935ed01e19345",
     "$pstars": "0x901db3533a321e64f3da4468138935ed01e19345",
+    "ptx": "0xe17387d0b67aa4e2d595d8fc547297cabdf2a7d2",
+    "$ptx": "0xe17387d0b67aa4e2d595d8fc547297cabdf2a7d2",
+    "quantum": "0x687d50759b3952acaf00bbbfe70bb2eae2cd0a8b",
+    "$quantum": "0x687d50759b3952acaf00bbbfe70bb2eae2cd0a8b",
     "safef": "0xc2fc08b595d9333fa7d641e526d15c6a37d8d44d",
-    "safeyield falcon syc": "0xc2fc08b595d9333fa7d641e526d15c6a37d8d44d",
     "$safef": "0xc2fc08b595d9333fa7d641e526d15c6a37d8d44d",
-    "$spring": "0x28dd14d951cc1b9ff32bdc27dcc7da04fbfe3af6",
-    "springfield": "0x28dd14d951cc1b9ff32bdc27dcc7da04fbfe3af6",
-    "spring": "0x28dd14d951cc1b9ff32bdc27dcc7da04fbfe3af6",
-    "usdt": "0x06f69a40c33c5a4cd038bbe1da689d4d636ec448",
-    "tether usd": "0x06f69a40c33c5a4cd038bbe1da689d4d636ec448",
-    "$usdt": "0x06f69a40c33c5a4cd038bbe1da689d4d636ec448",
+    "sausage": "0x42b1896596417cb8b6e6a265a9e4c751bdeb6232",
+    "$sausage": "0x42b1896596417cb8b6e6a265a9e4c751bdeb6232",
+    "$serifos": "0x742cc0a0dbec77cca67d0b04b720893e5e1f0b53",
+    "serifos": "0x742cc0a0dbec77cca67d0b04b720893e5e1f0b53",
     "tosh": "0x0b52dfa17542f30f3072c53ca5061120c74d86e9",
     "$tosh": "0x0b52dfa17542f30f3072c53ca5061120c74d86e9",
+    "toshlove": "0x5f8974172f353d6c255c89a7b92420d6357622f9",
+    "$toshlove": "0x5f8974172f353d6c255c89a7b92420d6357622f9",
+    "twopu": "0x054b4ac28e3beca7b9d54ad223ba94f169aa4cdd",
+    "$twopu": "0x054b4ac28e3beca7b9d54ad223ba94f169aa4cdd",
     "usdc": "0x20fb684bfc1abaad3acec5712f2aa30bd494df74",
-    "usd coin": "0x20fb684bfc1abaad3acec5712f2aa30bd494df74",
     "$usdc": "0x20fb684bfc1abaad3acec5712f2aa30bd494df74",
+    "usdt": "0x06f69a40c33c5a4cd038bbe1da689d4d636ec448",
+    "$usdt": "0x06f69a40c33c5a4cd038bbe1da689d4d636ec448",
+    "vcotc": "0xd2f958f110861bc0f8e8b0ad23096b11e8ce9233",
+    "$vcotc": "0xd2f958f110861bc0f8e8b0ad23096b11e8ce9233",
+    "vcpepu": "0x2e709a0771203c3e7ac6bcc86c38557345e8164c",
+    "$vcpepu": "0x2e709a0771203c3e7ac6bcc86c38557345e8164c",
     "weth": "0x7ccc51754216c04d4bb1210630cca16e5430aa70",
-    "wrapped ether": "0x7ccc51754216c04d4bb1210630cca16e5430aa70",
     "$weth": "0x7ccc51754216c04d4bb1210630cca16e5430aa70",
     "wpepu": "0xf9cf4a16d26979b929be7176bac4e7084975fcb8",
-    "wrapped pepu": "0xf9cf4a16d26979b929be7176bac4e7084975fcb8",
     "$wpepu": "0xf9cf4a16d26979b929be7176bac4e7084975fcb8",
     "yash": "0xb7fbb045a14a5d7d6e55dbbf7005ec138eaddde9",
-    "yashix": "0xb7fbb045a14a5d7d6e55dbbf7005ec138eaddde9",
     "$yash": "0xb7fbb045a14a5d7d6e55dbbf7005ec138eaddde9",
     "zen": "0xd2e6a84bed4fd60c3387c7f487d9748f94b35c23",
-    "zenmonkey": "0xd2e6a84bed4fd60c3387c7f487d9748f94b35c23",
     "$zen": "0xd2e6a84bed4fd60c3387c7f487d9748f94b35c23"
   },
   "tokenDetails": {
+    "0x3e7f421dc6f79a0b9268f6c90ffc54a32cbe10e6": {
+      "symbol": "$ANON",
+      "name": "$anon",
+      "decimals": 18,
+      "address": "0x3e7f421dc6f79a0b9268f6c90ffc54a32cbe10e6"
+    },
+    "0x91e861bbfcfdc763a0f56e6a8dc5f1821ad0d467": {
+      "symbol": "$CROFT",
+      "name": "$croft",
+      "decimals": 18,
+      "address": "0x91e861bbfcfdc763a0f56e6a8dc5f1821ad0d467"
+    },
+    "0x94a702b1b8c825346d6bf9e91d3ca48a75c42fde": {
+      "symbol": "$LAND",
+      "name": "$land",
+      "decimals": 18,
+      "address": "0x94a702b1b8c825346d6bf9e91d3ca48a75c42fde"
+    },
+    "0xf5cb0ffe8df1e931bd8c1cd5be84ed4d8e1400f7": {
+      "symbol": "$LUXURIOUS",
+      "name": "$luxurious",
+      "decimals": 18,
+      "address": "0xf5cb0ffe8df1e931bd8c1cd5be84ed4d8e1400f7"
+    },
+    "0x14718f534d85a9a204755e2a8ff52d1f181e2d4e": {
+      "symbol": "$MATRIX",
+      "name": "$matrix",
+      "decimals": 18,
+      "address": "0x14718f534d85a9a204755e2a8ff52d1f181e2d4e"
+    },
+    "0x58fe33c75faec8d8276442026a412b1d58ed4d96": {
+      "symbol": "$PBOSS",
+      "name": "$pboss",
+      "decimals": 18,
+      "address": "0x58fe33c75faec8d8276442026a412b1d58ed4d96"
+    },
+    "0x82144c93bd531e46f31033fe22d1055af17a514c": {
+      "symbol": "$PENK",
+      "name": "$penk",
+      "decimals": 18,
+      "address": "0x82144c93bd531e46f31033fe22d1055af17a514c"
+    },
+    "0x583f86b8bbc57ce57cfe49b1105befac41aaaa73": {
+      "symbol": "$PMG",
+      "name": "$pmg",
+      "decimals": 18,
+      "address": "0x583f86b8bbc57ce57cfe49b1105befac41aaaa73"
+    },
     "0xa10ef3c7aabce556e3cbc66f14ee30a8d5982255": {
-      "symbol": "$Rosie",
-      "name": "$Rosie",
+      "symbol": "$ROSIE",
+      "name": "$rosie",
       "decimals": 18,
       "address": "0xa10ef3c7aabce556e3cbc66f14ee30a8d5982255"
     },
+    "0x17309d9cf30c75abf1e063a4b075ee5c9439ba4a": {
+      "symbol": "$SFT",
+      "name": "$sft",
+      "decimals": 18,
+      "address": "0x17309d9cf30c75abf1e063a4b075ee5c9439ba4a"
+    },
+    "0x28dd14d951cc1b9ff32bdc27dcc7da04fbfe3af6": {
+      "symbol": "$SPRING",
+      "name": "$spring",
+      "decimals": 18,
+      "address": "0x28dd14d951cc1b9ff32bdc27dcc7da04fbfe3af6"
+    },
+    "0x1b4f32da513a0ff5fd7461ef79d3b365579caeec": {
+      "symbol": "$TAKE",
+      "name": "$take",
+      "decimals": 18,
+      "address": "0x1b4f32da513a0ff5fd7461ef79d3b365579caeec"
+    },
+    "0x2506a6f5006a458a77940490b6f0b57a3bc78f41": {
+      "symbol": "$TREND",
+      "name": "$trend",
+      "decimals": 18,
+      "address": "0x2506a6f5006a458a77940490b6f0b57a3bc78f41"
+    },
+    "0x8746d6fc80708775461226657a6947497764bbe6": {
+      "symbol": "$VAULT",
+      "name": "$vault",
+      "decimals": 18,
+      "address": "0x8746d6fc80708775461226657a6947497764bbe6"
+    },
+    "0x473e280563fe023d45e256af977f2cce2d88638c": {
+      "symbol": "BOG",
+      "name": "Bog",
+      "decimals": 18,
+      "address": "0x473e280563fe023d45e256af977f2cce2d88638c"
+    },
     "0x910c1acdbefc866f2cb2c482e044582e44395152": {
-      "symbol": "Booost",
-      "name": "Bobby Booost",
+      "symbol": "BOOOST",
+      "name": "Booost",
       "decimals": 18,
       "address": "0x910c1acdbefc866f2cb2c482e044582e44395152"
     },
+    "0xefd166899b74e86775f3d07112de50cb81cdcc55": {
+      "symbol": "CORN",
+      "name": "Corn",
+      "decimals": 18,
+      "address": "0xefd166899b74e86775f3d07112de50cb81cdcc55"
+    },
     "0x153b5ae0ff770ebe5c30b1de751d8820b2505774": {
       "symbol": "DAWGZ",
-      "name": "D.A.W.G.Z",
+      "name": "Dawgz",
       "decimals": 18,
       "address": "0x153b5ae0ff770ebe5c30b1de751d8820b2505774"
     },
     "0x3cb51202e41890c89b2a46bd5c921e2d55665637": {
       "symbol": "DGT",
-      "name": "Degen Time",
+      "name": "Dgt",
       "decimals": 18,
       "address": "0x3cb51202e41890c89b2a46bd5c921e2d55665637"
     },
+    "0x32178893e94441af111c1cc70b923f3238aac10d": {
+      "symbol": "DOGE",
+      "name": "Doge",
+      "decimals": 18,
+      "address": "0x32178893e94441af111c1cc70b923f3238aac10d"
+    },
+    "0x0ddc98c6f8a8356977770ed8972b7bfd777d40b4": {
+      "symbol": "DSAFE",
+      "name": "Dsafe",
+      "decimals": 18,
+      "address": "0x0ddc98c6f8a8356977770ed8972b7bfd777d40b4"
+    },
+    "0x217267f5a1db08dbdafefb391103484918258d52": {
+      "symbol": "GNRL",
+      "name": "Gnrl",
+      "decimals": 18,
+      "address": "0x217267f5a1db08dbdafefb391103484918258d52"
+    },
     "0x631420b5cd6342b3609e59e6e41b4c8aaddf93af": {
       "symbol": "GYD",
-      "name": "Gameyard",
+      "name": "Gyd",
       "decimals": 18,
       "address": "0x631420b5cd6342b3609e59e6e41b4c8aaddf93af"
     },
     "0xd42fabf08d04d1eb5c69f770c6e049832b69d788": {
-      "symbol": "HoRa",
-      "name": "HolderRadar",
+      "symbol": "HORA",
+      "name": "Hora",
       "decimals": 18,
       "address": "0xd42fabf08d04d1eb5c69f770c6e049832b69d788"
     },
+    "0xfd298778e52f46a0246bef32215c5e2ce2362a6f": {
+      "symbol": "IBIZA FINAL BOSS",
+      "name": "Ibiza final boss",
+      "decimals": 18,
+      "address": "0xfd298778e52f46a0246bef32215c5e2ce2362a6f"
+    },
+    "0x3da11abd95ca4c2338d09c433f2f0e1052f3b3cd": {
+      "symbol": "INOERA",
+      "name": "Inoera",
+      "decimals": 18,
+      "address": "0x3da11abd95ca4c2338d09c433f2f0e1052f3b3cd"
+    },
+    "0x86449d0e0dcbd880183cf7c20c7734a5a794b212": {
+      "symbol": "JEWELRY",
+      "name": "Jewelry",
+      "decimals": 18,
+      "address": "0x86449d0e0dcbd880183cf7c20c7734a5a794b212"
+    },
+    "0x9012edfb05d1a6d73746bc22822372f4b74acd06": {
+      "symbol": "KING",
+      "name": "King",
+      "decimals": 18,
+      "address": "0x9012edfb05d1a6d73746bc22822372f4b74acd06"
+    },
+    "0x7927c8b06b586b03845a706d3f6301ceea923b68": {
+      "symbol": "LUH",
+      "name": "Luh",
+      "decimals": 18,
+      "address": "0x7927c8b06b586b03845a706d3f6301ceea923b68"
+    },
     "0x434dd2afe3baf277ffcfe9bef9787eda6b4c38d5": {
       "symbol": "MFG",
-      "name": "MatrixFrog",
+      "name": "Mfg",
       "decimals": 18,
       "address": "0x434dd2afe3baf277ffcfe9bef9787eda6b4c38d5"
     },
-    "0x82144c93bd531e46f31033fe22d1055af17a514c": {
-      "symbol": "$PENK",
-      "name": "PEPU BANK",
+    "0xc60a507756f5e092c36c858a2a7703f120630a23": {
+      "symbol": "MIA",
+      "name": "Mia",
       "decimals": 18,
-      "address": "0x82144c93bd531e46f31033fe22d1055af17a514c"
+      "address": "0xc60a507756f5e092c36c858a2a7703f120630a23"
+    },
+    "0x9007d8c13c0f2cd544bd7e6ed7e5f44a1318d2f2": {
+      "symbol": "MMT",
+      "name": "Mmt",
+      "decimals": 18,
+      "address": "0x9007d8c13c0f2cd544bd7e6ed7e5f44a1318d2f2"
     },
     "0xc77e40977a04982a8c0810c396d1c75c9b016152": {
       "symbol": "MUSEUM",
-      "name": "Pepu Museum",
+      "name": "Museum",
       "decimals": 18,
       "address": "0xc77e40977a04982a8c0810c396d1c75c9b016152"
     },
-    "0x8746d6fc80708775461226657a6947497764bbe6": {
-      "symbol": "$VAULT",
-      "name": "PEPU VAULT",
+    "0xef528d8db1bca0f0f8c63c78f62f692c1e449b94": {
+      "symbol": "PEPP",
+      "name": "Pepp",
       "decimals": 18,
-      "address": "0x8746d6fc80708775461226657a6947497764bbe6"
+      "address": "0xef528d8db1bca0f0f8c63c78f62f692c1e449b94"
+    },
+    "0x74ded13443829a08eb912f7a7f4f1a0f3906d387": {
+      "symbol": "PLOCK",
+      "name": "Plock",
+      "decimals": 18,
+      "address": "0x74ded13443829a08eb912f7a7f4f1a0f3906d387"
+    },
+    "0xdb138933b25ea59487f0a57a72787888beff7d2b": {
+      "symbol": "POPCAPY",
+      "name": "Popcapy",
+      "decimals": 18,
+      "address": "0xdb138933b25ea59487f0a57a72787888beff7d2b"
+    },
+    "0x9000cbd63241355ff1fbe1593b700cb8ac42a342": {
+      "symbol": "PPH",
+      "name": "Pph",
+      "decimals": 18,
+      "address": "0x9000cbd63241355ff1fbe1593b700cb8ac42a342"
     },
     "0x901db3533a321e64f3da4468138935ed01e19345": {
       "symbol": "PSTARS",
-      "name": "PepuStars",
+      "name": "Pstars",
       "decimals": 18,
       "address": "0x901db3533a321e64f3da4468138935ed01e19345"
     },
+    "0xe17387d0b67aa4e2d595d8fc547297cabdf2a7d2": {
+      "symbol": "PTX",
+      "name": "Ptx",
+      "decimals": 18,
+      "address": "0xe17387d0b67aa4e2d595d8fc547297cabdf2a7d2"
+    },
+    "0x687d50759b3952acaf00bbbfe70bb2eae2cd0a8b": {
+      "symbol": "QUANTUM",
+      "name": "Quantum",
+      "decimals": 18,
+      "address": "0x687d50759b3952acaf00bbbfe70bb2eae2cd0a8b"
+    },
     "0xc2fc08b595d9333fa7d641e526d15c6a37d8d44d": {
-      "symbol": "SafeF",
-      "name": "Safeyield Falcon SYC",
+      "symbol": "SAFEF",
+      "name": "Safef",
       "decimals": 18,
       "address": "0xc2fc08b595d9333fa7d641e526d15c6a37d8d44d"
     },
-    "0x28dd14d951cc1b9ff32bdc27dcc7da04fbfe3af6": {
-      "symbol": "$SPRING",
-      "name": "Springfield",
+    "0x42b1896596417cb8b6e6a265a9e4c751bdeb6232": {
+      "symbol": "SAUSAGE",
+      "name": "Sausage",
       "decimals": 18,
-      "address": "0x28dd14d951cc1b9ff32bdc27dcc7da04fbfe3af6"
+      "address": "0x42b1896596417cb8b6e6a265a9e4c751bdeb6232"
     },
-    "0x06f69a40c33c5a4cd038bbe1da689d4d636ec448": {
-      "symbol": "USDT",
-      "name": "Tether USD",
-      "decimals": 6,
-      "address": "0x06f69a40c33c5a4cd038bbe1da689d4d636ec448"
+    "0x742cc0a0dbec77cca67d0b04b720893e5e1f0b53": {
+      "symbol": "$SERIFOS",
+      "name": "SERIFOS",
+      "decimals": 18,
+      "address": "0x742cc0a0dbec77cca67d0b04b720893e5e1f0b53"
     },
     "0x0b52dfa17542f30f3072c53ca5061120c74d86e9": {
       "symbol": "TOSH",
-      "name": "TOSH",
+      "name": "Tosh",
       "decimals": 18,
       "address": "0x0b52dfa17542f30f3072c53ca5061120c74d86e9"
     },
+    "0x5f8974172f353d6c255c89a7b92420d6357622f9": {
+      "symbol": "TOSHLOVE",
+      "name": "Toshlove",
+      "decimals": 18,
+      "address": "0x5f8974172f353d6c255c89a7b92420d6357622f9"
+    },
+    "0x054b4ac28e3beca7b9d54ad223ba94f169aa4cdd": {
+      "symbol": "TWOPU",
+      "name": "Twopu",
+      "decimals": 18,
+      "address": "0x054b4ac28e3beca7b9d54ad223ba94f169aa4cdd"
+    },
     "0x20fb684bfc1abaad3acec5712f2aa30bd494df74": {
       "symbol": "USDC",
-      "name": "USD Coin",
-      "decimals": 6,
+      "name": "Usdc",
+      "decimals": 18,
       "address": "0x20fb684bfc1abaad3acec5712f2aa30bd494df74"
+    },
+    "0x06f69a40c33c5a4cd038bbe1da689d4d636ec448": {
+      "symbol": "USDT",
+      "name": "Usdt",
+      "decimals": 18,
+      "address": "0x06f69a40c33c5a4cd038bbe1da689d4d636ec448"
+    },
+    "0xd2f958f110861bc0f8e8b0ad23096b11e8ce9233": {
+      "symbol": "VCOTC",
+      "name": "Vcotc",
+      "decimals": 18,
+      "address": "0xd2f958f110861bc0f8e8b0ad23096b11e8ce9233"
+    },
+    "0x2e709a0771203c3e7ac6bcc86c38557345e8164c": {
+      "symbol": "VCPEPU",
+      "name": "Vcpepu",
+      "decimals": 18,
+      "address": "0x2e709a0771203c3e7ac6bcc86c38557345e8164c"
     },
     "0x7ccc51754216c04d4bb1210630cca16e5430aa70": {
       "symbol": "WETH",
-      "name": "Wrapped Ether",
+      "name": "Weth",
       "decimals": 18,
       "address": "0x7ccc51754216c04d4bb1210630cca16e5430aa70"
     },
     "0xf9cf4a16d26979b929be7176bac4e7084975fcb8": {
       "symbol": "WPEPU",
-      "name": "Wrapped PEPU",
+      "name": "Wpepu",
       "decimals": 18,
       "address": "0xf9cf4a16d26979b929be7176bac4e7084975fcb8"
     },
     "0xb7fbb045a14a5d7d6e55dbbf7005ec138eaddde9": {
       "symbol": "YASH",
-      "name": "YASHIX",
+      "name": "Yash",
       "decimals": 18,
       "address": "0xb7fbb045a14a5d7d6e55dbbf7005ec138eaddde9"
     },
     "0xd2e6a84bed4fd60c3387c7f487d9748f94b35c23": {
-      "symbol": "Zen",
-      "name": "Zenmonkey",
+      "symbol": "ZEN",
+      "name": "Zen",
       "decimals": 18,
       "address": "0xd2e6a84bed4fd60c3387c7f487d9748f94b35c23"
     }

@@ -1,8 +1,9 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { useAccount, useBalance } from 'wagmi';
+import { useAccount, useBalance, usePublicClient } from 'wagmi';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
+import { erc20Abi } from 'viem';
 
 interface Message {
   id: string;
@@ -10,6 +11,15 @@ interface Message {
   sender: 'user' | 'ai';
   timestamp: Date;
   tokenData?: any;
+}
+
+interface WalletToken {
+  address: string;
+  symbol: string;
+  name: string;
+  balance: string;
+  decimals: number;
+  usdValue?: number;
 }
 
 interface VaultGPTModalProps {
@@ -120,29 +130,34 @@ const MarketStats = ({ stats }: { stats: any }) => (
 
 export default function VaultGPTModal({ isOpen, onClose }: VaultGPTModalProps) {
   const { address, isConnected } = useAccount();
+  const publicClient = usePublicClient();
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [hasAccess, setHasAccess] = useState(false);
+  const [walletTokens, setWalletTokens] = useState<WalletToken[]>([]);
+  const [isLoadingTokens, setIsLoadingTokens] = useState(false);
+  const [showWalletTokens, setShowWalletTokens] = useState(false);
+  const [selectedTokens, setSelectedTokens] = useState<WalletToken[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const VAULT_TOKEN_ADDRESS = '0x8746D6Fc80708775461226657a6947497764BBe6';
   const MINIMUM_VAULT_BALANCE = 0; // No tokens required
 
-  const { data: vaultBalance, isLoading: isCheckingBalance } = useBalance({
+  // Get native PEPU balance (like Treasury component)
+  const { data: nativeBalance, isLoading: nativeLoading } = useBalance({
     address,
-    token: VAULT_TOKEN_ADDRESS as `0x${string}`,
+    chainId: 97741, // PEPU Chain ID
   });
 
   useEffect(() => {
-    if (isConnected && address && vaultBalance) {
-      const balance = Number(vaultBalance.formatted);
-      const hasEnoughBalance = balance >= MINIMUM_VAULT_BALANCE;
-      setHasAccess(hasEnoughBalance);
+    if (isConnected && address) {
+      // Always allow access when connected (MINIMUM_VAULT_BALANCE = 0)
+      setHasAccess(true);
     } else if (!isConnected || !address) {
       setHasAccess(false);
     }
-  }, [isConnected, address, vaultBalance, MINIMUM_VAULT_BALANCE]);
+  }, [isConnected, address]);
 
   useEffect(() => {
     if (isOpen) {
@@ -164,6 +179,186 @@ export default function VaultGPTModal({ isOpen, onClose }: VaultGPTModalProps) {
     }
   }, [isOpen]);
 
+  // Scan wallet for tokens using same approach as Treasury
+  const scanWalletTokens = async () => {
+    if (!address || !publicClient) {
+      console.log('Missing address or publicClient:', { address, publicClient });
+      return;
+    }
+    
+    console.log('Starting token scan for address:', address);
+    setIsLoadingTokens(true);
+    try {
+      const tokens: WalletToken[] = [];
+      
+      // First, add native PEPU balance if exists
+      if (nativeBalance && parseFloat(nativeBalance.formatted) > 0) {
+        const pepuAmount = parseFloat(nativeBalance.formatted);
+        console.log('PEPU balance:', pepuAmount);
+        
+        // Get PEPU price
+        try {
+          const priceResponse = await fetch('/api/pepu-price');
+          const priceData = await priceResponse.json();
+          const usdValue = pepuAmount * (priceData.price || 0);
+
+          tokens.push({
+            address: '0x0000000000000000000000000000000000000000',
+            symbol: 'PEPU',
+            name: 'Pepe Unchained',
+            balance: pepuAmount.toString(),
+            decimals: 18,
+            usdValue
+          });
+          
+          console.log('Added PEPU to wallet tokens');
+        } catch (priceError) {
+          console.error('Error fetching PEPU price:', priceError);
+          tokens.push({
+            address: '0x0000000000000000000000000000000000000000',
+            symbol: 'PEPU',
+            name: 'Pepe Unchained',
+            balance: pepuAmount.toString(),
+            decimals: 18,
+            usdValue: 0
+          });
+        }
+      }
+      
+      // Now scan for ERC20 tokens using getLogs (same as Treasury)
+      try {
+        const logs = await publicClient.getLogs({
+          address: undefined, // All addresses
+          event: {
+            type: 'event',
+            name: 'Transfer',
+            inputs: [
+              { type: 'address', name: 'from', indexed: true },
+              { type: 'address', name: 'to', indexed: true },
+              { type: 'uint256', name: 'value', indexed: false }
+            ]
+          },
+          args: {
+            to: address as `0x${string}`
+          },
+          fromBlock: 'earliest',
+          toBlock: 'latest'
+        });
+
+        console.log(`Found ${logs.length} transfer events`);
+
+        // Extract unique token contracts from transfer events
+        const uniqueTokens = new Map<string, { address: string; symbol: string; name: string; decimals: number }>();
+        
+        for (const log of logs) {
+          const tokenAddress = log.address.toLowerCase();
+          
+          if (!uniqueTokens.has(tokenAddress)) {
+            try {
+              // Get token details using erc20Abi
+              const [symbol, name, decimals] = await Promise.all([
+                publicClient.readContract({
+                  address: log.address,
+                  abi: erc20Abi,
+                  functionName: 'symbol'
+                }),
+                publicClient.readContract({
+                  address: log.address,
+                  abi: erc20Abi,
+                  functionName: 'name'
+                }),
+                publicClient.readContract({
+                  address: log.address,
+                  abi: erc20Abi,
+                  functionName: 'decimals'
+                })
+              ]);
+
+              uniqueTokens.set(tokenAddress, {
+                address: log.address,
+                symbol: symbol as string,
+                name: name as string,
+                decimals: decimals as number
+              });
+            } catch (error) {
+              console.warn(`Failed to get details for token ${log.address}:`, error);
+            }
+          }
+        }
+
+        console.log(`Found ${uniqueTokens.size} unique tokens`);
+
+        // Check balance for each token
+        for (const tokenInfo of uniqueTokens.values()) {
+          try {
+            const balance = await publicClient.readContract({
+              address: tokenInfo.address as `0x${string}`,
+              abi: erc20Abi,
+              functionName: 'balanceOf',
+              args: [address as `0x${string}`]
+            });
+
+            const balanceFormatted = (Number(balance) / Math.pow(10, tokenInfo.decimals)).toString();
+            console.log(`${tokenInfo.symbol} balance:`, balanceFormatted);
+            
+            if (Number(balanceFormatted) > 0) {
+              // Get token price
+              try {
+                const priceResponse = await fetch(`/api/token-price?address=${tokenInfo.address}`);
+                const priceData = await priceResponse.json();
+                const usdValue = Number(balanceFormatted) * (priceData.price || 0);
+
+                tokens.push({
+                  address: tokenInfo.address,
+                  symbol: tokenInfo.symbol,
+                  name: tokenInfo.name,
+                  balance: balanceFormatted,
+                  decimals: tokenInfo.decimals,
+                  usdValue
+                });
+                
+                console.log(`Added ${tokenInfo.symbol} to wallet tokens`);
+              } catch (priceError) {
+                console.error(`Error fetching price for ${tokenInfo.symbol}:`, priceError);
+                // Add token without price
+                tokens.push({
+                  address: tokenInfo.address,
+                  symbol: tokenInfo.symbol,
+                  name: tokenInfo.name,
+                  balance: balanceFormatted,
+                  decimals: tokenInfo.decimals,
+                  usdValue: 0
+                });
+              }
+            }
+          } catch (error) {
+            console.error(`Error checking balance for ${tokenInfo.symbol}:`, error);
+          }
+        }
+      } catch (error) {
+        console.error('Error scanning for ERC20 tokens:', error);
+      }
+
+      // Sort tokens by USD value (highest first)
+      tokens.sort((a, b) => (b.usdValue || 0) - (a.usdValue || 0));
+      
+      setWalletTokens(tokens);
+      console.log(`Found ${tokens.length} tokens with balance > 0:`, tokens);
+      
+      if (tokens.length === 0) {
+        console.log('No tokens found. This could mean:');
+        console.log('1. Wallet has no PEPU or ERC20 tokens');
+        console.log('2. Wallet is on wrong network (should be Pepe Unchained)');
+        console.log('3. RPC connection issues');
+        console.log('4. Token contracts not responding');
+      }
+    } catch (error) {
+      console.error('Error scanning wallet tokens:', error);
+    } finally {
+      setIsLoadingTokens(false);
+    }
+  };
+
   useEffect(() => {
     if (isOpen && hasAccess) {
       setMessages([{
@@ -172,8 +367,11 @@ export default function VaultGPTModal({ isOpen, onClose }: VaultGPTModalProps) {
         sender: 'ai',
         timestamp: new Date()
       }]);
+      
+      // Scan wallet tokens when modal opens
+      scanWalletTokens();
     }
-  }, [isOpen, hasAccess]);
+  }, [isOpen, hasAccess, address, publicClient, nativeBalance]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -194,7 +392,12 @@ export default function VaultGPTModal({ isOpen, onClose }: VaultGPTModalProps) {
     console.log('Full API Response:', apiData);
 
     if (apiData?.tokens && Array.isArray(apiData.tokens) && apiData.tokens.length > 0) {
-      tokenData = apiData.tokens.map((token: any) => ({
+      // Remove duplicates based on address
+      const uniqueTokens = new Map();
+      apiData.tokens.forEach((token: any) => {
+        const address = token.address || '';
+        if (address && !uniqueTokens.has(address)) {
+          uniqueTokens.set(address, {
         name: token.name || 'Unknown Token',
         symbol: token.symbol || 'N/A',
         price: token.price || 0,
@@ -202,9 +405,12 @@ export default function VaultGPTModal({ isOpen, onClose }: VaultGPTModalProps) {
         volume_24h: token.volume_24h || null,
         price_change_24h: token.price_change_24h || null,
         liquidity: token.liquidity || null,
-        address: token.address || '',
+            address: address,
         source: token.source || 'unknown'
-      }));
+          });
+        }
+      });
+      tokenData = Array.from(uniqueTokens.values());
     }
 
     if (!tokenData && responseText) {
@@ -246,8 +452,311 @@ export default function VaultGPTModal({ isOpen, onClose }: VaultGPTModalProps) {
     return { cleanText, tokenData, marketData };
   };
 
+  // Function to lookup presale data for a token address
+  const lookupPresaleData = async (address: string) => {
+    try {
+      const response = await fetch('https://pepu-mainnet2-pumppad.0sum.io/subgraphs/name/launchpad', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          query: `query { 
+            presales(where: { token: "${address.toLowerCase()}" }) { 
+              token 
+              data 
+              isEnd 
+              createdAt
+              updatedAt
+            } 
+          }`,
+        }),
+      });
+
+      if (!response.ok) throw new Error('Failed to fetch presale data');
+      const json = await response.json();
+      const presales = json?.data?.presales || [];
+      
+      if (presales.length > 0) {
+        const presale = presales[0];
+        let data: any = {};
+        try {
+          data = JSON.parse(presale.data || '{}');
+        } catch (e) {
+          console.warn('Failed to parse presale data:', e);
+        }
+
+        return {
+          found: true,
+          data: {
+            token: presale.token,
+            isEnd: presale.isEnd,
+            createdAt: presale.createdAt,
+            updatedAt: presale.updatedAt,
+            name: data.name || 'Unknown',
+            symbol: data.symbol || 'UNKNOWN',
+            description: data.description || '',
+            iconUrl: data.iconUrl || '',
+            website: data.website || '',
+            twitter: data.twitter || '',
+            telegram: data.telegram || '',
+            totalSupply: data.totalSupply || '0',
+            decimals: data.decimals || 18
+          }
+        };
+      }
+
+      return { found: false };
+    } catch (error) {
+      console.error('Error fetching presale data:', error);
+      return { found: false, error: error instanceof Error ? error.message : 'Unknown error' };
+    }
+  };
+
+  // Function to validate if an address is on Pepe Unchained network
+  const validateTokenAddress = async (address: string): Promise<{ isValid: boolean; tokenInfo?: any; presaleInfo?: any; error?: string }> => {
+    // Clean the address - remove any extra characters that might have been pasted
+    const cleanAddress = address.trim().replace(/[^0-9a-fA-Fx]/g, '');
+    
+    if (!cleanAddress || cleanAddress.length !== 42 || !cleanAddress.startsWith('0x')) {
+      return { isValid: false, error: 'Invalid address format' };
+    }
+
+    try {
+      // First check presale data
+      const presaleData = await lookupPresaleData(cleanAddress);
+      if (presaleData.found && presaleData.data) {
+        return {
+          isValid: true,
+          presaleInfo: presaleData.data,
+          tokenInfo: {
+            address: cleanAddress.toLowerCase(),
+            symbol: presaleData.data?.symbol || 'UNKNOWN',
+            name: presaleData.data?.name || 'Unknown',
+            decimals: presaleData.data?.decimals || 18
+          }
+        };
+      }
+
+      // If not in presale, check if it's a valid contract
+      const code = await publicClient?.getBytecode({ address: cleanAddress as `0x${string}` });
+      if (!code || code === '0x') {
+        return { isValid: false, error: 'Not a contract address or presale token' };
+      }
+
+      // Try to get token metadata from contract
+      try {
+        const [symbol, name, decimals] = await Promise.all([
+          publicClient?.readContract({ 
+            address: cleanAddress as `0x${string}`, 
+            abi: erc20Abi, 
+            functionName: 'symbol' 
+          }),
+          publicClient?.readContract({ 
+            address: cleanAddress as `0x${string}`, 
+            abi: erc20Abi, 
+            functionName: 'name' 
+          }),
+          publicClient?.readContract({ 
+            address: cleanAddress as `0x${string}`, 
+            abi: erc20Abi, 
+            functionName: 'decimals' 
+          })
+        ]);
+
+        return {
+          isValid: true,
+          tokenInfo: {
+            address: cleanAddress.toLowerCase(),
+            symbol: symbol as string,
+            name: name as string,
+            decimals: decimals as number
+          }
+        };
+      } catch (error) {
+        return { isValid: false, error: 'Not a valid ERC20 token' };
+      }
+    } catch (error) {
+      return { isValid: false, error: 'Network validation failed' };
+    }
+  };
+
   const handleSendMessage = async () => {
     if (!inputMessage.trim() || isLoading || !hasAccess) return;
+
+    // Check for comparison requests (e.g., "compare X and Y", "X vs Y")
+    const comparisonMatch = inputMessage.match(/(?:compare|vs|versus)\s+([A-Za-z0-9]+)\s+(?:and|vs|versus)\s+([A-Za-z0-9]+)/i);
+    if (comparisonMatch) {
+      const [, token1, token2] = comparisonMatch;
+      const userMessage: Message = {
+        id: Date.now().toString(),
+        text: inputMessage,
+        sender: 'user',
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, userMessage]);
+      setInputMessage('');
+      setIsLoading(true);
+
+      // Find tokens in wallet or create comparison request
+      const token1Data = walletTokens.find(t => 
+        t.symbol.toLowerCase() === token1.toLowerCase() || 
+        t.name.toLowerCase().includes(token1.toLowerCase())
+      );
+      const token2Data = walletTokens.find(t => 
+        t.symbol.toLowerCase() === token2.toLowerCase() || 
+        t.name.toLowerCase().includes(token2.toLowerCase())
+      );
+
+      const contextMessage = `Compare ${token1} and ${token2}. ${token1Data ? `Token 1 (${token1}) is in wallet: ${JSON.stringify(token1Data)}` : `Token 1 (${token1}) not in wallet`}. ${token2Data ? `Token 2 (${token2}) is in wallet: ${JSON.stringify(token2Data)}` : `Token 2 (${token2}) not in wallet`}.`;
+
+      try {
+        const response = await fetch('/api/vaultgpt', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            message: contextMessage,
+            selectedToken: null, // No single token selected for comparison
+            walletTokens: walletTokens.map(token => ({
+              address: token.address,
+              symbol: token.symbol,
+              name: token.name,
+              balance: token.balance,
+              usdValue: token.usdValue
+            }))
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        const aiResponse: Message = {
+          id: (Date.now() + 1).toString(),
+          text: data.response || 'No response received',
+          sender: 'ai',
+          timestamp: new Date()
+        };
+        setMessages(prev => [...prev, aiResponse]);
+      } catch (error) {
+        console.error('Error sending comparison message:', error);
+        const errorResponse: Message = {
+          id: (Date.now() + 1).toString(),
+          text: 'Sorry, I encountered an error while processing your comparison request. Please try again.',
+          sender: 'ai',
+          timestamp: new Date()
+        };
+        setMessages(prev => [...prev, errorResponse]);
+      } finally {
+        setIsLoading(false);
+      }
+      return;
+    }
+
+    // Check if user pasted token addresses (single or multiple)
+    const addressMatches = inputMessage.match(/0x[a-fA-F0-9]{40}/g);
+    if (addressMatches && addressMatches.length > 0) {
+      const addresses = addressMatches;
+      const userMessage: Message = {
+        id: Date.now().toString(),
+        text: `Looking up token addresses: ${addresses.join(', ')}`,
+        sender: 'user',
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, userMessage]);
+      setInputMessage('');
+      setIsLoading(true);
+
+      const validatedTokens: WalletToken[] = [];
+      const errors: string[] = [];
+
+      // Process all addresses
+      for (const address of addresses) {
+        const validation = await validateTokenAddress(address);
+        if (!validation.isValid) {
+          errors.push(`❌ ${address}: ${validation.error}`);
+          continue;
+        }
+
+        // If valid, add to wallet tokens
+        if (validation.tokenInfo) {
+          const newToken: WalletToken = {
+            address: validation.tokenInfo.address,
+            symbol: validation.tokenInfo.symbol,
+            name: validation.tokenInfo.name,
+            balance: '0', // Will be updated when we get balance
+            decimals: validation.tokenInfo.decimals,
+            usdValue: 0
+          };
+
+          // Add to wallet tokens if not already present
+          setWalletTokens(prev => {
+            const exists = prev.some(t => t.address.toLowerCase() === newToken.address.toLowerCase());
+            if (!exists) {
+              return [...prev, newToken];
+            }
+            return prev;
+          });
+
+          validatedTokens.push(newToken);
+        }
+      }
+
+      // Show results
+      let responseText = '';
+      if (validatedTokens.length > 0) {
+        responseText += `✅ Found ${validatedTokens.length} valid token(s):\n\n`;
+        validatedTokens.forEach((token, index) => {
+          responseText += `${index + 1}. ${token.symbol} (${token.name})\n`;
+          responseText += `   Address: ${token.address}\n\n`;
+        });
+
+        // Select ALL tokens for comparison mode
+        setSelectedTokens(validatedTokens);
+
+        // If multiple tokens, suggest comparison
+        if (validatedTokens.length > 1) {
+          responseText += `💡 ${validatedTokens.length} tokens selected for comparison! You can now ask:\n`;
+          responseText += `• "Which is more volatile?"\n`;
+          responseText += `• "Compare their performance"\n`;
+          responseText += `• "Which has better liquidity?"\n`;
+          responseText += `• "Analyze all tokens"\n\n`;
+        } else {
+          responseText += `💡 Token selected! You can now ask questions about ${validatedTokens[0].symbol}.\n\n`;
+        }
+      }
+
+      if (errors.length > 0) {
+        responseText += `\n${errors.join('\n')}`;
+      }
+
+      const aiResponse: Message = {
+        id: (Date.now() + 1).toString(),
+        text: responseText,
+        sender: 'ai',
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, aiResponse]);
+      setIsLoading(false);
+      return;
+    }
+
+    // Create context-aware message
+    let contextMessage = inputMessage;
+    if (selectedTokens.length > 0) {
+      if (selectedTokens.length === 1) {
+        const token = selectedTokens[0];
+        contextMessage = `Token Context: ${token.symbol} (${token.address}) - ${token.name}\nBalance: ${token.balance} ${token.symbol}\n\nUser Question: ${inputMessage}`;
+      } else {
+        // Multiple tokens selected - comparison mode
+        const tokenContexts = selectedTokens.map(token => 
+          `${token.symbol} (${token.address}) - ${token.name}\nBalance: ${token.balance} ${token.symbol}`
+        ).join('\n\n');
+        
+        contextMessage = `COMPARISON MODE - Multiple Tokens Selected:\n\n${tokenContexts}\n\nUser Question: ${inputMessage}`;
+      }
+    }
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -267,7 +776,21 @@ export default function VaultGPTModal({ isOpen, onClose }: VaultGPTModalProps) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          message: inputMessage,
+          message: contextMessage,
+          selectedTokens: selectedTokens.map(token => ({
+            address: token.address,
+            symbol: token.symbol,
+            name: token.name,
+            balance: token.balance,
+            usdValue: token.usdValue
+          })),
+          walletTokens: walletTokens.map(token => ({
+            address: token.address,
+            symbol: token.symbol,
+            name: token.name,
+            balance: token.balance,
+            usdValue: token.usdValue
+          }))
         }),
       });
 
@@ -311,6 +834,34 @@ export default function VaultGPTModal({ isOpen, onClose }: VaultGPTModalProps) {
       e.preventDefault();
       handleSendMessage();
     }
+  };
+
+  const selectToken = (token: WalletToken) => {
+    setSelectedTokens([token]);
+    setShowWalletTokens(false);
+    // Auto-focus on input
+    setTimeout(() => {
+      const input = document.querySelector('input[type="text"]') as HTMLInputElement;
+      if (input) input.focus();
+    }, 100);
+  };
+
+  const addTokenToSelection = (token: WalletToken) => {
+    setSelectedTokens(prev => {
+      const exists = prev.some(t => t.address.toLowerCase() === token.address.toLowerCase());
+      if (!exists) {
+        return [...prev, token];
+      }
+      return prev;
+    });
+  };
+
+  const removeTokenFromSelection = (tokenAddress: string) => {
+    setSelectedTokens(prev => prev.filter(t => t.address.toLowerCase() !== tokenAddress.toLowerCase()));
+  };
+
+  const clearSelectedTokens = () => {
+    setSelectedTokens([]);
   };
 
   if (!isOpen) return null;
@@ -363,44 +914,10 @@ export default function VaultGPTModal({ isOpen, onClose }: VaultGPTModalProps) {
                 </ConnectButton.Custom>
               </div>
             </div>
-          ) : isCheckingBalance ? (
-            <div className="flex-1 flex items-center justify-center p-6">
-              <div className="text-center">
-                <div className="w-16 h-16 bg-pepu-yellow-orange/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <div className="flex space-x-1">
-                    <div className="w-3 h-3 bg-pepu-yellow-orange rounded-full animate-bounce"></div>
-                    <div className="w-3 h-3 bg-pepu-yellow-orange rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                    <div className="w-3 h-3 bg-pepu-yellow-orange rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-                  </div>
-                </div>
-                <h3 className="text-lg font-semibold text-black mb-2">Checking Vault Balance</h3>
-                <p className="text-base text-gray-600">Verifying your $Vault token balance...</p>
-              </div>
-            </div>
-          ) : !hasAccess ? (
-            <div className="flex-1 flex items-center justify-center p-6">
-              <div className="text-center">
-                <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <svg className="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
-                  </svg>
-                </div>
-                <h3 className="text-lg font-semibold text-black mb-2">Insufficient Vault Balance</h3>
-                <p className="text-base text-gray-600 mb-2">You need at least 1,000,000 $Vault tokens to access VaultGPT</p>
-                <p className="text-sm text-gray-500 mb-4">Current balance: {vaultBalance?.formatted ? Number(vaultBalance.formatted).toLocaleString() : '0'} $Vault</p>
-                <a 
-                  href="https://pepuswap.com/#/swap?outputCurrency=0x8746D6Fc80708775461226657a6947497764BBe6"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-block bg-pepu-yellow-orange text-pepu-dark-green px-6 py-3 rounded-lg font-semibold hover:bg-pepu-yellow-orange/90 transition-colors text-base"
-                >
-                  Buy More $Vault
-                </a>
-              </div>
-            </div>
           ) : (
             <>
               <div className="flex-1 overflow-y-auto p-4 space-y-4 min-h-0">
+
                 {messages.map((message) => (
                   <div
                     key={message.id}
@@ -449,13 +966,179 @@ export default function VaultGPTModal({ isOpen, onClose }: VaultGPTModalProps) {
               </div>
 
               <div className="flex-shrink-0 p-4 border-t border-gray-200">
+                {/* Wallet Tokens Section */}
+                {isLoadingTokens ? (
+                  <div className="mb-4">
+                    <div className="flex items-center justify-center p-3 bg-gray-50 rounded-lg">
+                      <div className="flex items-center space-x-2">
+                        <div className="w-4 h-4 bg-pepu-yellow-orange rounded-full animate-bounce"></div>
+                        <div className="w-4 h-4 bg-pepu-yellow-orange rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                        <div className="w-4 h-4 bg-pepu-yellow-orange rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                        <span className="text-sm text-pepu-dark-green ml-2">Scanning your tokens...</span>
+                      </div>
+                    </div>
+                  </div>
+                ) : walletTokens.length > 0 ? (
+                  <div className="mb-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="text-sm font-semibold text-pepu-dark-green">Your Tokens</h4>
+                      <button
+                        onClick={() => setShowWalletTokens(!showWalletTokens)}
+                        className="text-xs text-pepu-yellow-orange hover:underline"
+                      >
+                        {showWalletTokens ? 'Hide' : 'Show'} ({walletTokens.length})
+                      </button>
+                    </div>
+                    
+                    {showWalletTokens && (
+                      <div className="mb-3">
+                        <div className="flex items-center justify-between mb-2 px-1">
+                          <div className="text-xs text-gray-500">
+                            💡 Click tokens to select multiple for comparison
+                          </div>
+                          {walletTokens.length > 1 && (
+                            <button
+                              onClick={() => {
+                                const allSelected = walletTokens.every(token => 
+                                  selectedTokens.some(t => t.address.toLowerCase() === token.address.toLowerCase())
+                                );
+                                if (allSelected) {
+                                  // Deselect all wallet tokens
+                                  setSelectedTokens(prev => prev.filter(token => 
+                                    !walletTokens.some(wt => wt.address.toLowerCase() === token.address.toLowerCase())
+                                  ));
+                                } else {
+                                  // Select all wallet tokens
+                                  const newSelections = walletTokens.filter(token => 
+                                    !selectedTokens.some(t => t.address.toLowerCase() === token.address.toLowerCase())
+                                  );
+                                  setSelectedTokens(prev => [...prev, ...newSelections]);
+                                }
+                              }}
+                              className="text-xs text-pepu-dark-green hover:text-pepu-yellow-orange font-medium"
+                            >
+                              {walletTokens.every(token => 
+                                selectedTokens.some(t => t.address.toLowerCase() === token.address.toLowerCase())
+                              ) ? 'Deselect All' : 'Select All'}
+                            </button>
+                          )}
+                        </div>
+                        <div className="max-h-32 overflow-y-auto space-y-1">
+                        {walletTokens.map((token, index) => {
+                          const isSelected = selectedTokens.some(t => t.address.toLowerCase() === token.address.toLowerCase());
+                          return (
+                            <div
+                              key={index}
+                              onClick={() => {
+                                if (isSelected) {
+                                  removeTokenFromSelection(token.address);
+                                } else {
+                                  addTokenToSelection(token);
+                                }
+                              }}
+                              className={`flex items-center justify-between p-2 rounded-lg cursor-pointer transition-colors ${
+                                isSelected 
+                                  ? 'bg-pepu-light-green/30 border border-pepu-dark-green' 
+                                  : 'bg-gray-50 hover:bg-gray-100'
+                              }`}
+                            >
+                              <div className="flex items-center space-x-2">
+                                <div className={`w-6 h-6 rounded-full flex items-center justify-center ${
+                                  isSelected ? 'bg-pepu-dark-green' : 'bg-pepu-yellow-orange'
+                                }`}>
+                                  <span className={`text-xs font-bold ${
+                                    isSelected ? 'text-white' : 'text-pepu-dark-green'
+                                  }`}>
+                                    {isSelected ? '✓' : token.symbol.charAt(0)}
+                                  </span>
+                                </div>
+                                <div>
+                                  <div className="text-sm font-medium text-pepu-dark-green">{token.symbol}</div>
+                                  <div className="text-xs text-gray-500">{token.name}</div>
+                                </div>
+                              </div>
+                              <div className="text-right">
+                                <div className="text-sm font-medium text-pepu-dark-green">
+                                  {Number(token.balance).toLocaleString()}
+                                </div>
+                                {token.usdValue && token.usdValue > 0 && (
+                                  <div className="text-xs text-gray-500">
+                                    ${token.usdValue.toFixed(2)}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="mb-4">
+                    <div className="text-center p-3 bg-gray-50 rounded-lg">
+                      <p className="text-sm text-gray-600 mb-2">No tokens found in your wallet</p>
+                      <button
+                        onClick={scanWalletTokens}
+                        className="text-xs text-pepu-yellow-orange hover:underline"
+                      >
+                        Try scanning again
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Selected Tokens Indicator */}
+                {selectedTokens.length > 0 && (
+                  <div className="mb-2">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-sm font-medium text-pepu-dark-green">
+                        📌 {selectedTokens.length === 1 ? 'Selected Token' : `${selectedTokens.length} Tokens Selected`}
+                      </span>
+                      <button
+                        onClick={clearSelectedTokens}
+                        className="text-gray-400 hover:text-gray-600 text-xs"
+                        title="Clear all selected tokens"
+                      >
+                        Clear All
+                      </button>
+                    </div>
+                    <div className="flex flex-wrap gap-1">
+                      {selectedTokens.map((token, index) => (
+                        <div key={token.address} className="flex items-center space-x-1 bg-pepu-light-green/20 px-2 py-1 rounded text-xs">
+                          <span className="font-medium text-pepu-dark-green">{token.symbol}</span>
+                          <span className="text-gray-500">
+                            {Number(token.balance).toLocaleString()}
+                            {token.usdValue && token.usdValue > 0 && (
+                              <span> (${token.usdValue.toFixed(2)})</span>
+                            )}
+                          </span>
+                          <button
+                            onClick={() => removeTokenFromSelection(token.address)}
+                            className="text-gray-400 hover:text-gray-600 ml-1"
+                            title={`Remove ${token.symbol}`}
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 <div className="flex space-x-3">
                   <input
                     type="text"
                     value={inputMessage}
                     onChange={(e) => setInputMessage(e.target.value)}
                     onKeyPress={handleKeyPress}
-                    placeholder="Ask about tokens, prices, or market trends..."
+                    placeholder={
+                      selectedTokens.length === 1 
+                        ? `Ask about ${selectedTokens[0].symbol}...` 
+                        : selectedTokens.length > 1 
+                        ? `Ask about ${selectedTokens.map(t => t.symbol).join(', ')}...` 
+                        : "Ask about tokens, prices, or market trends..."
+                    }
                     className="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pepu-yellow-orange focus:border-transparent text-base text-black placeholder-gray-500"
                     disabled={isLoading}
                   />

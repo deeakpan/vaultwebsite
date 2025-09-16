@@ -284,15 +284,234 @@ class GeckoTerminalClient {
 // Initialize client
 const geckoClient = new GeckoTerminalClient();
 
+// Chart Analysis Functions
+async function analyzeTradingPatterns(tokenAddress: string) {
+  try {
+    console.log(`📈 Analyzing trading patterns for ${tokenAddress}`);
+    
+    // Get token pools to find the main trading pool
+    const poolsResponse = await fetch(`${GECKO_TERMINAL_API}/networks/${PEPE_UNCHAINED_NETWORK}/tokens/${tokenAddress}/pools`);
+    if (!poolsResponse.ok) {
+      console.log(`❌ No pools found for ${tokenAddress}`);
+      return null;
+    }
+    
+    const poolsData = await poolsResponse.json();
+    const pools = poolsData?.data || [];
+    
+    if (pools.length === 0) {
+      console.log(`❌ No trading pools found for ${tokenAddress}`);
+      return null;
+    }
+    
+    // Get the top pool (highest liquidity)
+    const topPool = pools[0];
+    const poolAddress = topPool.id.split('_')[1];
+    
+    console.log(`🔍 Analyzing pool: ${poolAddress}`);
+    
+    // Get pool candles for analysis
+    const candlesResponse = await fetch(`${GECKO_TERMINAL_API}/networks/${PEPE_UNCHAINED_NETWORK}/pools/${poolAddress}/ohlcv/minute?aggregate=1&limit=1000`);
+    if (!candlesResponse.ok) {
+      console.log(`❌ No candle data available for pool ${poolAddress}`);
+      return null;
+    }
+    
+    const candlesData = await candlesResponse.json();
+    const candles = candlesData?.data?.attributes?.ohlcv_list || [];
+    
+    if (candles.length === 0) {
+      console.log(`❌ No candle data found`);
+      return null;
+    }
+    
+    console.log(`📊 Analyzing ${candles.length} candles`);
+    
+    // Analyze patterns
+    const analysis = analyzeCandlePatterns(candles);
+    
+    return {
+      poolAddress,
+      candleCount: candles.length,
+      analysis,
+      latestPrice: candles[0]?.[4] || 0,
+      volume24h: candles.slice(0, 1440).reduce((sum: number, candle: number[]) => sum + candle[5], 0), // Last 24h volume
+      priceChange24h: candles.length > 1440 ? 
+        ((candles[0][4] - candles[1440][4]) / candles[1440][4]) * 100 : 0
+    };
+    
+  } catch (error) {
+    console.error('Error analyzing trading patterns:', error);
+    return null;
+  }
+}
+
+function analyzeCandlePatterns(candles: number[][]) {
+  if (candles.length < 10) {
+    return {
+      suspicious: false,
+      pattern: 'insufficient_data',
+      riskLevel: 'unknown',
+      analysis: 'Not enough data for pattern analysis'
+    };
+  }
+  
+  const recent = candles.slice(0, 100); // Last 100 candles
+  const prices = recent.map(c => c[4]); // Close prices
+  const volumes = recent.map(c => c[5]); // Volumes
+  
+  // Calculate metrics
+  const priceVolatility = calculateVolatility(prices);
+  const volumeSpikes = detectVolumeSpikes(volumes);
+  const pricePattern = detectPricePattern(prices);
+  const liquidityHealth = analyzeLiquidityHealth(candles);
+  
+  // Determine if suspicious
+  const suspicious = 
+    volumeSpikes.count > 5 || // Too many volume spikes
+    priceVolatility > 50 || // Extreme volatility
+    pricePattern === 'pump_and_dump' ||
+    liquidityHealth.score < 30;
+  
+  let riskLevel = 'low';
+  let pattern = 'healthy';
+  
+  if (suspicious) {
+    riskLevel = 'high';
+    pattern = 'suspicious';
+  } else if (priceVolatility > 20 || volumeSpikes.count > 2) {
+    riskLevel = 'medium';
+    pattern = 'volatile';
+  }
+  
+  return {
+    suspicious,
+    pattern,
+    riskLevel,
+    volatility: priceVolatility,
+    volumeSpikes: volumeSpikes.count,
+    liquidityScore: liquidityHealth.score,
+    analysis: generatePatternAnalysis(suspicious, pattern, riskLevel, priceVolatility, volumeSpikes.count)
+  };
+}
+
+function calculateVolatility(prices: number[]): number {
+  if (prices.length < 2) return 0;
+  
+  const returns = [];
+  for (let i = 1; i < prices.length; i++) {
+    returns.push((prices[i-1] - prices[i]) / prices[i]);
+  }
+  
+  const mean = returns.reduce((sum, r) => sum + r, 0) / returns.length;
+  const variance = returns.reduce((sum, r) => sum + Math.pow(r - mean, 2), 0) / returns.length;
+  
+  return Math.sqrt(variance) * 100; // Return as percentage
+}
+
+function detectVolumeSpikes(volumes: number[]): { count: number, spikes: number[] } {
+  if (volumes.length < 10) return { count: 0, spikes: [] };
+  
+  const avgVolume = volumes.reduce((sum, v) => sum + v, 0) / volumes.length;
+  const threshold = avgVolume * 3; // 3x average volume
+  
+  const spikes = volumes.filter(v => v > threshold);
+  
+  return {
+    count: spikes.length,
+    spikes: spikes.slice(0, 5) // Top 5 spikes
+  };
+}
+
+function detectPricePattern(prices: number[]): string {
+  if (prices.length < 20) return 'insufficient_data';
+  
+  const first = prices[prices.length - 1];
+  const middle = prices[Math.floor(prices.length / 2)];
+  const last = prices[0];
+  
+  // Check for pump and dump pattern
+  if (middle > first * 1.5 && last < middle * 0.7) {
+    return 'pump_and_dump';
+  }
+  
+  // Check for steady decline
+  if (last < first * 0.8) {
+    return 'declining';
+  }
+  
+  // Check for steady growth
+  if (last > first * 1.2) {
+    return 'growing';
+  }
+  
+  return 'stable';
+}
+
+function analyzeLiquidityHealth(candles: number[][]): { score: number, analysis: string } {
+  if (candles.length < 10) return { score: 50, analysis: 'Insufficient data' };
+  
+  const recent = candles.slice(0, 50);
+  const avgVolume = recent.reduce((sum, c) => sum + c[5], 0) / recent.length;
+  const priceRange = Math.max(...recent.map(c => c[2])) - Math.min(...recent.map(c => c[3]));
+  const avgPrice = recent.reduce((sum, c) => sum + c[4], 0) / recent.length;
+  
+  // Calculate liquidity score (0-100)
+  let score = 100;
+  
+  // Penalize low volume
+  if (avgVolume < 1000) score -= 30;
+  else if (avgVolume < 10000) score -= 15;
+  
+  // Penalize high volatility relative to price
+  const volatilityRatio = priceRange / avgPrice;
+  if (volatilityRatio > 0.5) score -= 25;
+  else if (volatilityRatio > 0.2) score -= 10;
+  
+  // Penalize inconsistent volume
+  const volumeVariance = recent.reduce((sum, c) => sum + Math.pow(c[5] - avgVolume, 2), 0) / recent.length;
+  const volumeStdDev = Math.sqrt(volumeVariance);
+  const volumeCoeff = volumeStdDev / avgVolume;
+  
+  if (volumeCoeff > 2) score -= 20;
+  else if (volumeCoeff > 1) score -= 10;
+  
+  let analysis = '';
+  if (score >= 80) analysis = 'Healthy liquidity with consistent trading';
+  else if (score >= 60) analysis = 'Moderate liquidity, some concerns';
+  else if (score >= 40) analysis = 'Low liquidity, high risk';
+  else analysis = 'Very poor liquidity, avoid trading';
+  
+  return { score: Math.max(0, score), analysis };
+}
+
+function generatePatternAnalysis(suspicious: boolean, pattern: string, riskLevel: string, volatility: number, volumeSpikes: number): string {
+  if (suspicious) {
+    return `🚨 SUSPICIOUS ACTIVITY DETECTED: High volatility (${volatility.toFixed(1)}%), ${volumeSpikes} volume spikes. This looks like manipulation or a pump-and-dump scheme. AVOID THIS TOKEN.`;
+  }
+  
+  if (riskLevel === 'high') {
+    return `⚠️ HIGH RISK: Volatility ${volatility.toFixed(1)}%, ${volumeSpikes} volume spikes. Proceed with extreme caution.`;
+  }
+  
+  if (riskLevel === 'medium') {
+    return `⚡ MODERATE RISK: Some volatility (${volatility.toFixed(1)}%) and volume activity. Monitor closely.`;
+  }
+  
+  return `✅ HEALTHY PATTERN: Low volatility (${volatility.toFixed(1)}%), stable volume. This appears to be legitimate trading activity.`;
+}
+
 export async function POST(request: NextRequest) {
   try {
-    const { message } = await request.json();
+    const { message, selectedTokens, walletTokens } = await request.json();
 
     if (!message) {
       return NextResponse.json({ error: 'Message is required' }, { status: 400 });
     }
 
     console.log('🚀 VaultGPT Enhanced Analysis:', message);
+    console.log('🎯 Selected tokens:', selectedTokens?.length || 0);
+    console.log('💰 Wallet tokens:', walletTokens?.length || 0);
 
     // Analyze user intent
     const userIntent = await analyzeUserIntent(message);
@@ -305,8 +524,8 @@ export async function POST(request: NextRequest) {
     // Get additional market data
     const marketData = await getMarketData(userIntent, searchResults);
 
-    // Generate response
-    const response = await generateResponse(message, userIntent, searchResults, marketData);
+    // Generate response with selected tokens context
+    const response = await generateResponse(message, userIntent, searchResults, marketData, selectedTokens, walletTokens);
 
     return NextResponse.json({ 
       response,
@@ -1030,16 +1249,64 @@ async function getMarketData(intent: any, tokens: any[]) {
   return marketData;
 }
 
-async function generateResponse(message: string, intent: any, tokens: any[], marketData: any) {
+async function generateResponse(message: string, intent: any, tokens: any[], marketData: any, selectedTokens: any[] = [], walletTokens: any[] = []) {
   if (tokens.length === 0 && intent.tokens?.length > 0) {
     return `I searched for "${intent.tokens.join(', ')}" on the Pepe Unchained network but couldn't find any matching tokens. The tokens may not exist on this network or might be using different names/symbols.`;
   }
   
-  const systemPrompt = `You are VaultGPT, an expert analyst for the Pepe Unchained ecosystem.
+  // Get chart analysis for tokens with addresses
+  let chartAnalysis: Record<string, any> = {};
+  for (const token of tokens) {
+    if (token.address && token.address.startsWith('0x')) {
+      try {
+        const analysis = await analyzeTradingPatterns(token.address);
+        if (analysis) {
+          chartAnalysis[token.symbol] = analysis;
+        }
+      } catch (error) {
+        console.error(`Error analyzing ${token.symbol}:`, error);
+      }
+    }
+  }
+  
+  const systemPrompt = `You are VaultGPT, an expert cryptocurrency analyst specializing in Pepe Unchained tokens. 
 
-Provide detailed analysis using the provided data. Be specific with numbers and metrics.
-If tokens were found, analyze their performance. If trending data is available, highlight key trends.
-Always mention this is specifically for the Pepe Unchained network.`;
+You are known for your intelligent, thought-driven analysis that goes beyond just listing data. You provide:
+
+**DECISIVE ANALYSIS**:
+- Be DIRECT and OPINIONATED - say "This is GOOD" or "This is BAD" or "This looks like a SCAM"
+- Don't hedge with "maybe" or "possibly" - give clear judgments
+- Identify red flags and call out suspicious activity immediately
+- Recognize patterns that indicate pump-and-dump schemes, rug pulls, or legitimate projects
+- Use your expertise to make definitive calls on token quality and investment potential
+
+**CHART & ACTIVITY ANALYSIS**:
+- Analyze trading patterns, volume spikes, and price movements
+- Detect unusual buy/sell activity that might indicate manipulation
+- Identify whale movements, coordinated dumps, or organic growth
+- Look for liquidity issues, low volume traps, or healthy trading patterns
+- Assess market depth and potential for price manipulation
+
+**CRITICAL THINKING**:
+- Question everything - if something looks too good to be true, say so
+- Point out inconsistencies in token data or suspicious patterns
+- Highlight both opportunities AND risks with equal emphasis
+- Consider market psychology, sentiment, and behavioral factors
+- Always evaluate risk-reward ratios and potential downsides
+
+**PROFESSIONAL STYLE**:
+- Write like a seasoned crypto analyst who's seen it all
+- Be conversational, insightful, and brutally honest
+- Don't just list data - interpret it, analyze it, and give your definitive take
+- Use strong language when appropriate: "AVOID THIS" or "STRONG BUY" or "CLEAR SCAM"
+
+**DATA CONTEXT**:
+- Always use FDV (Fully Diluted Valuation) as market cap
+- Consider 24h volume patterns and liquidity implications
+- Analyze price movements in context of broader market trends
+- Provide comparative insights when relevant
+
+Remember: You're not just a data aggregator - you're an expert analyst providing intelligent, actionable insights that help users make informed decisions.`;
 
   try {
     const completion = await openai.chat.completions.create({
@@ -1048,12 +1315,12 @@ Always mention this is specifically for the Pepe Unchained network.`;
         { role: "system", content: systemPrompt },
         { 
           role: "system", 
-          content: `FOUND TOKENS: ${JSON.stringify(tokens, null, 2)}\nMARKET DATA: ${JSON.stringify(marketData, null, 2)}`
+          content: `FOUND TOKENS: ${JSON.stringify(tokens, null, 2)}\nMARKET DATA: ${JSON.stringify(marketData, null, 2)}\nCHART ANALYSIS: ${JSON.stringify(chartAnalysis, null, 2)}\nSELECTED TOKENS: ${JSON.stringify(selectedTokens, null, 2)}\nWALLET TOKENS: ${JSON.stringify(walletTokens, null, 2)}`
         },
         { role: "user", content: message }
       ],
-      temperature: 0.3,
-      max_tokens: 800,
+      temperature: 0.8,
+      max_tokens: 1200,
     });
 
     return completion.choices[0].message.content;

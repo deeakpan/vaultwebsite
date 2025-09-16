@@ -268,33 +268,33 @@ export default function News() {
                   </div>
                 ) : (
                   newsItems.map((item) => (
-                    <div key={item.id} className="p-4 border rounded-lg hover:shadow-md transition-shadow">
-                      <div className="flex items-start space-x-3">
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center ${getTypeColor(item.type)}`}>
-                          {getTypeIcon(item.type)}
+                  <div key={item.id} className="p-4 border rounded-lg hover:shadow-md transition-shadow">
+                    <div className="flex items-start space-x-3">
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center ${getTypeColor(item.type)}`}>
+                        {getTypeIcon(item.type)}
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center space-x-2 mb-2">
+                          <h4 className="font-semibold text-pepu-dark-green">{item.title}</h4>
+                          <div className={`w-2 h-2 rounded-full ${getPriorityColor(item.priority)}`}></div>
                         </div>
-                        <div className="flex-1">
-                          <div className="flex items-center space-x-2 mb-2">
-                            <h4 className="font-semibold text-pepu-dark-green">{item.title}</h4>
-                            <div className={`w-2 h-2 rounded-full ${getPriorityColor(item.priority)}`}></div>
-                          </div>
-                          <p className="text-gray-600 text-sm mb-2">{item.description}</p>
-                          <div className="flex items-center justify-between">
-                            <span className="text-xs text-gray-500">{item.timestamp}</span>
-                            {item.link && (
-                              <a 
-                                href={item.link}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-xs text-pepu-yellow-orange hover:underline"
-                              >
-                                View Details
-                              </a>
-                            )}
-                          </div>
+                        <p className="text-gray-600 text-sm mb-2">{item.description}</p>
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs text-gray-500">{item.timestamp}</span>
+                          {item.link && (
+                            <a 
+                              href={item.link}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-xs text-pepu-yellow-orange hover:underline"
+                            >
+                              View Details
+                            </a>
+                          )}
                         </div>
                       </div>
                     </div>
+                  </div>
                   ))
                 )}
               </div>
