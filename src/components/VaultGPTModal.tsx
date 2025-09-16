@@ -139,6 +139,7 @@ export default function VaultGPTModal({ isOpen, onClose }: VaultGPTModalProps) {
   const [isLoadingTokens, setIsLoadingTokens] = useState(false);
   const [showWalletTokens, setShowWalletTokens] = useState(false);
   const [selectedTokens, setSelectedTokens] = useState<WalletToken[]>([]);
+  const [abortController, setAbortController] = useState<AbortController | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const VAULT_TOKEN_ADDRESS = '0x8746D6Fc80708775461226657a6947497764BBe6';
@@ -608,23 +609,29 @@ export default function VaultGPTModal({ isOpen, onClose }: VaultGPTModalProps) {
 
       const contextMessage = `Compare ${token1} and ${token2}. ${token1Data ? `Token 1 (${token1}) is in wallet: ${JSON.stringify(token1Data)}` : `Token 1 (${token1}) not in wallet`}. ${token2Data ? `Token 2 (${token2}) is in wallet: ${JSON.stringify(token2Data)}` : `Token 2 (${token2}) not in wallet`}.`;
 
+      // Create abort controller for comparison request
+      const controller = new AbortController();
+      setAbortController(controller);
+
       try {
         const response = await fetch('/api/vaultgpt', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({
-            message: contextMessage,
-            selectedToken: null, // No single token selected for comparison
-            walletTokens: walletTokens.map(token => ({
-              address: token.address,
-              symbol: token.symbol,
-              name: token.name,
-              balance: token.balance,
-              usdValue: token.usdValue
-            }))
-          }),
+          signal: controller.signal,
+        body: JSON.stringify({
+          message: contextMessage,
+          selectedToken: null, // No single token selected for comparison
+          walletTokens: walletTokens.map(token => ({
+            address: token.address,
+            symbol: token.symbol,
+            name: token.name,
+            balance: token.balance,
+            usdValue: token.usdValue
+          })),
+          walletAddress: address
+        }),
         });
 
         if (!response.ok) {
@@ -641,6 +648,13 @@ export default function VaultGPTModal({ isOpen, onClose }: VaultGPTModalProps) {
         setMessages(prev => [...prev, aiResponse]);
       } catch (error) {
         console.error('Error sending comparison message:', error);
+        
+        // Check if request was aborted
+        if (error instanceof Error && error.name === 'AbortError') {
+          console.log('Comparison request was cancelled by user');
+          return; // Don't add error message for cancelled requests
+        }
+        
         const errorResponse: Message = {
           id: (Date.now() + 1).toString(),
           text: 'Sorry, I encountered an error while processing your comparison request. Please try again.',
@@ -650,6 +664,7 @@ export default function VaultGPTModal({ isOpen, onClose }: VaultGPTModalProps) {
         setMessages(prev => [...prev, errorResponse]);
       } finally {
         setIsLoading(false);
+        setAbortController(null); // Clear abort controller
       }
       return;
     }
@@ -769,12 +784,17 @@ export default function VaultGPTModal({ isOpen, onClose }: VaultGPTModalProps) {
     setInputMessage('');
     setIsLoading(true);
 
+    // Create abort controller for this request
+    const controller = new AbortController();
+    setAbortController(controller);
+
     try {
       const response = await fetch('/api/vaultgpt', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
+        signal: controller.signal,
         body: JSON.stringify({
           message: contextMessage,
           selectedTokens: selectedTokens.map(token => ({
@@ -790,7 +810,8 @@ export default function VaultGPTModal({ isOpen, onClose }: VaultGPTModalProps) {
             name: token.name,
             balance: token.balance,
             usdValue: token.usdValue
-          }))
+          })),
+          walletAddress: address
         }),
       });
 
@@ -817,6 +838,13 @@ export default function VaultGPTModal({ isOpen, onClose }: VaultGPTModalProps) {
       }
     } catch (error) {
       console.error('Error sending message:', error);
+      
+      // Check if request was aborted
+      if (error instanceof Error && error.name === 'AbortError') {
+        console.log('Request was cancelled by user');
+        return; // Don't add error message for cancelled requests
+      }
+      
       const aiResponse: Message = {
         id: (Date.now() + 1).toString(),
         text: "Sorry, I'm experiencing technical difficulties. Please try again or ask about Pepe Unchained analytics.",
@@ -825,6 +853,15 @@ export default function VaultGPTModal({ isOpen, onClose }: VaultGPTModalProps) {
       };
       setMessages(prev => [...prev, aiResponse]);
     } finally {
+      setIsLoading(false);
+      setAbortController(null); // Clear abort controller
+    }
+  };
+
+  const handleStopRequest = () => {
+    if (abortController) {
+      abortController.abort();
+      setAbortController(null);
       setIsLoading(false);
     }
   };
@@ -1143,13 +1180,25 @@ export default function VaultGPTModal({ isOpen, onClose }: VaultGPTModalProps) {
                     disabled={isLoading}
                   />
                   <button
-                    onClick={handleSendMessage}
-                    disabled={!inputMessage.trim() || isLoading}
-                    className="bg-pepu-yellow-orange text-pepu-dark-green px-4 py-3 rounded-lg font-semibold hover:bg-pepu-yellow-orange/90 transition-colors disabled:opacity-50"
+                    onClick={isLoading ? handleStopRequest : handleSendMessage}
+                    disabled={!inputMessage.trim() && !isLoading}
+                    className={`px-4 py-3 rounded-lg font-semibold transition-colors disabled:opacity-50 ${
+                      isLoading 
+                        ? 'bg-red-500 text-white hover:bg-red-600' 
+                        : 'bg-pepu-yellow-orange text-pepu-dark-green hover:bg-pepu-yellow-orange/90'
+                    }`}
                   >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                    </svg>
+                    {isLoading ? (
+                      // Stop icon
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 6h12v12H6z" />
+                      </svg>
+                    ) : (
+                      // Send icon
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                      </svg>
+                    )}
                   </button>
                 </div>
               </div>

@@ -284,6 +284,188 @@ class GeckoTerminalClient {
 // Initialize client
 const geckoClient = new GeckoTerminalClient();
 
+// Platform token detection
+function isPlatformToken(tokenAddress: string, tokenSymbol: string): boolean {
+  const platformTokens = [
+    '0x8746d6fc80708775461226657a6947497764bbe6', // VAULT
+    '0x4be3af53800aade09201654cd76d55063c7bde70', // PEPU
+    '0xf9cf4a16d26979b929be7176bac4e7084975fcb8'  // WPEPU
+  ];
+  
+  const platformSymbols = ['VAULT', 'PEPU', 'WPEPU', 'PEPE UNCHAINED'];
+  
+  return platformTokens.includes(tokenAddress.toLowerCase()) || 
+         platformSymbols.includes(tokenSymbol.toUpperCase());
+}
+
+// Enhanced token analysis with platform awareness
+function enhanceTokenWithPlatformContext(token: any): any {
+  if (isPlatformToken(token.address, token.symbol)) {
+    return {
+      ...token,
+      isPlatformToken: true,
+      platformContext: {
+        role: token.symbol === 'VAULT' ? 'PEPU VAULT Platform Governance Token' : 
+              token.symbol === 'PEPU' ? 'Pepe Unchained Native Currency' : 'Wrapped Platform Currency',
+        utility: token.symbol === 'VAULT' ? 'Governance voting, staking rewards, platform fee discounts, premium features access' :
+                 token.symbol === 'PEPU' ? 'Transaction fees, platform currency, network gas' : 'Liquidity provision and trading',
+        projectInfo: token.symbol === 'VAULT' ? {
+          name: 'PEPU VAULT',
+          description: 'Comprehensive DeFi platform on Pepe Unchained network',
+          features: ['AI-powered token analysis', 'Portfolio tracking', 'Trading tools', 'Market insights', 'Risk assessment'],
+          technology: 'Advanced blockchain analytics, machine learning, real-time data processing',
+          vision: 'Democratizing DeFi access with intelligent tools and insights',
+          competitiveAdvantage: 'First-mover advantage on Pepe Unchained with cutting-edge AI analysis'
+        } : null,
+        specialConsiderations: 'Platform token with ecosystem utility beyond pure speculation - represents ownership and participation in the PEPU VAULT ecosystem'
+      }
+    };
+  }
+  return token;
+}
+
+// Personal transaction analysis functions
+async function fetchPersonalTransactionHistory(walletAddress: string, tokenAddress?: string) {
+  try {
+    console.log(`🔍 Fetching personal transaction history for wallet: ${walletAddress}`);
+    
+    // Use the existing token-transfers API endpoint
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+    const response = await fetch(`${baseUrl}/api/token-transfers?address=${walletAddress}&limit=1000`);
+    
+    if (!response.ok) {
+      console.error('Failed to fetch transaction history');
+      return [];
+    }
+    
+    const data = await response.json();
+    const transfers = data.items || [];
+    
+    // Filter by specific token if provided
+    if (tokenAddress) {
+      return transfers.filter((t: any) => 
+        t.token?.address?.toLowerCase() === tokenAddress.toLowerCase()
+      );
+    }
+    
+    return transfers;
+  } catch (error) {
+    console.error('Error fetching personal transaction history:', error);
+    return [];
+  }
+}
+
+async function analyzePersonalTokenActivity(walletAddress: string, tokenAddress: string, tokenSymbol: string) {
+  try {
+    console.log(`📊 Analyzing personal activity for ${tokenSymbol} (${tokenAddress})`);
+    
+    const transfers = await fetchPersonalTransactionHistory(walletAddress, tokenAddress);
+    
+    // Separate buys and sells (original API format)
+    const buys = transfers.filter((t: any) => 
+      t.to?.hash?.toLowerCase() === walletAddress.toLowerCase() && 
+      t.from?.hash?.toLowerCase() !== walletAddress.toLowerCase()
+    ).sort((a: any, b: any) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+    
+    const sells = transfers.filter((t: any) => 
+      t.from?.hash?.toLowerCase() === walletAddress.toLowerCase() && 
+      t.to?.hash?.toLowerCase() !== walletAddress.toLowerCase()
+    ).sort((a: any, b: any) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+    
+    // Calculate current balance (original API format)
+    let currentBalance = 0;
+    for (const buy of buys) {
+      const amount = parseFloat(buy.total?.value || '0') / Math.pow(10, buy.total?.decimals || 18);
+      currentBalance += amount;
+    }
+    for (const sell of sells) {
+      const amount = parseFloat(sell.total?.value || '0') / Math.pow(10, sell.total?.decimals || 18);
+      currentBalance -= amount;
+    }
+    
+    // Calculate average entry price
+    let totalCost = 0;
+    let totalTokens = 0;
+    
+    for (const buy of buys) {
+      const amount = parseFloat(buy.total?.value || '0') / Math.pow(10, buy.total?.decimals || 18);
+      const timestamp = new Date(buy.timestamp).getTime() / 1000;
+      
+      // Try to get historical price at time of purchase
+      try {
+        const priceResponse = await fetch(`/api/gecko?type=token_price&address=${tokenAddress}&timestamp=${timestamp}`);
+        if (priceResponse.ok) {
+          const priceData = await priceResponse.json();
+          const price = parseFloat(priceData.data?.attributes?.token_prices?.[tokenAddress] || '0');
+          if (price > 0) {
+            totalCost += amount * price;
+            totalTokens += amount;
+          }
+        }
+      } catch (error) {
+        console.warn(`Could not get historical price for ${tokenSymbol} at ${buy.timestamp}`);
+      }
+    }
+    
+    const avgEntryPrice = totalTokens > 0 ? totalCost / totalTokens : 0;
+    
+    // Get current price
+    let currentPrice = 0;
+    try {
+      const priceResponse = await fetch(`/api/gecko?type=token_price&address=${tokenAddress}`);
+      if (priceResponse.ok) {
+        const priceData = await priceResponse.json();
+        currentPrice = parseFloat(priceData.data?.attributes?.token_prices?.[tokenAddress] || '0');
+      }
+    } catch (error) {
+      console.warn(`Could not get current price for ${tokenSymbol}`);
+    }
+    
+    const currentValue = currentBalance * currentPrice;
+    const totalInvested = totalCost;
+    const pnl = currentValue - totalInvested;
+    const pnlPercent = totalInvested > 0 ? (pnl / totalInvested) * 100 : 0;
+    
+    return {
+      tokenSymbol,
+      tokenAddress,
+      currentBalance,
+      currentPrice,
+      currentValue,
+      avgEntryPrice,
+      totalInvested,
+      pnl,
+      pnlPercent,
+      totalBuys: buys.length,
+      totalSells: sells.length,
+      firstBuy: buys[0] ? {
+        timestamp: buys[0].timestamp,
+        amount: parseFloat(buys[0].total?.value || '0') / Math.pow(10, buys[0].total?.decimals || 18),
+        txHash: buys[0].transaction_hash
+      } : null,
+      lastBuy: buys[buys.length - 1] ? {
+        timestamp: buys[buys.length - 1].timestamp,
+        amount: parseFloat(buys[buys.length - 1].total?.value || '0') / Math.pow(10, buys[buys.length - 1].total?.decimals || 18),
+        txHash: buys[buys.length - 1].transaction_hash
+      } : null,
+      lastSell: sells[sells.length - 1] ? {
+        timestamp: sells[sells.length - 1].timestamp,
+        amount: parseFloat(sells[sells.length - 1].total?.value || '0') / Math.pow(10, sells[sells.length - 1].total?.decimals || 18),
+        txHash: sells[sells.length - 1].transaction_hash
+      } : null,
+      recentActivity: transfers.slice(-5).map((t: any) => ({
+        timestamp: t.timestamp,
+        type: t.to?.hash?.toLowerCase() === walletAddress.toLowerCase() ? 'BUY' : 'SELL',
+        amount: parseFloat(t.total?.value || '0') / Math.pow(10, t.total?.decimals || 18),
+        txHash: t.transaction_hash
+      }))
+    };
+  } catch (error) {
+    console.error(`Error analyzing personal activity for ${tokenSymbol}:`, error);
+    return null;
+  }
+}
+
 // Chart Analysis Functions
 async function analyzeTradingPatterns(tokenAddress: string) {
   try {
@@ -503,7 +685,7 @@ function generatePatternAnalysis(suspicious: boolean, pattern: string, riskLevel
 
 export async function POST(request: NextRequest) {
   try {
-    const { message, selectedTokens, walletTokens } = await request.json();
+    const { message, selectedTokens, walletTokens, walletAddress } = await request.json();
 
     if (!message) {
       return NextResponse.json({ error: 'Message is required' }, { status: 400 });
@@ -512,6 +694,7 @@ export async function POST(request: NextRequest) {
     console.log('🚀 VaultGPT Enhanced Analysis:', message);
     console.log('🎯 Selected tokens:', selectedTokens?.length || 0);
     console.log('💰 Wallet tokens:', walletTokens?.length || 0);
+    console.log('👤 Wallet address:', walletAddress);
 
     // Analyze user intent
     const userIntent = await analyzeUserIntent(message);
@@ -521,11 +704,49 @@ export async function POST(request: NextRequest) {
     const searchResults = await searchForTokens(userIntent.tokens);
     console.log('🔍 Search results:', searchResults.map(r => r.symbol));
 
+    // Get personal analysis from wallet tokens if context is PERSONAL_WALLET
+    let personalAnalysis = {};
+    if (userIntent.context === 'PERSONAL_WALLET' && walletTokens && walletTokens.length > 0) {
+      console.log('📊 Analyzing personal wallet holdings...');
+      
+      for (const walletToken of walletTokens) {
+        if (walletToken.address && walletToken.address.startsWith('0x')) {
+          // Find matching token in search results
+          const matchingToken = searchResults.find(t => 
+            t.address?.toLowerCase() === walletToken.address.toLowerCase()
+          );
+          
+          if (matchingToken) {
+            (personalAnalysis as any)[walletToken.symbol] = {
+              tokenSymbol: walletToken.symbol,
+              tokenAddress: walletToken.address,
+              currentBalance: parseFloat(walletToken.balance),
+              currentValue: walletToken.usdValue || 0,
+              avgEntryPrice: walletToken.usdValue && parseFloat(walletToken.balance) > 0 
+                ? (walletToken.usdValue / parseFloat(walletToken.balance)).toString() 
+                : '0',
+              totalInvested: walletToken.usdValue || 0,
+              pnl: '0', // Can't calculate without entry price
+              pnlPercent: '0',
+              totalBuys: 1, // Assume at least one buy to have balance
+              totalSells: 0,
+              firstBuy: null,
+              lastBuy: null,
+              lastSell: null,
+              recentActivity: [],
+              note: 'Transaction history not available - using current balance data'
+            };
+            console.log(`✅ Personal analysis for ${walletToken.symbol}:`, (personalAnalysis as any)[walletToken.symbol]);
+          }
+        }
+      }
+    }
+
     // Get additional market data
     const marketData = await getMarketData(userIntent, searchResults);
 
-    // Generate response with selected tokens context
-    const response = await generateResponse(message, userIntent, searchResults, marketData, selectedTokens, walletTokens);
+    // Generate response with selected tokens context and personal analysis
+    const response = await generateResponse(message, userIntent, searchResults, marketData, selectedTokens, walletTokens, personalAnalysis);
 
     return NextResponse.json({ 
       response,
@@ -579,11 +800,17 @@ QUERY TYPES:
 - "what's hot" = trending
 - Contract addresses (0x...)
 
+CONTEXT DETECTION:
+- "I", "me", "my", "when did I", "my wallet" = PERSONAL_WALLET context
+- "this token", "general", "market", "everyone" = GENERAL_TOKEN context
+- "vault", "platform", "our" = PLATFORM context
+
 Return JSON with:
 {
   "tokens": ["token1", "token2"],
   "analysisType": "price|performance|comparison|trending|new_launches|volume|market_overview|deep_analysis|gainers_losers|general",
   "queryType": "single_token|comparison|market_wide|trending|address_lookup|general",
+  "context": "PERSONAL_WALLET|GENERAL_TOKEN|PLATFORM",
   "needsMarketContext": boolean,
   "timeframe": "1h|24h|7d|recent",
   "specificRequest": "brief description of what user wants"
@@ -650,6 +877,53 @@ Return JSON with:
     result.queryType = "comparison";
   }
 
+  // Enhanced context detection
+  const personalWalletPatterns = [
+    /\b(i|me|my|mine)\b/i,
+    /when did i/i,
+    /my wallet/i,
+    /my holdings/i,
+    /my tokens/i,
+    /i bought/i,
+    /i sold/i,
+    /my position/i,
+    /my balance/i
+  ];
+  
+  const platformPatterns = [
+    /\bvault\b/i,
+    /\bplatform\b/i,
+    /\bour\b/i,
+    /\bpepu vault\b/i,
+    /\bvault token\b/i,
+    /\bplatform token\b/i
+  ];
+  
+  const generalTokenPatterns = [
+    /\bthis token\b/i,
+    /\bgeneral\b/i,
+    /\bmarket\b/i,
+    /\beveryone\b/i,
+    /\bpeople\b/i,
+    /\btraders\b/i,
+    /\bholders\b/i,
+    /\bactivity\b/i,
+    /\btrading\b/i,
+    /\bvolume\b/i
+  ];
+  
+  // Detect context based on patterns
+  if (personalWalletPatterns.some(pattern => pattern.test(message))) {
+    result.context = "PERSONAL_WALLET";
+  } else if (platformPatterns.some(pattern => pattern.test(message))) {
+    result.context = "PLATFORM";
+  } else if (generalTokenPatterns.some(pattern => pattern.test(message))) {
+    result.context = "GENERAL_TOKEN";
+  } else {
+    // Default context based on query type
+    result.context = result.queryType === "address_lookup" ? "GENERAL_TOKEN" : "GENERAL_TOKEN";
+  }
+
   return result;
 }
 
@@ -666,7 +940,7 @@ async function searchForTokens(tokens: string[]) {
       console.log(`📍 Contract address detected: ${token}`);
       const tokenData = await getTokenByAddress(token);
       if (tokenData) {
-        results.push(tokenData);
+        results.push(enhanceTokenWithPlatformContext(tokenData));
         continue;
       }
     }
@@ -677,7 +951,7 @@ async function searchForTokens(tokens: string[]) {
       console.log(`✅ Found in database: ${token} -> ${knownAddress}`);
       const tokenData = await getTokenByAddress(knownAddress);
       if (tokenData) {
-        results.push(tokenData);
+        results.push(enhanceTokenWithPlatformContext(tokenData));
         continue;
       }
     }
@@ -685,7 +959,7 @@ async function searchForTokens(tokens: string[]) {
     // Strategy 2: Dynamic search - scan all pools for uncommon tokens
     const tokenData = await dynamicTokenSearch(token);
     if (tokenData) {
-      results.push(tokenData);
+      results.push(enhanceTokenWithPlatformContext(tokenData));
       console.log(`✅ Found via dynamic search: ${tokenData.symbol}`);
       continue;
     }
@@ -1249,7 +1523,7 @@ async function getMarketData(intent: any, tokens: any[]) {
   return marketData;
 }
 
-async function generateResponse(message: string, intent: any, tokens: any[], marketData: any, selectedTokens: any[] = [], walletTokens: any[] = []) {
+async function generateResponse(message: string, intent: any, tokens: any[], marketData: any, selectedTokens: any[] = [], walletTokens: any[] = [], personalAnalysis: any = {}) {
   if (tokens.length === 0 && intent.tokens?.length > 0) {
     return `I searched for "${intent.tokens.join(', ')}" on the Pepe Unchained network but couldn't find any matching tokens. The tokens may not exist on this network or might be using different names/symbols.`;
   }
@@ -1268,7 +1542,75 @@ async function generateResponse(message: string, intent: any, tokens: any[], mar
       }
     }
   }
+
+  // Enhanced context-aware analysis
+  const context = intent.context || "GENERAL_TOKEN";
+  console.log(`🧠 Detected context: ${context}`);
   
+  // Add context-specific data to analysis
+  let contextData = {};
+  if (context === "PERSONAL_WALLET" && selectedTokens.length > 0) {
+    contextData = {
+      personalHoldings: selectedTokens,
+      walletTokens: walletTokens,
+      personalAnalysis: personalAnalysis,
+      analysisType: "personal_portfolio"
+    };
+  } else if (context === "PLATFORM") {
+    // Add platform-specific knowledge
+    contextData = {
+      platformTokens: ["VAULT", "PEPU"],
+      platformContext: "This is the platform's native token",
+      analysisType: "platform_token"
+    };
+  } else {
+    contextData = {
+      analysisType: "general_market",
+      marketContext: "Analyzing general token activity and market behavior"
+    };
+  }
+  
+  // Context-aware system prompt
+  let contextInstructions = "";
+  if (context === "PERSONAL_WALLET") {
+    contextInstructions = `
+**PERSONAL WALLET CONTEXT**:
+- The user is asking about THEIR OWN holdings and transactions
+- You have access to their CURRENT WALLET BALANCES and values
+- Use the personalAnalysis data to provide insights about:
+  * Their current balance (currentBalance)
+  * Current value in USD (currentValue)
+  * Estimated average entry price (avgEntryPrice - calculated from current value/balance)
+  * Note: Transaction history is not available, so use current balance data
+- Be specific about their current holdings and estimated performance
+- When they say "I" or "me", they mean their connected wallet
+- Provide personalized advice based on their CURRENT wallet data
+- If they ask "when did I buy", explain that transaction history is not available
+- Focus on their current position and market analysis instead`;
+  } else if (context === "PLATFORM") {
+    contextInstructions = `
+**PLATFORM CONTEXT**:
+- This is about the platform's own tokens (VAULT, PEPU, etc.)
+- VAULT is the PEPU VAULT platform's governance and utility token
+- PEPU VAULT is a comprehensive DeFi platform on Pepe Unchained network
+- Platform features include: token analysis, portfolio tracking, AI-powered insights, trading tools
+- VAULT token utility: governance voting, staking rewards, platform fee discounts, premium features access
+- Always emphasize the PROJECT and PLATFORM when discussing VAULT
+- Focus on platform utility, ecosystem role, and technological innovation
+- Explain how VAULT powers the PEPU VAULT ecosystem and its long-term vision
+- Highlight the platform's unique features and competitive advantages
+- Be enthusiastic about the project's potential and technological capabilities`;
+  } else {
+    contextInstructions = `
+**GENERAL TOKEN CONTEXT**:
+- Analyze general market activity and token behavior
+- Focus on overall trading patterns, volume, and market dynamics
+- Look at broad market trends and general token performance
+- Analyze what "everyone" or "the market" is doing
+- Provide general market insights and token analysis
+- Consider overall market sentiment and trading activity`;
+  }
+
   const systemPrompt = `You are VaultGPT, an expert cryptocurrency analyst specializing in Pepe Unchained tokens. 
 
 You are known for your intelligent, thought-driven analysis that goes beyond just listing data. You provide:
@@ -1306,6 +1648,8 @@ You are known for your intelligent, thought-driven analysis that goes beyond jus
 - Analyze price movements in context of broader market trends
 - Provide comparative insights when relevant
 
+${contextInstructions}
+
 Remember: You're not just a data aggregator - you're an expert analyst providing intelligent, actionable insights that help users make informed decisions.`;
 
   try {
@@ -1315,7 +1659,13 @@ Remember: You're not just a data aggregator - you're an expert analyst providing
         { role: "system", content: systemPrompt },
         { 
           role: "system", 
-          content: `FOUND TOKENS: ${JSON.stringify(tokens, null, 2)}\nMARKET DATA: ${JSON.stringify(marketData, null, 2)}\nCHART ANALYSIS: ${JSON.stringify(chartAnalysis, null, 2)}\nSELECTED TOKENS: ${JSON.stringify(selectedTokens, null, 2)}\nWALLET TOKENS: ${JSON.stringify(walletTokens, null, 2)}`
+          content: `CONTEXT: ${context}
+FOUND TOKENS: ${JSON.stringify(tokens, null, 2)}
+MARKET DATA: ${JSON.stringify(marketData, null, 2)}
+CHART ANALYSIS: ${JSON.stringify(chartAnalysis, null, 2)}
+SELECTED TOKENS: ${JSON.stringify(selectedTokens, null, 2)}
+WALLET TOKENS: ${JSON.stringify(walletTokens, null, 2)}
+CONTEXT DATA: ${JSON.stringify(contextData, null, 2)}`
         },
         { role: "user", content: message }
       ],
