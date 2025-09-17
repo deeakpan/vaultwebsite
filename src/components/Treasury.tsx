@@ -307,10 +307,10 @@ export default function Treasury() {
       <section id="treasury" className="py-8 md:py-16 bg-gradient-to-br from-pepu-white to-pepu-light-green/5">
         <div className="w-full px-4 sm:max-w-7xl sm:mx-auto">
           <div className="text-center mb-8 md:mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-pepu-dark-green mb-3 md:mb-4">
+            <h2 className="text-3xl md:text-4xl font-bold text-primary mb-3 md:mb-4">
               Project Wallet & Treasury
             </h2>
-            <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">
+            <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
               Loading live data from the official Pepu Vault treasury wallet...
               {isLoadingTokens && <br />}
               {isLoadingTokens && <span className="text-sm">Scanning blockchain for ERC20 tokens...</span>}
@@ -328,10 +328,10 @@ export default function Treasury() {
     <section id="treasury" className="py-8 md:py-16 bg-gradient-to-br from-pepu-white to-pepu-light-green/5">
                   <div className="w-full px-0 md:max-w-7xl md:mx-auto">
         <div className="text-center mb-8 md:mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-pepu-dark-green mb-3 md:mb-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-primary mb-3 md:mb-4">
             Project Wallet & Treasury
           </h2>
-          <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">
+          <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
             Live data from the official Pepu Vault treasury wallet on PEPU Chain. 
             Transparent allocation strategy with community governance.
           </p>
@@ -340,14 +340,14 @@ export default function Treasury() {
         <div className="grid lg:grid-cols-3 gap-6 md:gap-8">
           {/* Wallet Overview */}
           <div className="lg:col-span-2 space-y-4 md:space-y-6">
-            <div className="bg-white rounded-2xl shadow-xl p-6 md:p-8 border border-pepu-light-green/20">
+            <div className="bg-card rounded-2xl shadow-xl p-6 md:p-8 border border-border">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 md:mb-6 gap-3">
-                <h3 className="text-xl md:text-2xl font-bold text-pepu-dark-green">Treasury Holdings</h3>
+                <h3 className="text-xl md:text-2xl font-bold text-primary">Treasury Holdings</h3>
                 <div className="flex items-center space-x-2">
                   <button
                     onClick={refreshTreasuryData}
                     disabled={isRefreshing}
-                    className="flex items-center space-x-2 bg-pepu-yellow-orange text-pepu-dark-green px-3 py-2 md:px-4 md:py-2 rounded-lg font-semibold hover:bg-pepu-yellow-orange/90 transition-colors disabled:opacity-50 text-sm"
+                    className="flex items-center space-x-2 bg-pepu-yellow-orange text-primary px-3 py-2 md:px-4 md:py-2 rounded-lg font-semibold hover:bg-pepu-yellow-orange/90 transition-colors disabled:opacity-50 text-sm"
                   >
                     <svg className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -355,14 +355,14 @@ export default function Treasury() {
                     <span>{isRefreshing ? 'Refreshing...' : 'Refresh'}</span>
                   </button>
                   <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
-                  <span className="text-sm text-gray-600">Live Data</span>
+                  <span className="text-sm text-muted-foreground">Live Data</span>
                 </div>
               </div>
 
               <div className="mb-4 md:mb-6">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-gray-600 text-sm md:text-base">Total Treasury Value</span>
-                  <span className="text-xl md:text-2xl font-bold text-pepu-dark-green">{formatUSD(treasuryData.totalValue)}</span>
+                  <span className="text-muted-foreground text-sm md:text-base">Total Treasury Value</span>
+                  <span className="text-xl md:text-2xl font-bold text-primary">{formatUSD(treasuryData.totalValue)}</span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
                   <div className="bg-gradient-to-r from-pepu-light-green to-pepu-yellow-orange h-2 rounded-full" style={{ width: '100%' }}></div>
@@ -377,9 +377,9 @@ export default function Treasury() {
                     placeholder="Search holdings (vault)"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full px-4 py-2 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pepu-dark-green focus:border-transparent text-sm bg-white text-black placeholder-gray-500"
+                    className="w-full px-4 py-2 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pepu-dark-green focus:border-transparent text-sm bg-card text-black placeholder-gray-500"
                   />
-                  <svg className="absolute left-3 top-2.5 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="absolute left-3 top-2.5 w-4 h-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                   </svg>
                 </div>
@@ -403,7 +403,7 @@ export default function Treasury() {
                   
                   return (
                     <div key={index} className={`flex items-center justify-between p-2 rounded-lg ${
-                      holding.symbol === 'PEPU' ? 'bg-gradient-to-r from-pepu-dark-green to-pepu-light-green text-white' : 'bg-gray-50 hover:bg-gray-100 transition-colors'
+                      holding.symbol === 'PEPU' ? 'bg-gradient-to-r from-pepu-dark-green to-pepu-light-green text-white' : 'bg-secondary hover:bg-secondary/80 transition-colors'
                     }`}>
                       <div className="flex items-center space-x-2">
                         <div className="w-2 h-2 rounded-full" style={{
@@ -414,7 +414,7 @@ export default function Treasury() {
                                          index === 3 ? '#FF6B6B' : '#9CA3AF'
                         }}></div>
                         <span className={`font-semibold text-sm ${
-                          holding.symbol === 'PEPU' ? 'text-white' : 'text-pepu-dark-green'
+                          holding.symbol === 'PEPU' ? 'text-white' : 'text-primary'
                         }`}>
                           {holding.symbol}
                           {holding.symbol === 'PEPU' && <span className="text-xs opacity-90 ml-1">(Native)</span>}
@@ -422,13 +422,13 @@ export default function Treasury() {
                       </div>
                       <div className="text-right">
                         <div className={`font-bold text-sm ${
-                          holding.symbol === 'PEPU' ? 'text-white' : 'text-pepu-dark-green'
+                          holding.symbol === 'PEPU' ? 'text-white' : 'text-primary'
                         }`}>
                           {formatTokenAmount(holding.amount, holding.decimals)} {holding.symbol}
                         </div>
                         {holding.usdValue && (
                           <div className={`text-xs ${
-                            holding.symbol === 'PEPU' ? 'text-white opacity-90' : 'text-gray-500'
+                            holding.symbol === 'PEPU' ? 'text-white opacity-90' : 'text-muted-foreground'
                           }`}>
                             <a 
                               href={geckoTerminalUrl}
@@ -444,7 +444,7 @@ export default function Treasury() {
                         )}
                         {holding.percentage && (
                           <div className={`text-xs ${
-                            holding.symbol === 'PEPU' ? 'text-white opacity-75' : 'text-gray-400'
+                            holding.symbol === 'PEPU' ? 'text-white opacity-75' : 'text-muted-foreground'
                           }`}>{holding.percentage.toFixed(1)}%</div>
                         )}
                       </div>
@@ -453,13 +453,13 @@ export default function Treasury() {
                 })}
                 {filteredHoldings.length === 0 && searchTerm && (
                   <div className="text-center py-4">
-                    <p className="text-gray-500 text-sm">No tokens found matching "{searchTerm}"</p>
+                    <p className="text-muted-foreground text-sm">No tokens found matching "{searchTerm}"</p>
                   </div>
                 )}
               </div>
               ) : (
                 <div className="text-center py-8">
-                  <p className="text-gray-500">No token holdings found</p>
+                  <p className="text-muted-foreground">No token holdings found</p>
                 </div>
               )}
             </div>
@@ -467,42 +467,42 @@ export default function Treasury() {
 
           {/* Treasury Strategy */}
           <div className="space-y-4 md:space-y-6">
-            <div className="bg-white rounded-2xl shadow-xl p-4 md:p-6 border border-pepu-light-green/20">
-              <h3 className="text-lg md:text-xl font-bold text-pepu-dark-green mb-3 md:mb-4">Wallet Info</h3>
+            <div className="bg-card rounded-2xl shadow-xl p-4 md:p-6 border border-border">
+              <h3 className="text-lg md:text-xl font-bold text-primary mb-3 md:mb-4">Wallet Info</h3>
               
               <div className="space-y-3 md:space-y-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-600 text-sm md:text-base">Native PEPU</span>
-                  <span className="font-bold text-pepu-dark-green text-sm md:text-base">
+                  <span className="text-muted-foreground text-sm md:text-base">Native PEPU</span>
+                  <span className="font-bold text-primary text-sm md:text-base">
                     {formatTokenAmount(treasuryData.nativeBalance, 18)} PEPU
                   </span>
                 </div>
 
                                  <div className="flex items-center justify-between">
-                   <span className="text-gray-600 text-sm md:text-base">ERC20 Tokens</span>
+                   <span className="text-muted-foreground text-sm md:text-base">ERC20 Tokens</span>
                    <span className="font-bold text-pepu-yellow-orange text-sm md:text-base">
                      {treasuryData.holdings.filter(holding => holding.symbol !== 'PEPU').length}
                    </span>
                  </div>
 
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-600 text-sm md:text-base">Total Value</span>
-                  <span className="font-bold text-pepu-dark-green text-sm md:text-base">
+                  <span className="text-muted-foreground text-sm md:text-base">Total Value</span>
+                  <span className="font-bold text-primary text-sm md:text-base">
                     {formatUSD(treasuryData.totalValue)}
                   </span>
                 </div>
 
                                  <div className="flex items-center justify-between">
-                   <span className="text-gray-600 text-sm md:text-base">Network</span>
-                   <span className="font-bold text-pepu-dark-green text-sm md:text-base">
+                   <span className="text-muted-foreground text-sm md:text-base">Network</span>
+                   <span className="font-bold text-primary text-sm md:text-base">
                      Pepe Unchained
                    </span>
                  </div>
               </div>
 
               <div className="mt-4 md:mt-6 p-3 md:p-4 bg-gradient-to-r from-pepu-light-green/20 to-pepu-yellow-orange/20 rounded-lg">
-                <h4 className="font-semibold text-pepu-dark-green mb-2 text-sm md:text-base">Live Data</h4>
-                <p className="text-xs md:text-sm text-gray-600">
+                <h4 className="font-semibold text-primary mb-2 text-sm md:text-base">Live Data</h4>
+                <p className="text-xs md:text-sm text-muted-foreground">
                   Real-time token balances fetched directly from the blockchain. 
                   Click the wallet address to view on PepuScan explorer.
                 </p>
@@ -510,8 +510,8 @@ export default function Treasury() {
             </div>
 
             {/* Explorer Link */}
-            <div className="bg-white rounded-2xl shadow-xl p-4 md:p-6 border border-pepu-light-green/20">
-              <h3 className="text-lg md:text-xl font-bold text-pepu-dark-green mb-3 md:mb-4">Block Explorer</h3>
+            <div className="bg-card rounded-2xl shadow-xl p-4 md:p-6 border border-border">
+              <h3 className="text-lg md:text-xl font-bold text-primary mb-3 md:mb-4">Block Explorer</h3>
               
               <div className="space-y-3">
                 <a 
@@ -521,10 +521,10 @@ export default function Treasury() {
                   className="flex items-center justify-between p-3 bg-pepu-yellow-orange/10 rounded-lg hover:bg-pepu-yellow-orange/20 transition-colors"
                 >
                     <div>
-                    <div className="font-semibold text-pepu-dark-green text-sm md:text-base">View on PepuScan</div>
-                    <div className="text-xs md:text-sm text-gray-600">Full transaction history</div>
+                    <div className="font-semibold text-primary text-sm md:text-base">View on PepuScan</div>
+                    <div className="text-xs md:text-sm text-muted-foreground">Full transaction history</div>
                   </div>
-                  <svg className="w-5 h-5 text-pepu-dark-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                   </svg>
                 </a>

@@ -109,17 +109,17 @@ export default function ProjectInfo() {
     <section className="py-16 bg-gradient-to-br from-pepu-dark-green/5 to-pepu-yellow-orange/5">
               <div className="w-full px-0 md:max-w-6xl md:mx-auto">
         <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold text-pepu-dark-green mb-4">
+          <h2 className="text-4xl font-bold text-primary mb-4">
             Project Information
           </h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
             Learn about $Vault tokenomics, contract addresses, and the team behind Pepu Vault.
           </p>
         </div>
 
         {/* Tab Navigation */}
         <div className="flex justify-center mb-6">
-          <div className="bg-white rounded-lg p-1 shadow-md border border-pepu-light-green/20 max-w-md w-full">
+          <div className="bg-card rounded-lg p-1 shadow-md border border-border max-w-md w-full">
             <div className="grid grid-cols-4 gap-1">
               {['tokenomics', 'contracts', 'team', 'roadmap'].map((tab) => (
                 <button
@@ -127,8 +127,8 @@ export default function ProjectInfo() {
                   onClick={() => setActiveTab(tab)}
                   className={`px-2 py-2 rounded-md text-xs sm:text-sm font-medium transition-colors ${
                     activeTab === tab
-                      ? 'bg-pepu-yellow-orange text-pepu-dark-green'
-                      : 'text-gray-600 hover:text-pepu-dark-green'
+                      ? 'bg-pepu-yellow-orange text-primary'
+                      : 'text-muted-foreground hover:text-primary'
                   }`}
                 >
                   {tab.charAt(0).toUpperCase() + tab.slice(1)}
@@ -139,16 +139,16 @@ export default function ProjectInfo() {
         </div>
 
         {/* Tab Content */}
-        <div className="bg-white rounded-2xl shadow-xl border border-pepu-light-green/20 overflow-hidden w-full sm:max-w-full px-0">
+        <div className="bg-card rounded-2xl shadow-xl border border-border overflow-hidden w-full sm:max-w-full px-0">
           {activeTab === 'tokenomics' && (
             <div className="p-8">
               <div className="flex items-center justify-between mb-8">
                 <div className="flex items-center space-x-3">
-                  <h3 className="text-xl sm:text-2xl font-bold text-pepu-dark-green">Tokenomics & Live Data</h3>
+                  <h3 className="text-xl sm:text-2xl font-bold text-primary">Tokenomics & Live Data</h3>
                   <button
                     onClick={fetchVaultStats}
                     disabled={isRefreshing}
-                    className="flex items-center justify-center bg-pepu-yellow-orange text-pepu-dark-green p-2 rounded-lg hover:bg-pepu-yellow-orange/90 transition-colors disabled:opacity-50"
+                    className="flex items-center justify-center bg-pepu-yellow-orange text-primary p-2 rounded-lg hover:bg-pepu-yellow-orange/90 transition-colors disabled:opacity-50"
                   >
                     <svg className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -158,7 +158,7 @@ export default function ProjectInfo() {
                 <button
                   onClick={fetchVaultStats}
                   disabled={isRefreshing}
-                  className="hidden sm:flex items-center space-x-2 bg-pepu-yellow-orange text-pepu-dark-green px-3 py-2 rounded-lg font-semibold hover:bg-pepu-yellow-orange/90 transition-colors disabled:opacity-50 text-sm"
+                  className="hidden sm:flex items-center space-x-2 bg-pepu-yellow-orange text-primary px-3 py-2 rounded-lg font-semibold hover:bg-pepu-yellow-orange/90 transition-colors disabled:opacity-50 text-sm"
                 >
                   <svg className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -169,7 +169,7 @@ export default function ProjectInfo() {
               
               {/* Live Statistics Section */}
               <div className="mb-8">
-                <h4 className="text-xl font-semibold text-pepu-dark-green mb-4 flex items-center">
+                <h4 className="text-xl font-semibold text-primary mb-4 flex items-center">
                   <div className="w-3 h-3 bg-green-500 rounded-full mr-3 animate-pulse"></div>
                   Live Market Statistics
                 </h4>
@@ -177,11 +177,11 @@ export default function ProjectInfo() {
                 {/* Current Price Highlight */}
                 <div className="mb-6 p-6 bg-gradient-to-r from-pepu-yellow-orange/20 to-pepu-yellow-orange/10 rounded-xl border border-pepu-yellow-orange/30">
                   <div className="text-center">
-                    <div className="text-sm text-gray-600 mb-2">Current VAULT Price</div>
-                    <div className="text-3xl font-bold text-pepu-dark-green">
+                    <div className="text-sm text-muted-foreground mb-2">Current VAULT Price</div>
+                    <div className="text-3xl font-bold text-primary">
                       {formatUSD(vaultStats.price)}
                     </div>
-                    <div className="text-xs text-gray-500 mt-1">Real-time from GeckoTerminal</div>
+                    <div className="text-xs text-muted-foreground mt-1">Real-time from GeckoTerminal</div>
                   </div>
                 </div>
                 
@@ -198,16 +198,16 @@ export default function ProjectInfo() {
                   ) : (
                     <>
                       <div className="p-2 sm:p-4 bg-gradient-to-br from-pepu-light-green/20 to-pepu-light-green/10 rounded-xl border border-pepu-light-green/30">
-                        <div className="text-xs sm:text-sm text-gray-600 mb-1">Market Cap</div>
-                        <div className="text-base sm:text-xl font-bold text-pepu-dark-green">{formatUSD(vaultStats.fdv)}</div>
+                        <div className="text-xs sm:text-sm text-muted-foreground mb-1">Market Cap</div>
+                        <div className="text-base sm:text-xl font-bold text-primary">{formatUSD(vaultStats.fdv)}</div>
                       </div>
                       <div className="p-2 sm:p-4 bg-gradient-to-br from-pepu-dark-green/20 to-pepu-dark-green/10 rounded-xl border border-pepu-dark-green/30">
-                        <div className="text-xs sm:text-sm text-gray-600 mb-1">24h Volume</div>
-                        <div className="text-base sm:text-xl font-bold text-pepu-dark-green">{formatUSD(vaultStats.volume24h)}</div>
+                        <div className="text-xs sm:text-sm text-muted-foreground mb-1">24h Volume</div>
+                        <div className="text-base sm:text-xl font-bold text-primary">{formatUSD(vaultStats.volume24h)}</div>
                       </div>
                       <div className="p-2 sm:p-4 bg-gradient-to-br from-blue-100 to-blue-50 rounded-xl border border-blue-200">
-                        <div className="text-xs sm:text-sm text-gray-600 mb-1">Fully Diluted Value</div>
-                        <div className="text-base sm:text-xl font-bold text-pepu-dark-green">{formatUSD(vaultStats.fdv)}</div>
+                        <div className="text-xs sm:text-sm text-muted-foreground mb-1">Fully Diluted Value</div>
+                        <div className="text-base sm:text-xl font-bold text-primary">{formatUSD(vaultStats.fdv)}</div>
                       </div>
 
                     </>
@@ -250,13 +250,13 @@ export default function ProjectInfo() {
                     </ResponsiveContainer>
                   </div>
                 </div>
-                <h4 className="text-xl font-semibold text-pepu-dark-green mb-4">Profit Distribution Structure</h4>
+                <h4 className="text-xl font-semibold text-primary mb-4">Profit Distribution Structure</h4>
               <div className="grid lg:grid-cols-2 gap-8">
                   <div className="space-y-4">
                     {tokenomics.map((item, index) => (
-                      <div key={index} className="p-4 bg-white rounded-xl border border-gray-200 shadow-sm">
+                      <div key={index} className="p-4 bg-card rounded-xl border border-gray-200 shadow-sm">
                         <div className="flex items-center justify-between mb-2">
-                          <span className="font-semibold text-pepu-dark-green">{item.category}</span>
+                          <span className="font-semibold text-primary">{item.category}</span>
                           <span className="font-bold text-2xl text-pepu-yellow-orange">{item.percentage}%</span>
                         </div>
                         <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
@@ -265,33 +265,33 @@ export default function ProjectInfo() {
                             style={{ width: `${item.percentage}%` }}
                           ></div>
                         </div>
-                        <p className="text-sm text-gray-600">{item.description}</p>
+                        <p className="text-sm text-muted-foreground">{item.description}</p>
                       </div>
                     ))}
                 </div>
 
                   <div className="space-y-4">
                     <div className="p-6 bg-gradient-to-br from-pepu-light-green/20 to-pepu-light-green/10 rounded-xl border border-pepu-light-green/30">
-                      <h5 className="font-semibold text-pepu-dark-green mb-3">Initial Treasury Setup</h5>
+                      <h5 className="font-semibold text-primary mb-3">Initial Treasury Setup</h5>
                       <div className="space-y-3">
                       <div className="flex items-center justify-between">
-                          <span className="text-gray-600">Initial PEPU</span>
-                          <span className="font-bold text-pepu-dark-green">100,000 PEPU</span>
+                          <span className="text-muted-foreground">Initial PEPU</span>
+                          <span className="font-bold text-primary">100,000 PEPU</span>
                       </div>
                         <div className="flex items-center justify-between">
-                          <span className="text-gray-600">Initial VAULT</span>
-                          <span className="font-bold text-pepu-dark-green">30,000,000 VAULT</span>
+                          <span className="text-muted-foreground">Initial VAULT</span>
+                          <span className="font-bold text-primary">30,000,000 VAULT</span>
                     </div>
                       <div className="flex items-center justify-between">
-                          <span className="text-gray-600">Investment Cycle</span>
-                          <span className="font-bold text-pepu-dark-green">14-16 Days</span>
+                          <span className="text-muted-foreground">Investment Cycle</span>
+                          <span className="font-bold text-primary">14-16 Days</span>
                         </div>
                       </div>
                     </div>
                     
                     <div className="p-6 bg-gradient-to-br from-pepu-yellow-orange/20 to-pepu-yellow-orange/10 rounded-xl border border-pepu-yellow-orange/30">
-                      <h5 className="font-semibold text-pepu-dark-green mb-3">Investment Strategy</h5>
-                      <div className="space-y-2 text-sm text-gray-600">
+                      <h5 className="font-semibold text-primary mb-3">Investment Strategy</h5>
+                      <div className="space-y-2 text-sm text-muted-foreground">
                       <div className="flex items-center justify-between">
                           <span>Low Risk (Established Projects)</span>
                           <span className="font-semibold">70%</span>
@@ -314,14 +314,14 @@ export default function ProjectInfo() {
 
           {activeTab === 'contracts' && (
             <div className="p-8">
-              <h3 className="text-2xl font-bold text-pepu-dark-green mb-6">Contract Addresses</h3>
+              <h3 className="text-2xl font-bold text-primary mb-6">Contract Addresses</h3>
               
               <div className="space-y-6">
                 <div className="grid md:grid-cols-2 gap-6">
-                  <div className="p-6 bg-pepu-light-green/10 rounded-xl border border-pepu-light-green/20">
-                    <h4 className="font-semibold text-pepu-dark-green mb-3">$Vault Token</h4>
+                  <div className="p-6 bg-pepu-light-green/10 rounded-xl border border-border">
+                    <h4 className="font-semibold text-primary mb-3">$Vault Token</h4>
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-600">Contract Address</span>
+                      <span className="text-sm text-muted-foreground">Contract Address</span>
                       <a 
                         href={`https://pepuscan.com/address/${contractAddresses.vault}`}
                         target="_blank"
@@ -331,15 +331,15 @@ export default function ProjectInfo() {
                         {formatAddress(contractAddresses.vault)}
                       </a>
                     </div>
-                    <div className="mt-2 text-xs text-gray-500">
+                    <div className="mt-2 text-xs text-muted-foreground">
                       ERC-20 token on PEPU Chain
                     </div>
                   </div>
 
                   <div className="p-6 bg-pepu-yellow-orange/10 rounded-xl border border-pepu-yellow-orange/20">
-                    <h4 className="font-semibold text-pepu-dark-green mb-3">Treasury Contract</h4>
+                    <h4 className="font-semibold text-primary mb-3">Treasury Contract</h4>
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-600">Contract Address</span>
+                      <span className="text-sm text-muted-foreground">Contract Address</span>
                       <a 
                         href={`https://pepuscan.com/address/${contractAddresses.treasury}`}
                         target="_blank"
@@ -349,16 +349,16 @@ export default function ProjectInfo() {
                         {formatAddress(contractAddresses.treasury)}
                       </a>
                     </div>
-                    <div className="mt-2 text-xs text-gray-500">
+                    <div className="mt-2 text-xs text-muted-foreground">
                       Treasury management and rewards distribution
                     </div>
                   </div>
                 </div>
 
                 <div className="p-6 bg-pepu-dark-green/10 rounded-xl border border-pepu-dark-green/20">
-                  <h4 className="font-semibold text-pepu-dark-green mb-3">Rewards Contract</h4>
+                  <h4 className="font-semibold text-primary mb-3">Rewards Contract</h4>
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600">Contract Address</span>
+                    <span className="text-sm text-muted-foreground">Contract Address</span>
                     <a 
                       href={`https://pepuscan.com/address/${contractAddresses.rewards}`}
                       target="_blank"
@@ -368,14 +368,14 @@ export default function ProjectInfo() {
                       {formatAddress(contractAddresses.rewards)}
                     </a>
                   </div>
-                  <div className="mt-2 text-xs text-gray-500">
+                  <div className="mt-2 text-xs text-muted-foreground">
                     Automated snapshot and reward distribution system
                   </div>
                 </div>
 
                 <div className="p-4 bg-gradient-to-r from-pepu-light-green/20 to-pepu-yellow-orange/20 rounded-lg">
-                  <h4 className="font-semibold text-pepu-dark-green mb-2">Verification</h4>
-                  <p className="text-sm text-gray-600">
+                  <h4 className="font-semibold text-primary mb-2">Verification</h4>
+                  <p className="text-sm text-muted-foreground">
                     All contracts are verified on PEPU Chain explorer. You can view the source code 
                     and verify the functionality directly on the blockchain.
                   </p>
@@ -386,46 +386,46 @@ export default function ProjectInfo() {
 
           {activeTab === 'team' && (
             <div className="p-8">
-              <h3 className="text-2xl font-bold text-pepu-dark-green mb-6">Team & Mission</h3>
+              <h3 className="text-2xl font-bold text-primary mb-6">Team & Mission</h3>
               
               <div className="grid lg:grid-cols-2 gap-8">
                 <div>
-                  <h4 className="text-lg font-semibold text-pepu-dark-green mb-4">Our Mission</h4>
-                  <p className="text-gray-600 leading-relaxed mb-4">
+                  <h4 className="text-lg font-semibold text-primary mb-4">Our Mission</h4>
+                  <p className="text-muted-foreground leading-relaxed mb-4">
                     Pepu Vault aims to create a sustainable and transparent treasury management system 
                     that rewards long-term holders while building a strong community around the PEPU ecosystem.
                   </p>
-                  <p className="text-gray-600 leading-relaxed">
+                  <p className="text-muted-foreground leading-relaxed">
                     We believe in the power of community-driven projects and strive to provide the tools 
                     and infrastructure needed for the PEPU Chain to thrive.
                   </p>
                 </div>
 
                 <div>
-                  <h4 className="text-lg font-semibold text-pepu-dark-green mb-4">Core Values</h4>
+                  <h4 className="text-lg font-semibold text-primary mb-4">Core Values</h4>
                   <div className="space-y-3">
                     <div className="flex items-center space-x-3">
                       <div className="w-3 h-3 bg-pepu-light-green rounded-full"></div>
-                      <span className="text-gray-700">Transparency in all operations</span>
+                      <span className="text-muted-foreground">Transparency in all operations</span>
                     </div>
                     <div className="flex items-center space-x-3">
                       <div className="w-3 h-3 bg-pepu-yellow-orange rounded-full"></div>
-                      <span className="text-gray-700">Community-first approach</span>
+                      <span className="text-muted-foreground">Community-first approach</span>
                     </div>
                     <div className="flex items-center space-x-3">
                       <div className="w-3 h-3 bg-pepu-dark-green rounded-full"></div>
-                      <span className="text-gray-700">Sustainable growth strategies</span>
+                      <span className="text-muted-foreground">Sustainable growth strategies</span>
                     </div>
                     <div className="flex items-center space-x-3">
                       <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-                      <span className="text-gray-700">Innovation in DeFi</span>
+                      <span className="text-muted-foreground">Innovation in DeFi</span>
                     </div>
                   </div>
                 </div>
               </div>
 
               <div className="mt-8 p-6 bg-gradient-to-r from-pepu-light-green/20 to-pepu-yellow-orange/20 rounded-xl">
-                <h4 className="font-semibold text-pepu-dark-green mb-3">Community Links</h4>
+                <h4 className="font-semibold text-primary mb-3">Community Links</h4>
                 <div className="grid md:grid-cols-3 gap-4">
                   <a 
                     href="https://t.me/pepuvault"
@@ -469,7 +469,7 @@ export default function ProjectInfo() {
 
           {activeTab === 'roadmap' && (
             <div className="p-8">
-              <h3 className="text-2xl font-bold text-pepu-dark-green mb-6">Roadmap</h3>
+              <h3 className="text-2xl font-bold text-primary mb-6">Roadmap</h3>
               
               <div className="space-y-8">
                 <div className="relative">
@@ -477,22 +477,22 @@ export default function ProjectInfo() {
                   
                   <div className="relative pl-12 pb-8">
                     <div className="absolute left-0 top-0 w-8 h-8 bg-pepu-yellow-orange rounded-full flex items-center justify-center">
-                      <svg className="w-4 h-4 text-pepu-dark-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                       </svg>
                     </div>
-                    <h4 className="text-lg font-semibold text-pepu-dark-green mb-2">Phase 1: Foundation (Q1 2024)</h4>
-                    <p className="text-gray-600">Launch of $Vault token, treasury setup, and initial community building</p>
+                    <h4 className="text-lg font-semibold text-primary mb-2">Phase 1: Foundation (Q1 2024)</h4>
+                    <p className="text-muted-foreground">Launch of $Vault token, treasury setup, and initial community building</p>
                   </div>
 
                   <div className="relative pl-12 pb-8">
                     <div className="absolute left-0 top-0 w-8 h-8 bg-pepu-light-green rounded-full flex items-center justify-center">
-                      <svg className="w-4 h-4 text-pepu-dark-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                       </svg>
                     </div>
-                    <h4 className="text-lg font-semibold text-pepu-dark-green mb-2">Phase 2: Growth (Q2 2024)</h4>
-                    <p className="text-gray-600">AI analytics integration, governance features, and expanded treasury strategies</p>
+                    <h4 className="text-lg font-semibold text-primary mb-2">Phase 2: Growth (Q2 2024)</h4>
+                    <p className="text-muted-foreground">AI analytics integration, governance features, and expanded treasury strategies</p>
                   </div>
 
                   <div className="relative pl-12 pb-8">
@@ -501,18 +501,18 @@ export default function ProjectInfo() {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                       </svg>
                     </div>
-                    <h4 className="text-lg font-semibold text-pepu-dark-green mb-2">Phase 3: Innovation (Q3 2024)</h4>
-                    <p className="text-gray-600">Advanced DeFi integrations, cross-chain bridges, and ecosystem partnerships</p>
+                    <h4 className="text-lg font-semibold text-primary mb-2">Phase 3: Innovation (Q3 2024)</h4>
+                    <p className="text-muted-foreground">Advanced DeFi integrations, cross-chain bridges, and ecosystem partnerships</p>
                   </div>
 
                   <div className="relative pl-12">
                     <div className="absolute left-0 top-0 w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
-                      <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-4 h-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                       </svg>
                     </div>
-                    <h4 className="text-lg font-semibold text-pepu-dark-green mb-2">Phase 4: Expansion (Q4 2024)</h4>
-                    <p className="text-gray-600">Multi-chain deployment, institutional partnerships, and global adoption</p>
+                    <h4 className="text-lg font-semibold text-primary mb-2">Phase 4: Expansion (Q4 2024)</h4>
+                    <p className="text-muted-foreground">Multi-chain deployment, institutional partnerships, and global adoption</p>
                   </div>
                 </div>
               </div>

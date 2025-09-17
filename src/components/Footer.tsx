@@ -4,7 +4,7 @@ export default function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-pepu-dark-green text-pepu-white">
+    <footer className="bg-primary text-primary-foreground">
       <div className="w-full px-4 py-12 sm:max-w-7xl sm:mx-auto">
         <div className="grid md:grid-cols-4 gap-8">
           {/* Brand */}
@@ -19,10 +19,10 @@ export default function Footer() {
               </div>
               <div>
                 <h3 className="text-2xl font-bold">Pepu Vault</h3>
-                <p className="text-pepu-light-green text-sm">Treasury & Rewards</p>
+                <p className="text-accent text-sm">Treasury & Rewards</p>
               </div>
             </div>
-            <p className="text-gray-300 mb-6 max-w-md">
+            <p className="text-muted-foreground mb-6 max-w-md">
               The ultimate treasury management and community rewards platform for $Vault holders. 
               Experience the perfect blend of memecoin fun and serious utility.
             </p>
@@ -81,7 +81,7 @@ export default function Footer() {
                   href="https://pepuscan.com/address/0xC96694BEA572073D19C41aA9C014Dd3c7C193B8E" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="text-gray-300 hover:text-pepu-yellow-orange transition-colors"
+                  className="text-muted-foreground hover:text-accent transition-colors"
                 >
                   Treasury
                 </a>
@@ -91,7 +91,7 @@ export default function Footer() {
                   href="https://t.me/pepuvault_reward_tracker_bot" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="text-gray-300 hover:text-pepu-yellow-orange transition-colors"
+                  className="text-muted-foreground hover:text-accent transition-colors"
                 >
                   Rewards
                 </a>
@@ -101,7 +101,7 @@ export default function Footer() {
                   href="https://t.me/PepeX_AiBot" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="text-gray-300 hover:text-pepu-yellow-orange transition-colors"
+                  className="text-muted-foreground hover:text-accent transition-colors"
                 >
                   News
                 </a>
@@ -118,7 +118,7 @@ export default function Footer() {
                   href="https://pepuscan.com" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="text-gray-300 hover:text-pepu-yellow-orange transition-colors"
+                  className="text-muted-foreground hover:text-accent transition-colors"
                 >
                   Explorer
                 </a>
@@ -128,7 +128,7 @@ export default function Footer() {
                   href="https://www.geckoterminal.com/pepe-unchained/tokens/0x8746D6Fc80708775461226657a6947497764BBe6" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="text-gray-300 hover:text-pepu-yellow-orange transition-colors"
+                  className="text-muted-foreground hover:text-accent transition-colors"
                 >
                   GeckoTerminal
                 </a>
@@ -138,7 +138,7 @@ export default function Footer() {
                   href="https://superbridge.pepubank.net" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="text-gray-300 hover:text-pepu-yellow-orange transition-colors"
+                  className="text-muted-foreground hover:text-accent transition-colors"
                 >
                   Superbridge
                 </a>
@@ -148,7 +148,7 @@ export default function Footer() {
                   href="https://t.me/pepuvault" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="text-gray-300 hover:text-pepu-yellow-orange transition-colors"
+                  className="text-muted-foreground hover:text-accent transition-colors"
                 >
                   Telegram
                 </a>
@@ -160,17 +160,17 @@ export default function Footer() {
         {/* Bottom Section */}
         <div className="border-t border-pepu-light-green/20 mt-8 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="text-gray-300 text-sm mb-4 md:mb-0">
+            <div className="text-muted-foreground text-sm mb-4 md:mb-0">
               © {currentYear} Pepu Vault. All rights reserved.
             </div>
             <div className="flex space-x-6 text-sm">
-              <a href="#" className="text-gray-300 hover:text-pepu-yellow-orange transition-colors">
+              <a href="#" className="text-muted-foreground hover:text-accent transition-colors">
                 Privacy Policy
               </a>
-              <a href="#" className="text-gray-300 hover:text-pepu-yellow-orange transition-colors">
+              <a href="#" className="text-muted-foreground hover:text-accent transition-colors">
                 Terms of Service
               </a>
-              <a href="#" className="text-gray-300 hover:text-pepu-yellow-orange transition-colors">
+              <a href="#" className="text-muted-foreground hover:text-accent transition-colors">
                 Cookie Policy
               </a>
             </div>
@@ -178,8 +178,8 @@ export default function Footer() {
         </div>
 
         {/* Disclaimer */}
-        <div className="mt-8 p-4 bg-pepu-dark-green/50 rounded-lg border border-pepu-light-green/20">
-          <p className="text-xs text-gray-300 text-center">
+        <div className="mt-8 p-4 bg-primary/50 rounded-lg border border-pepu-light-green/20">
+          <p className="text-xs text-muted-foreground text-center">
             <strong>Disclaimer:</strong> Cryptocurrency investments are subject to market risks. 
             The information provided on this website is for educational purposes only and should not 
             be considered as financial advice. Always conduct your own research before making investment decisions.

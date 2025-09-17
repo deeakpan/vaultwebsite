@@ -71,15 +71,15 @@ export default function Tools() {
   const getCategoryColor = (category: string) => {
     switch (category) {
       case 'bridge':
-        return 'bg-blue-100 text-blue-800 border-blue-200';
+        return 'bg-blue-500/20 text-blue-600 dark:text-blue-400 border-blue-500/30';
       case 'trading':
-        return 'bg-green-100 text-green-800 border-green-200';
+        return 'bg-green-500/20 text-green-600 dark:text-green-400 border-green-500/30';
       case 'explorer':
-        return 'bg-purple-100 text-purple-800 border-purple-200';
+        return 'bg-purple-500/20 text-purple-600 dark:text-purple-400 border-purple-500/30';
       case 'utility':
-        return 'bg-orange-100 text-orange-800 border-orange-200';
+        return 'bg-orange-500/20 text-orange-600 dark:text-orange-400 border-orange-500/30';
       default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
+        return 'bg-secondary text-secondary-foreground border-border';
     }
   };
 
@@ -123,10 +123,10 @@ export default function Tools() {
     <section id="tools" className="py-16 bg-gradient-to-br from-pepu-yellow-orange/5 to-pepu-light-green/5">
               <div className="w-full px-4 sm:max-w-7xl sm:mx-auto">
         <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold text-pepu-dark-green mb-4">
+          <h2 className="text-4xl font-bold text-primary mb-4">
             Tools & Resources
           </h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
             Essential tools and resources for navigating the PEPU ecosystem. 
             Bridge assets, trade tokens, and explore the blockchain.
           </p>
@@ -136,7 +136,7 @@ export default function Tools() {
           {tools.map((tool, index) => (
             <div
               key={index}
-              className="group bg-white rounded-xl shadow-lg p-6 border border-pepu-light-green/20 hover:shadow-xl transition-all duration-300 hover:scale-105"
+              className="group bg-card rounded-xl shadow-lg p-6 border border-border hover:shadow-xl transition-all duration-300 hover:scale-105"
             >
               <div className="flex items-center justify-between mb-4">
                 <div className="text-2xl">{tool.icon}</div>
@@ -145,15 +145,15 @@ export default function Tools() {
                 </div>
               </div>
               
-              <h3 className="font-bold text-pepu-dark-green mb-2 group-hover:text-pepu-yellow-orange transition-colors">
+              <h3 className="font-bold text-primary mb-2 group-hover:text-pepu-yellow-orange transition-colors">
                 {tool.name}
               </h3>
               
-              <p className="text-sm text-gray-600 mb-4">
+              <p className="text-sm text-muted-foreground mb-4">
                 {tool.description}
               </p>
               
-              <div className="flex items-center text-pepu-yellow-orange text-sm font-semibold group-hover:text-pepu-dark-green transition-colors">
+              <div className="flex items-center text-pepu-yellow-orange text-sm font-semibold group-hover:text-primary transition-colors">
                 <span>Visit Tool</span>
                 <svg className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />

@@ -167,17 +167,17 @@ export default function News() {
   const getTypeColor = (type: string) => {
     switch (type) {
       case 'whale':
-        return 'bg-blue-100 text-blue-800 border-blue-200';
+        return 'bg-blue-500/20 text-blue-600 dark:text-blue-400 border-blue-500/30';
       case 'launch':
-        return 'bg-green-100 text-green-800 border-green-200';
+        return 'bg-green-500/20 text-green-600 dark:text-green-400 border-green-500/30';
       case 'snapshot':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+        return 'bg-yellow-500/20 text-yellow-600 dark:text-yellow-400 border-yellow-500/30';
       case 'alert':
-        return 'bg-red-100 text-red-800 border-red-200';
+        return 'bg-red-500/20 text-red-600 dark:text-red-400 border-red-500/30';
       case 'signal':
-        return 'bg-purple-100 text-purple-800 border-purple-200';
+        return 'bg-purple-500/20 text-purple-600 dark:text-purple-400 border-purple-500/30';
       default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
+        return 'bg-secondary text-secondary-foreground border-border';
     }
   };
 
@@ -198,10 +198,10 @@ export default function News() {
     <section id="news" className="py-16 bg-gradient-to-br from-pepu-dark-green/5 to-pepu-yellow-orange/5">
       <div className="w-full px-0 md:max-w-6xl md:mx-auto">
         <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold text-pepu-dark-green mb-4">
+          <h2 className="text-4xl font-bold text-primary mb-4">
             News & Signals
           </h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
             Real-time alerts and signals powered by Pepex-AI. Stay informed about whale movements, 
             new token launches, and market opportunities on PEPU Chain.
           </p>
@@ -210,27 +210,27 @@ export default function News() {
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Live Feed */}
           <div className="lg:col-span-2 space-y-6">
-            <div className="bg-white rounded-2xl shadow-xl p-6 border border-pepu-light-green/20">
+            <div className="bg-card rounded-2xl shadow-xl p-6 border border-border">
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center space-x-3">
                   <div className="w-10 h-10 bg-gradient-to-r from-pepu-yellow-orange to-pepu-light-green rounded-full flex items-center justify-center">
-                    <svg className="w-5 h-5 text-pepu-dark-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                     </svg>
                   </div>
                   <div>
-                    <h3 className="text-xl font-bold text-pepu-dark-green">Pepex-AI Live Feed</h3>
+                    <h3 className="text-xl font-bold text-primary">Pepex-AI Live Feed</h3>
                     <div className="flex items-center space-x-2">
                       <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500'}`}></div>
-                      <span className="text-sm text-gray-600">
+                      <span className="text-sm text-muted-foreground">
                         {isConnected ? 'Connected' : 'Disconnected'}
                       </span>
                     </div>
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="text-sm text-gray-500">Last Update</div>
-                  <div className="text-sm font-semibold text-pepu-dark-green">{lastUpdate}</div>
+                  <div className="text-sm text-muted-foreground">Last Update</div>
+                  <div className="text-sm font-semibold text-primary">{lastUpdate}</div>
                   <button 
                     onClick={fetchNews}
                     disabled={isLoading}
@@ -245,7 +245,7 @@ export default function News() {
                 {isLoading ? (
                   <div className="flex items-center justify-center py-8">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-pepu-yellow-orange"></div>
-                    <span className="ml-3 text-gray-600">Loading latest news...</span>
+                    <span className="ml-3 text-muted-foreground">Loading latest news...</span>
                   </div>
                 ) : error ? (
                   <div className="p-4 border border-red-200 rounded-lg bg-red-50">
@@ -263,7 +263,7 @@ export default function News() {
                     </button>
                   </div>
                 ) : newsItems.length === 0 ? (
-                  <div className="text-center py-8 text-gray-500">
+                  <div className="text-center py-8 text-muted-foreground">
                     No news available at the moment
                   </div>
                 ) : (
@@ -275,12 +275,12 @@ export default function News() {
                       </div>
                       <div className="flex-1">
                         <div className="flex items-center space-x-2 mb-2">
-                          <h4 className="font-semibold text-pepu-dark-green">{item.title}</h4>
+                          <h4 className="font-semibold text-primary">{item.title}</h4>
                           <div className={`w-2 h-2 rounded-full ${getPriorityColor(item.priority)}`}></div>
                         </div>
-                        <p className="text-gray-600 text-sm mb-2">{item.description}</p>
+                        <p className="text-muted-foreground text-sm mb-2">{item.description}</p>
                         <div className="flex items-center justify-between">
-                          <span className="text-xs text-gray-500">{item.timestamp}</span>
+                          <span className="text-xs text-muted-foreground">{item.timestamp}</span>
                           {item.link && (
                             <a 
                               href={item.link}
@@ -301,10 +301,10 @@ export default function News() {
 
               <div className="mt-6 p-4 bg-gradient-to-r from-pepu-light-green/20 to-pepu-yellow-orange/20 rounded-lg">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-semibold text-pepu-dark-green">Pepex-AI Status</span>
-                  <span className="text-sm text-gray-600">Monitoring PEPU Chain</span>
+                  <span className="text-sm font-semibold text-primary">Pepex-AI Status</span>
+                  <span className="text-sm text-muted-foreground">Monitoring PEPU Chain</span>
                 </div>
-                <p className="text-xs text-gray-600 mt-1">
+                <p className="text-xs text-muted-foreground mt-1">
                   Real-time alerts for whale movements, new launches, and market signals
                 </p>
               </div>
@@ -313,51 +313,51 @@ export default function News() {
 
           {/* Alert Types & Settings */}
           <div className="space-y-6">
-            <div className="bg-white rounded-2xl shadow-xl p-6 border border-pepu-light-green/20">
-              <h3 className="text-lg font-bold text-pepu-dark-green mb-4">Alert Types</h3>
+            <div className="bg-card rounded-2xl shadow-xl p-6 border border-border">
+              <h3 className="text-lg font-bold text-primary mb-4">Alert Types</h3>
               
               <div className="space-y-3">
-                <div className="flex items-center space-x-3 p-3 bg-blue-50 rounded-lg">
+                <div className="flex items-center space-x-3 p-3 bg-blue-500/10 rounded-lg">
                   <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-                  <span className="text-sm font-medium text-pepu-dark-green">Whale Movements</span>
+                  <span className="text-sm font-medium text-primary">Whale Movements</span>
                 </div>
-                <div className="flex items-center space-x-3 p-3 bg-green-50 rounded-lg">
+                <div className="flex items-center space-x-3 p-3 bg-green-500/10 rounded-lg">
                   <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                  <span className="text-sm font-medium text-pepu-dark-green">New Token Launches</span>
+                  <span className="text-sm font-medium text-primary">New Token Launches</span>
                 </div>
-                <div className="flex items-center space-x-3 p-3 bg-yellow-50 rounded-lg">
+                <div className="flex items-center space-x-3 p-3 bg-yellow-500/10 rounded-lg">
                   <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-                  <span className="text-sm font-medium text-pepu-dark-green">Snapshot Alerts</span>
+                  <span className="text-sm font-medium text-primary">Snapshot Alerts</span>
                 </div>
-                <div className="flex items-center space-x-3 p-3 bg-red-50 rounded-lg">
+                <div className="flex items-center space-x-3 p-3 bg-red-500/10 rounded-lg">
                   <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                  <span className="text-sm font-medium text-pepu-dark-green">High Volume Alerts</span>
+                  <span className="text-sm font-medium text-primary">High Volume Alerts</span>
                 </div>
-                <div className="flex items-center space-x-3 p-3 bg-purple-50 rounded-lg">
+                <div className="flex items-center space-x-3 p-3 bg-purple-500/10 rounded-lg">
                   <div className="w-3 h-3 bg-purple-500 rounded-full"></div>
-                  <span className="text-sm font-medium text-pepu-dark-green">Trading Signals</span>
+                  <span className="text-sm font-medium text-primary">Trading Signals</span>
                 </div>
               </div>
             </div>
 
-            <div className="bg-white rounded-2xl shadow-xl p-6 border border-pepu-light-green/20">
-              <h3 className="text-lg font-bold text-pepu-dark-green mb-4">Quick Stats</h3>
+            <div className="bg-card rounded-2xl shadow-xl p-6 border border-border">
+              <h3 className="text-lg font-bold text-primary mb-4">Quick Stats</h3>
               
               <div className="space-y-4">
-                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                  <span className="text-sm text-gray-600">Total News Items</span>
-                  <span className="font-bold text-pepu-dark-green">{newsItems.length}</span>
+                <div className="flex items-center justify-between p-3 bg-secondary rounded-lg">
+                  <span className="text-sm text-muted-foreground">Total News Items</span>
+                  <span className="font-bold text-primary">{newsItems.length}</span>
                 </div>
-                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                  <span className="text-sm text-gray-600">Whale Alerts</span>
+                <div className="flex items-center justify-between p-3 bg-secondary rounded-lg">
+                  <span className="text-sm text-muted-foreground">Whale Alerts</span>
                   <span className="font-bold text-pepu-yellow-orange">{newsItems.filter(item => item.type === 'whale').length}</span>
                 </div>
-                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                  <span className="text-sm text-gray-600">High Priority</span>
+                <div className="flex items-center justify-between p-3 bg-secondary rounded-lg">
+                  <span className="text-sm text-muted-foreground">High Priority</span>
                   <span className="font-bold text-red-500">{newsItems.filter(item => item.priority === 'high').length}</span>
                 </div>
-                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                  <span className="text-sm text-gray-600">Last Updated</span>
+                <div className="flex items-center justify-between p-3 bg-secondary rounded-lg">
+                  <span className="text-sm text-muted-foreground">Last Updated</span>
                   <span className="font-bold text-pepu-light-green">{lastUpdate || 'Never'}</span>
                 </div>
               </div>
@@ -368,7 +368,7 @@ export default function News() {
               <p className="text-sm opacity-90 mb-4">
                 Never miss important alerts. Get notified instantly about whale movements and opportunities.
               </p>
-              <button className="w-full bg-pepu-yellow-orange text-pepu-dark-green py-2 rounded-lg font-semibold hover:bg-pepu-yellow-orange/90 transition-colors">
+              <button className="w-full bg-pepu-yellow-orange text-primary py-2 rounded-lg font-semibold hover:bg-pepu-yellow-orange/90 transition-colors">
                 Enable Notifications
               </button>
             </div>

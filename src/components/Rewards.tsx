@@ -62,7 +62,7 @@ export default function Rewards() {
     <section id="rewards" className="py-16 bg-gradient-to-br from-pepu-yellow-orange/5 to-pepu-light-green/5">
               <div className="w-full px-0 md:max-w-6xl md:mx-auto">
         <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold text-pepu-dark-green mb-4">
+          <h2 className="text-4xl font-bold text-primary mb-4">
             Check Your Rewards
           </h2>
           <p className="text-xl text-black max-w-3xl mx-auto">
@@ -70,11 +70,11 @@ export default function Rewards() {
           </p>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-xl border border-pepu-light-green/20 overflow-hidden">
+        <div className="bg-card rounded-2xl shadow-xl border border-border overflow-hidden">
           <div className="grid md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-gray-200">
             {/* Left: Input & Results */}
             <div className="p-8">
-              <label htmlFor="wallet" className="block text-base font-semibold text-pepu-dark-green mb-2">
+              <label htmlFor="wallet" className="block text-base font-semibold text-primary mb-2">
                 Wallet Address
               </label>
               <input
@@ -126,9 +126,9 @@ export default function Rewards() {
               )}
               {rewardData && (
                 <div className="mt-6">
-                  <div className="bg-gradient-to-r from-pepu-light-green/10 to-pepu-yellow-orange/10 rounded-xl p-6 border border-pepu-light-green/20">
+                  <div className="bg-gradient-to-r from-pepu-light-green/10 to-pepu-yellow-orange/10 rounded-xl p-6 border border-border">
                     <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-lg font-bold text-pepu-dark-green">
+                      <h3 className="text-lg font-bold text-primary">
                         Rewards for {formatAddress(rewardData.wallet)}
                       </h3>
                       <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
@@ -136,22 +136,22 @@ export default function Rewards() {
                     
                     <div className="space-y-4">
                       {/* Last Airdrop */}
-                      <div className="bg-white rounded-lg p-4 border border-gray-200">
+                      <div className="bg-card rounded-lg p-4 border border-gray-200">
                         <div className="flex items-center justify-between mb-2">
-                          <span className="text-sm font-medium text-gray-600">Last Airdrop</span>
+                          <span className="text-sm font-medium text-muted-foreground">Last Airdrop</span>
                           <svg className="w-4 h-4 text-pepu-yellow-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
                           </svg>
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                           <div className="text-center">
-                            <div className="text-xs text-gray-500 mb-1">$Vault</div>
-                            <div className="text-lg font-bold text-pepu-dark-green">
+                            <div className="text-xs text-muted-foreground mb-1">$Vault</div>
+                            <div className="text-lg font-bold text-primary">
                               {parseFloat(rewardData.lastVaultReward).toFixed(2)}
                             </div>
                           </div>
                           <div className="text-center">
-                            <div className="text-xs text-gray-500 mb-1">$PEPU</div>
+                            <div className="text-xs text-muted-foreground mb-1">$PEPU</div>
                             <div className="text-lg font-bold text-pepu-yellow-orange">
                               {parseFloat(rewardData.lastPepuReward).toFixed(2)}
                             </div>
@@ -160,22 +160,22 @@ export default function Rewards() {
                       </div>
 
                       {/* Total Rewards */}
-                      <div className="bg-white rounded-lg p-4 border border-gray-200">
+                      <div className="bg-card rounded-lg p-4 border border-gray-200">
                         <div className="flex items-center justify-between mb-2">
-                          <span className="text-sm font-medium text-gray-600">Total Rewards</span>
-                          <svg className="w-4 h-4 text-pepu-dark-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <span className="text-sm font-medium text-muted-foreground">Total Rewards</span>
+                          <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                           </svg>
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                           <div className="text-center">
-                            <div className="text-xs text-gray-500 mb-1">$Vault</div>
-                            <div className="text-lg font-bold text-pepu-dark-green">
+                            <div className="text-xs text-muted-foreground mb-1">$Vault</div>
+                            <div className="text-lg font-bold text-primary">
                               {parseFloat(rewardData.totalVaultReward).toFixed(2)}
                             </div>
                           </div>
                           <div className="text-center">
-                            <div className="text-xs text-gray-500 mb-1">$PEPU</div>
+                            <div className="text-xs text-muted-foreground mb-1">$PEPU</div>
                             <div className="text-lg font-bold text-pepu-yellow-orange">
                               {parseFloat(rewardData.totalPepuReward).toFixed(2)}
                             </div>
@@ -190,7 +190,7 @@ export default function Rewards() {
 
             {/* Right: Write-ups/Info */}
             <div className="p-8 bg-gradient-to-br from-pepu-light-green/5 to-pepu-yellow-orange/5">
-              <h3 className="text-2xl font-bold text-pepu-dark-green mb-6">How Rewards Work</h3>
+              <h3 className="text-2xl font-bold text-primary mb-6">How Rewards Work</h3>
               <ul className="text-base text-black space-y-4 mb-8">
                 <li className="flex items-start">
                   <span className="w-2 h-2 bg-pepu-yellow-orange rounded-full mt-2 mr-3 flex-shrink-0"></span>

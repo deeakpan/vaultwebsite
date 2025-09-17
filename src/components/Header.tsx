@@ -3,12 +3,13 @@
 import { useState } from 'react';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { FaWallet } from 'react-icons/fa6';
+import ThemeToggle from './ThemeToggle';
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
-    <header className="bg-pepu-dark-green text-pepu-white shadow-lg sticky top-0 z-50">
+    <header className="bg-primary text-primary-foreground shadow-lg sticky top-0 z-50">
       <div className="container mx-auto px-4 py-3 md:py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
@@ -22,7 +23,7 @@ export default function Header() {
             </div>
             <div className="hidden sm:block">
               <h1 className="text-xl md:text-2xl font-bold">Pepu Vault</h1>
-              <p className="text-pepu-light-green text-xs md:text-sm">Treasury & Rewards</p>
+              <p className="text-accent text-xs md:text-sm">Treasury & Rewards</p>
             </div>
             <div className="sm:hidden">
               <h1 className="text-lg font-bold">Pepu Vault</h1>
@@ -31,31 +32,32 @@ export default function Header() {
 
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center space-x-6 md:space-x-8">
-            <a href="#treasury" className="hover:text-pepu-yellow-orange transition-colors text-sm md:text-base">
+            <a href="#treasury" className="hover:text-accent transition-colors text-sm md:text-base">
               Treasury
             </a>
-            <a href="#analytics" className="hover:text-pepu-yellow-orange transition-colors text-sm md:text-base">
+            <a href="#analytics" className="hover:text-accent transition-colors text-sm md:text-base">
               Analytics
             </a>
-            <a href="#rewards" className="hover:text-pepu-yellow-orange transition-colors text-sm md:text-base">
+            <a href="#rewards" className="hover:text-accent transition-colors text-sm md:text-base">
               Rewards
             </a>
-            <a href="#news" className="hover:text-pepu-yellow-orange transition-colors text-sm md:text-base">
+            <a href="#news" className="hover:text-accent transition-colors text-sm md:text-base">
               News
             </a>
-            <a href="#tools" className="hover:text-pepu-yellow-orange transition-colors text-sm md:text-base">
+            <a href="#tools" className="hover:text-accent transition-colors text-sm md:text-base">
               Tools
             </a>
-            <a href="#bridge" className="hover:text-pepu-yellow-orange transition-colors text-sm md:text-base">
+            <a href="#bridge" className="hover:text-accent transition-colors text-sm md:text-base">
               Bridge
             </a>
-            <a href="/admin" className="hover:text-pepu-yellow-orange transition-colors text-sm md:text-base">
+            <a href="/admin" className="hover:text-accent transition-colors text-sm md:text-base">
               Admin
             </a>
           </nav>
 
-          {/* Wallet Connection */}
+          {/* Wallet Connection & Theme Toggle */}
           <div className="flex items-center space-x-2 md:space-x-4">
+            <ThemeToggle />
             <ConnectButton.Custom>
               {({ account, chain, openConnectModal, openAccountModal, openChainModal, authenticationStatus, mounted }) => {
                 // Button states
@@ -73,7 +75,7 @@ export default function Header() {
                       <button
                         onClick={openConnectModal}
                         type="button"
-                        className="flex items-center gap-2 bg-pepu-yellow-orange text-pepu-dark-green px-4 py-2 rounded-lg font-semibold hover:bg-pepu-yellow-orange/90 transition-colors shadow-lg text-xs md:text-sm"
+                        className="flex items-center gap-2 bg-accent text-accent-foreground px-4 py-2 rounded-lg font-semibold hover:bg-accent/90 transition-colors shadow-lg text-xs md:text-sm"
                       >
                         <FaWallet className="w-5 h-5" />
                         <span className="hidden sm:inline">Connect Wallet</span>
@@ -92,7 +94,7 @@ export default function Header() {
                       <button
                         onClick={openAccountModal}
                         type="button"
-                        className="flex items-center gap-2 bg-pepu-yellow-orange text-pepu-dark-green px-4 py-2 rounded-lg font-semibold hover:bg-pepu-yellow-orange/90 transition-colors shadow-lg text-xs md:text-sm"
+                        className="flex items-center gap-2 bg-accent text-accent-foreground px-4 py-2 rounded-lg font-semibold hover:bg-accent/90 transition-colors shadow-lg text-xs md:text-sm"
                       >
                         <FaWallet className="w-5 h-5" />
                         <span className="hidden sm:inline">{account.displayName}</span>
@@ -106,7 +108,7 @@ export default function Header() {
             {/* Mobile Menu Button */}
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="lg:hidden text-pepu-white p-1 md:p-2"
+              className="lg:hidden text-primary-foreground p-1 md:p-2"
             >
               <svg className="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
@@ -117,27 +119,27 @@ export default function Header() {
 
         {/* Mobile Navigation */}
         {isMenuOpen && (
-          <nav className="lg:hidden mt-3 pb-3 border-t border-pepu-light-green/20">
+          <nav className="lg:hidden mt-3 pb-3 border-t border-accent/20">
             <div className="flex flex-col space-y-2 pt-3">
-              <a href="#treasury" className="hover:text-pepu-yellow-orange transition-colors text-sm py-2">
+              <a href="#treasury" className="hover:text-accent transition-colors text-sm py-2">
                 Treasury
               </a>
-              <a href="#analytics" className="hover:text-pepu-yellow-orange transition-colors text-sm py-2">
+              <a href="#analytics" className="hover:text-accent transition-colors text-sm py-2">
                 Analytics
               </a>
-              <a href="#rewards" className="hover:text-pepu-yellow-orange transition-colors text-sm py-2">
+              <a href="#rewards" className="hover:text-accent transition-colors text-sm py-2">
                 Rewards
               </a>
-              <a href="#news" className="hover:text-pepu-yellow-orange transition-colors text-sm py-2">
+              <a href="#news" className="hover:text-accent transition-colors text-sm py-2">
                 News
               </a>
-              <a href="#tools" className="hover:text-pepu-yellow-orange transition-colors text-sm py-2">
+              <a href="#tools" className="hover:text-accent transition-colors text-sm py-2">
                 Tools
               </a>
-              <a href="#bridge" className="hover:text-pepu-yellow-orange transition-colors text-sm py-2">
+              <a href="#bridge" className="hover:text-accent transition-colors text-sm py-2">
                 Bridge
               </a>
-              <a href="/admin" className="hover:text-pepu-yellow-orange transition-colors text-sm py-2">
+              <a href="/admin" className="hover:text-accent transition-colors text-sm py-2">
                 Admin
               </a>
             </div>

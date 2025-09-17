@@ -66,7 +66,7 @@ const TokenCard = ({ token }: { token: any }) => {
           <h4 className="font-bold text-blue-900 text-sm">{token.name || 'Unknown Token'}</h4>
           <p className="text-blue-700 text-xs">{token.symbol || 'N/A'}</p>
           {token.source && (
-            <p className="text-xs text-gray-500">Source: {token.source}</p>
+            <p className="text-xs text-muted-foreground">Source: {token.source}</p>
           )}
         </div>
         <div className="text-right">
@@ -80,29 +80,29 @@ const TokenCard = ({ token }: { token: any }) => {
       </div>
       
       {hasValidData && (
-        <div className="grid grid-cols-2 gap-2 text-xs text-gray-600">
+        <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
           <div>
             <span className="font-medium">Market Cap:</span>
             <br />
-            <span className="text-gray-800">{formatNumber(token.market_cap)}</span>
+            <span className="text-foreground">{formatNumber(token.market_cap)}</span>
           </div>
           <div>
             <span className="font-medium">24h Volume:</span>
             <br />
-            <span className="text-gray-800">{formatNumber(token.volume_24h)}</span>
+            <span className="text-foreground">{formatNumber(token.volume_24h)}</span>
           </div>
         </div>
       )}
       
       {token.liquidity && token.liquidity > 0 && (
-        <div className="mt-2 text-xs text-gray-600">
+        <div className="mt-2 text-xs text-muted-foreground">
           <span className="font-medium">Liquidity:</span>
-          <span className="text-gray-800 ml-1">{formatNumber(token.liquidity)}</span>
+          <span className="text-foreground ml-1">{formatNumber(token.liquidity)}</span>
         </div>
       )}
       
       {token.address && (
-        <div className="mt-2 text-xs text-gray-500">
+        <div className="mt-2 text-xs text-muted-foreground">
           <span className="font-medium">Address:</span>
           <span className="ml-1 font-mono break-all">{token.address}</span>
         </div>
@@ -905,7 +905,7 @@ export default function VaultGPTModal({ isOpen, onClose }: VaultGPTModalProps) {
 
   return (
     <div className="fixed inset-0 flex items-center justify-center z-50 p-4 bg-black/20 backdrop-blur-sm" onClick={onClose}>
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md h-[500px] flex flex-col border border-gray-200" onClick={(e) => e.stopPropagation()}>
+      <div className="bg-card rounded-2xl shadow-2xl w-full max-w-md h-[500px] flex flex-col border border-gray-200" onClick={(e) => e.stopPropagation()}>
         <div className="flex-shrink-0 flex items-center justify-between p-4 border-b border-gray-200">
           <div className="flex items-center space-x-3">
             <div className="w-8 h-8 bg-gradient-to-r from-pepu-dark-green to-pepu-light-green rounded-full flex items-center justify-center">
@@ -915,12 +915,12 @@ export default function VaultGPTModal({ isOpen, onClose }: VaultGPTModalProps) {
             </div>
             <div>
               <h2 className="text-lg font-bold text-pepu-dark-green">VaultGPT</h2>
-              <p className="text-xs text-gray-600">AI Analytics Assistant</p>
+              <p className="text-xs text-muted-foreground">AI Analytics Assistant</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors p-1"
+            className="text-muted-foreground hover:text-muted-foreground transition-colors p-1"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -933,12 +933,12 @@ export default function VaultGPTModal({ isOpen, onClose }: VaultGPTModalProps) {
             <div className="flex-1 flex items-center justify-center p-6">
               <div className="text-center">
                 <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-8 h-8 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                   </svg>
                 </div>
-                <h3 className="text-lg font-semibold text-black mb-2">Connect Your Wallet</h3>
-                <p className="text-base text-gray-600 mb-4">Connect your wallet to access VaultGPT analytics</p>
+                <h3 className="text-lg font-semibold text-foreground mb-2">Connect Your Wallet</h3>
+                <p className="text-base text-muted-foreground mb-4">Connect your wallet to access VaultGPT analytics</p>
                 <ConnectButton.Custom>
                   {({ openConnectModal }) => (
                     <button
@@ -965,7 +965,7 @@ export default function VaultGPTModal({ isOpen, onClose }: VaultGPTModalProps) {
                         className={`px-4 py-3 rounded-lg ${
                           message.sender === 'user'
                             ? 'bg-pepu-yellow-orange text-pepu-dark-green ml-auto max-w-md'
-                            : 'bg-gray-50 text-black'
+                            : 'bg-gray-50 text-foreground'
                         }`}
                       >
                         <p className="text-xs leading-relaxed whitespace-pre-line">{message.text}</p>
@@ -990,7 +990,7 @@ export default function VaultGPTModal({ isOpen, onClose }: VaultGPTModalProps) {
                 ))}
                 {isLoading && (
                   <div className="flex justify-start">
-                    <div className="bg-gray-50 text-black px-4 py-3 rounded-lg">
+                    <div className="bg-gray-50 text-foreground px-4 py-3 rounded-lg">
                       <div className="flex space-x-1">
                         <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
                         <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
@@ -1030,7 +1030,7 @@ export default function VaultGPTModal({ isOpen, onClose }: VaultGPTModalProps) {
                     {showWalletTokens && (
                       <div className="mb-3">
                         <div className="flex items-center justify-between mb-2 px-1">
-                          <div className="text-xs text-gray-500">
+                          <div className="text-xs text-muted-foreground">
                             💡 Click tokens to select multiple for comparison
                           </div>
                           {walletTokens.length > 1 && (
@@ -1091,7 +1091,7 @@ export default function VaultGPTModal({ isOpen, onClose }: VaultGPTModalProps) {
                                 </div>
                                 <div>
                                   <div className="text-sm font-medium text-pepu-dark-green">{token.symbol}</div>
-                                  <div className="text-xs text-gray-500">{token.name}</div>
+                                  <div className="text-xs text-muted-foreground">{token.name}</div>
                                 </div>
                               </div>
                               <div className="text-right">
@@ -1099,7 +1099,7 @@ export default function VaultGPTModal({ isOpen, onClose }: VaultGPTModalProps) {
                                   {Number(token.balance).toLocaleString()}
                                 </div>
                                 {token.usdValue && token.usdValue > 0 && (
-                                  <div className="text-xs text-gray-500">
+                                  <div className="text-xs text-muted-foreground">
                                     ${token.usdValue.toFixed(2)}
                                   </div>
                                 )}
@@ -1114,7 +1114,7 @@ export default function VaultGPTModal({ isOpen, onClose }: VaultGPTModalProps) {
                 ) : (
                   <div className="mb-4">
                     <div className="text-center p-3 bg-gray-50 rounded-lg">
-                      <p className="text-sm text-gray-600 mb-2">No tokens found in your wallet</p>
+                      <p className="text-sm text-muted-foreground mb-2">No tokens found in your wallet</p>
                       <button
                         onClick={scanWalletTokens}
                         className="text-xs text-pepu-yellow-orange hover:underline"
@@ -1134,7 +1134,7 @@ export default function VaultGPTModal({ isOpen, onClose }: VaultGPTModalProps) {
                       </span>
                       <button
                         onClick={clearSelectedTokens}
-                        className="text-gray-400 hover:text-gray-600 text-xs"
+                        className="text-muted-foreground hover:text-muted-foreground text-xs"
                         title="Clear all selected tokens"
                       >
                         Clear All
@@ -1144,7 +1144,7 @@ export default function VaultGPTModal({ isOpen, onClose }: VaultGPTModalProps) {
                       {selectedTokens.map((token, index) => (
                         <div key={token.address} className="flex items-center space-x-1 bg-pepu-light-green/20 px-2 py-1 rounded text-xs">
                           <span className="font-medium text-pepu-dark-green">{token.symbol}</span>
-                          <span className="text-gray-500">
+                          <span className="text-muted-foreground">
                             {Number(token.balance).toLocaleString()}
                             {token.usdValue && token.usdValue > 0 && (
                               <span> (${token.usdValue.toFixed(2)})</span>
@@ -1152,7 +1152,7 @@ export default function VaultGPTModal({ isOpen, onClose }: VaultGPTModalProps) {
                           </span>
                           <button
                             onClick={() => removeTokenFromSelection(token.address)}
-                            className="text-gray-400 hover:text-gray-600 ml-1"
+                            className="text-muted-foreground hover:text-muted-foreground ml-1"
                             title={`Remove ${token.symbol}`}
                           >
                             ✕
@@ -1176,7 +1176,7 @@ export default function VaultGPTModal({ isOpen, onClose }: VaultGPTModalProps) {
                         ? `Ask about ${selectedTokens.map(t => t.symbol).join(', ')}...` 
                         : "Ask about tokens, prices, or market trends..."
                     }
-                    className="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pepu-yellow-orange focus:border-transparent text-base text-black placeholder-gray-500"
+                    className="flex-1 p-3 border border-border rounded-lg focus:ring-2 focus:ring-pepu-yellow-orange focus:border-transparent text-base text-foreground placeholder-muted-foreground"
                     disabled={isLoading}
                   />
                   <button

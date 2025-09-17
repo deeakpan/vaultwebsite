@@ -74,12 +74,12 @@ export default function Analytics() {
       <div className="w-full px-4 sm:max-w-6xl sm:mx-auto">
         {/* Access Control */}
         {!isConnected ? (
-          <div className="bg-white rounded-2xl shadow-xl p-6 md:p-8 text-center border border-pepu-light-green/20">
+          <div className="bg-card rounded-2xl shadow-xl p-6 md:p-8 text-center border border-border">
             <ConnectButton.Custom>
               {({ openConnectModal }) => (
                 <button 
                   onClick={openConnectModal}
-                  className="bg-pepu-yellow-orange text-pepu-dark-green px-4 py-2 md:px-6 md:py-3 rounded-lg font-semibold hover:bg-pepu-yellow-orange/90 transition-colors text-sm md:text-base flex items-center gap-2 mx-auto"
+                  className="bg-pepu-yellow-orange text-primary px-4 py-2 md:px-6 md:py-3 rounded-lg font-semibold hover:bg-pepu-yellow-orange/90 transition-colors text-sm md:text-base flex items-center gap-2 mx-auto"
                 >
                   <FaWallet className="w-4 h-4" />
                   Connect Wallet
@@ -88,23 +88,23 @@ export default function Analytics() {
             </ConnectButton.Custom>
           </div>
         ) : (vaultBalance?.value ? vaultBalance.value < requiredBalance : true) ? (
-          <div className="bg-white rounded-2xl shadow-xl p-6 md:p-8 text-center border border-pepu-light-green/20">
+          <div className="bg-card rounded-2xl shadow-xl p-6 md:p-8 text-center border border-border">
             <div className="w-12 h-12 md:w-16 md:h-16 bg-pepu-yellow-orange rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg className="w-6 h-6 md:w-8 md:h-8 text-pepu-dark-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-6 h-6 md:w-8 md:h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
               </svg>
             </div>
-            <h3 className="text-xl md:text-2xl font-bold text-pepu-dark-green mb-2">Insufficient Balance</h3>
-            <p className="text-gray-600 mb-3 md:mb-4 text-sm md:text-base">
+            <h3 className="text-xl md:text-2xl font-bold text-primary mb-2">Insufficient Balance</h3>
+            <p className="text-muted-foreground mb-3 md:mb-4 text-sm md:text-base">
               You need at least 1,000,000 $Vault tokens to access analytics
             </p>
             <div className="bg-pepu-light-green/10 p-3 md:p-4 rounded-lg mb-4 md:mb-6">
               <div className="flex items-center justify-between">
-                <span className="text-gray-600 text-sm md:text-base">Your Balance:</span>
-                <span className="font-bold text-pepu-dark-green text-sm md:text-base">{formatBalance(vaultBalance?.value || BigInt(0))} $Vault</span>
+                <span className="text-muted-foreground text-sm md:text-base">Your Balance:</span>
+                <span className="font-bold text-primary text-sm md:text-base">{formatBalance(vaultBalance?.value || BigInt(0))} $Vault</span>
               </div>
               <div className="flex items-center justify-between mt-1">
-                <span className="text-gray-600 text-sm md:text-base">Required:</span>
+                <span className="text-muted-foreground text-sm md:text-base">Required:</span>
                 <span className="font-bold text-pepu-yellow-orange text-sm md:text-base">1.0M $Vault</span>
               </div>
             </div>
@@ -119,20 +119,20 @@ export default function Analytics() {
           </div>
         ) : (
           // Simple access message instead of full analytics form
-          <div className="bg-white rounded-2xl shadow-xl p-6 md:p-8 text-center border border-pepu-light-green/20">
+          <div className="bg-card rounded-2xl shadow-xl p-6 md:p-8 text-center border border-border">
             <div className="w-12 h-12 md:w-16 md:h-16 bg-pepu-light-green rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg className="w-6 h-6 md:w-8 md:h-8 text-pepu-dark-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-6 h-6 md:w-8 md:h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
-            <h3 className="text-xl md:text-2xl font-bold text-pepu-dark-green mb-2">AI Analytics Access</h3>
-            <p className="text-gray-600 mb-4 text-sm md:text-base">
+            <h3 className="text-xl md:text-2xl font-bold text-primary mb-2">AI Analytics Access</h3>
+            <p className="text-muted-foreground mb-4 text-sm md:text-base">
               You have access to AI Analytics (✓)
             </p>
             <div className="bg-pepu-light-green/10 p-3 md:p-4 rounded-lg">
               <div className="flex items-center justify-between">
-                <span className="text-gray-600 text-sm md:text-base">Your Balance:</span>
-                <span className="font-bold text-pepu-dark-green text-sm md:text-base">{formatBalance(vaultBalance?.value || BigInt(0))} $Vault</span>
+                <span className="text-muted-foreground text-sm md:text-base">Your Balance:</span>
+                <span className="font-bold text-primary text-sm md:text-base">{formatBalance(vaultBalance?.value || BigInt(0))} $Vault</span>
               </div>
             </div>
           </div>

@@ -4,6 +4,7 @@ import "./globals.css";
 import '@rainbow-me/rainbowkit/styles.css';
 import Providers from "./providers";
 import VaultGPTButton from "@/components/VaultGPTButton";
+import { ThemeProvider } from "@/contexts/ThemeContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -51,10 +52,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <Providers>
-          {children}
-          <VaultGPTButton />
-        </Providers>
+        <ThemeProvider>
+          <Providers>
+            {children}
+            <VaultGPTButton />
+          </Providers>
+        </ThemeProvider>
       </body>
     </html>
   );

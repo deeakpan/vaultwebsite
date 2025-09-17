@@ -16,7 +16,7 @@ import Footer from '@/components/Footer';
 export default function HomePage() {
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pepu-white via-white to-pepu-light-green/10">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-accent/10">
       <Header />
       
       <main className="w-full px-4 py-4 md:py-8 sm:container sm:mx-auto">
@@ -38,11 +38,11 @@ export default function HomePage() {
         
         <section id="bridge" className="py-8 md:py-12">
           <div className="text-center mb-8">
-            <h2 className="text-3xl md:text-4xl font-bold text-pepu-dark-green mb-4">
+            <h2 className="text-3xl md:text-4xl font-bold text-primary mb-4">
               Bridge Assets
             </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Bridge your PEPU tokens from Pepe Unchained V2 to Ethereum Mainnet. 
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Bridge your PEPU tokens within the Pepe Unchained ecosystem. 
               Requires a minimum of 3,000,000 VAULT tokens to access.
             </p>
           </div>
