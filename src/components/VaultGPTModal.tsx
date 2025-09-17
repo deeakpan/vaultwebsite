@@ -905,8 +905,8 @@ export default function VaultGPTModal({ isOpen, onClose }: VaultGPTModalProps) {
 
   return (
     <div className="fixed inset-0 flex items-center justify-center z-50 p-4 bg-black/20 backdrop-blur-sm" onClick={onClose}>
-      <div className="bg-card rounded-2xl shadow-2xl w-full max-w-md h-[500px] flex flex-col border border-gray-200" onClick={(e) => e.stopPropagation()}>
-        <div className="flex-shrink-0 flex items-center justify-between p-4 border-b border-gray-200">
+        <div className="bg-card rounded-2xl shadow-2xl w-full max-w-md h-[500px] flex flex-col border border-border" onClick={(e) => e.stopPropagation()}>
+        <div className="flex-shrink-0 flex items-center justify-between p-4 border-b border-border">
           <div className="flex items-center space-x-3">
             <div className="w-8 h-8 bg-gradient-to-r from-pepu-dark-green to-pepu-light-green rounded-full flex items-center justify-center">
               <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -932,7 +932,7 @@ export default function VaultGPTModal({ isOpen, onClose }: VaultGPTModalProps) {
           {!isConnected ? (
             <div className="flex-1 flex items-center justify-center p-6">
               <div className="text-center">
-                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
                   <svg className="w-8 h-8 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                   </svg>
@@ -965,7 +965,7 @@ export default function VaultGPTModal({ isOpen, onClose }: VaultGPTModalProps) {
                         className={`px-4 py-3 rounded-lg ${
                           message.sender === 'user'
                             ? 'bg-pepu-yellow-orange text-pepu-dark-green ml-auto max-w-md'
-                            : 'bg-gray-50 text-foreground'
+                            : 'bg-secondary text-foreground'
                         }`}
                       >
                         <p className="text-xs leading-relaxed whitespace-pre-line">{message.text}</p>
@@ -990,7 +990,7 @@ export default function VaultGPTModal({ isOpen, onClose }: VaultGPTModalProps) {
                 ))}
                 {isLoading && (
                   <div className="flex justify-start">
-                    <div className="bg-gray-50 text-foreground px-4 py-3 rounded-lg">
+                    <div className="bg-secondary text-foreground px-4 py-3 rounded-lg">
                       <div className="flex space-x-1">
                         <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
                         <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
@@ -1002,11 +1002,11 @@ export default function VaultGPTModal({ isOpen, onClose }: VaultGPTModalProps) {
                 <div ref={messagesEndRef} />
               </div>
 
-              <div className="flex-shrink-0 p-4 border-t border-gray-200">
+              <div className="flex-shrink-0 p-4 border-t border-border">
                 {/* Wallet Tokens Section */}
                 {isLoadingTokens ? (
                   <div className="mb-4">
-                    <div className="flex items-center justify-center p-3 bg-gray-50 rounded-lg">
+                    <div className="flex items-center justify-center p-3 bg-secondary rounded-lg">
                       <div className="flex items-center space-x-2">
                         <div className="w-4 h-4 bg-pepu-yellow-orange rounded-full animate-bounce"></div>
                         <div className="w-4 h-4 bg-pepu-yellow-orange rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
@@ -1076,7 +1076,7 @@ export default function VaultGPTModal({ isOpen, onClose }: VaultGPTModalProps) {
                               className={`flex items-center justify-between p-2 rounded-lg cursor-pointer transition-colors ${
                                 isSelected 
                                   ? 'bg-pepu-light-green/30 border border-pepu-dark-green' 
-                                  : 'bg-gray-50 hover:bg-gray-100'
+                                  : 'bg-secondary hover:bg-secondary/80'
                               }`}
                             >
                               <div className="flex items-center space-x-2">
@@ -1113,7 +1113,7 @@ export default function VaultGPTModal({ isOpen, onClose }: VaultGPTModalProps) {
                   </div>
                 ) : (
                   <div className="mb-4">
-                    <div className="text-center p-3 bg-gray-50 rounded-lg">
+                    <div className="text-center p-3 bg-secondary rounded-lg">
                       <p className="text-sm text-muted-foreground mb-2">No tokens found in your wallet</p>
                       <button
                         onClick={scanWalletTokens}
