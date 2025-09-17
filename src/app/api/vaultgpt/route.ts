@@ -659,28 +659,28 @@ function analyzeLiquidityHealth(candles: number[][]): { score: number, analysis:
   else if (volumeCoeff > 1) score -= 10;
   
   let analysis = '';
-  if (score >= 80) analysis = 'Healthy liquidity with consistent trading';
-  else if (score >= 60) analysis = 'Moderate liquidity, some concerns';
-  else if (score >= 40) analysis = 'Low liquidity, high risk';
-  else analysis = 'Very poor liquidity, avoid trading';
+  if (score >= 80) analysis = 'Strong liquidity with consistent trading activity';
+  else if (score >= 60) analysis = 'Moderate liquidity, generally stable';
+  else if (score >= 40) analysis = 'Lower liquidity, may experience higher volatility';
+  else analysis = 'Limited liquidity, consider position sizing carefully';
   
   return { score: Math.max(0, score), analysis };
 }
 
 function generatePatternAnalysis(suspicious: boolean, pattern: string, riskLevel: string, volatility: number, volumeSpikes: number): string {
   if (suspicious) {
-    return `🚨 SUSPICIOUS ACTIVITY DETECTED: High volatility (${volatility.toFixed(1)}%), ${volumeSpikes} volume spikes. This looks like manipulation or a pump-and-dump scheme. AVOID THIS TOKEN.`;
+    return `⚠️ Unusual Activity: High volatility (${volatility.toFixed(1)}%), ${volumeSpikes} volume spikes. This pattern suggests potential manipulation - exercise caution.`;
   }
   
   if (riskLevel === 'high') {
-    return `⚠️ HIGH RISK: Volatility ${volatility.toFixed(1)}%, ${volumeSpikes} volume spikes. Proceed with extreme caution.`;
+    return `📈 High Volatility: ${volatility.toFixed(1)}% price movement, ${volumeSpikes} volume spikes. Higher risk but potential for significant moves.`;
   }
   
   if (riskLevel === 'medium') {
-    return `⚡ MODERATE RISK: Some volatility (${volatility.toFixed(1)}%) and volume activity. Monitor closely.`;
+    return `📊 Moderate Activity: ${volatility.toFixed(1)}% volatility, ${volumeSpikes} volume spikes. Normal market activity with some fluctuations.`;
   }
   
-  return `✅ HEALTHY PATTERN: Low volatility (${volatility.toFixed(1)}%), stable volume. This appears to be legitimate trading activity.`;
+  return `✅ Stable Pattern: Low volatility (${volatility.toFixed(1)}%), consistent volume. This indicates steady, organic trading activity.`;
 }
 
 export async function POST(request: NextRequest) {
@@ -1613,34 +1613,28 @@ async function generateResponse(message: string, intent: any, tokens: any[], mar
 
   const systemPrompt = `You are VaultGPT, an expert cryptocurrency analyst specializing in Pepe Unchained tokens. 
 
-You are known for your intelligent, thought-driven analysis that goes beyond just listing data. You provide:
+You provide intelligent, balanced analysis that helps users understand token fundamentals and market dynamics:
 
-**DECISIVE ANALYSIS**:
-- Be DIRECT and OPINIONATED - say "This is GOOD" or "This is BAD" or "This looks like a SCAM"
-- Don't hedge with "maybe" or "possibly" - give clear judgments
-- Identify red flags and call out suspicious activity immediately
-- Recognize patterns that indicate pump-and-dump schemes, rug pulls, or legitimate projects
-- Use your expertise to make definitive calls on token quality and investment potential
+**BALANCED ANALYSIS**:
+- Give clear, informed opinions based on data and market patterns
+- Identify both opportunities and risks objectively
+- Recognize legitimate projects vs. suspicious activity
+- Provide nuanced analysis rather than extreme judgments
+- Consider multiple factors before making definitive calls
 
-**CHART & ACTIVITY ANALYSIS**:
-- Analyze trading patterns, volume spikes, and price movements
-- Detect unusual buy/sell activity that might indicate manipulation
-- Identify whale movements, coordinated dumps, or organic growth
-- Look for liquidity issues, low volume traps, or healthy trading patterns
-- Assess market depth and potential for price manipulation
+**MARKET INSIGHTS**:
+- Analyze trading patterns, volume trends, and price movements
+- Assess liquidity, market depth, and trading activity
+- Identify organic growth vs. potential manipulation
+- Consider market psychology and sentiment factors
+- Evaluate risk-reward ratios thoughtfully
 
-**CRITICAL THINKING**:
-- Question everything - if something looks too good to be true, say so
-- Point out inconsistencies in token data or suspicious patterns
-- Highlight both opportunities AND risks with equal emphasis
-- Consider market psychology, sentiment, and behavioral factors
-- Always evaluate risk-reward ratios and potential downsides
-
-**PROFESSIONAL STYLE**:
-- Write like a seasoned crypto analyst who's seen it all
-- Be conversational, insightful, and brutally honest
-- Don't just list data - interpret it, analyze it, and give your definitive take
-- Use strong language when appropriate: "AVOID THIS" or "STRONG BUY" or "CLEAR SCAM"
+**PROFESSIONAL APPROACH**:
+- Be conversational yet professional in your analysis
+- Interpret data meaningfully rather than just listing numbers
+- Provide actionable insights for informed decision-making
+- Use appropriate language: "promising" or "concerning" rather than extreme terms
+- Focus on education and understanding
 
 **DATA CONTEXT**:
 - Always use FDV (Fully Diluted Valuation) as market cap
@@ -1650,7 +1644,7 @@ You are known for your intelligent, thought-driven analysis that goes beyond jus
 
 ${contextInstructions}
 
-Remember: You're not just a data aggregator - you're an expert analyst providing intelligent, actionable insights that help users make informed decisions.`;
+Remember: Your goal is to provide helpful, educational analysis that empowers users to make informed decisions based on solid reasoning and market understanding.`;
 
   try {
     const completion = await openai.chat.completions.create({

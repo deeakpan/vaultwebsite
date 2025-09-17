@@ -60,19 +60,19 @@ const TokenCard = ({ token }: { token: any }) => {
   const hasValidData = token.price > 0 || token.market_cap > 0 || token.volume_24h > 0;
 
   return (
-    <div className="bg-gradient-to-r from-blue-50 to-green-50 border border-blue-200 rounded-lg p-3 mb-2">
+    <div className="bg-secondary border border-border rounded-lg p-3 mb-2">
       <div className="flex justify-between items-start mb-2">
         <div>
-          <h4 className="font-bold text-blue-900 text-sm">{token.name || 'Unknown Token'}</h4>
-          <p className="text-blue-700 text-xs">{token.symbol || 'N/A'}</p>
+          <h4 className="font-bold text-primary text-sm">{token.name || 'Unknown Token'}</h4>
+          <p className="text-muted-foreground text-xs">{token.symbol || 'N/A'}</p>
           {token.source && (
             <p className="text-xs text-muted-foreground">Source: {token.source}</p>
           )}
         </div>
         <div className="text-right">
-          <p className="font-bold text-green-600 text-sm">{formatPrice(token.price)}</p>
+          <p className="font-bold text-green-600 dark:text-green-400 text-sm">{formatPrice(token.price)}</p>
           {priceChange && (
-            <p className={`text-xs ${token.price_change_24h >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+            <p className={`text-xs ${token.price_change_24h >= 0 ? 'text-green-500 dark:text-green-400' : 'text-red-500 dark:text-red-400'}`}>
               {priceChange}
             </p>
           )}
@@ -113,16 +113,16 @@ const TokenCard = ({ token }: { token: any }) => {
 
 // Market Stats Component
 const MarketStats = ({ stats }: { stats: any }) => (
-  <div className="bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-lg p-3 mb-2">
-    <h4 className="font-bold text-purple-900 mb-2">Network Overview</h4>
+  <div className="bg-secondary border border-border rounded-lg p-3 mb-2">
+    <h4 className="font-bold text-primary mb-2">Network Overview</h4>
     <div className="grid grid-cols-2 gap-2 text-xs">
-      <div className="text-purple-700">
+      <div className="text-muted-foreground">
         <span className="font-medium">Total Pools:</span>
-        <br />{stats.total_pools || 'N/A'}
+        <br /><span className="text-foreground">{stats.total_pools || 'N/A'}</span>
       </div>
-      <div className="text-purple-700">
+      <div className="text-muted-foreground">
         <span className="font-medium">Total Liquidity:</span>
-        <br />${stats.total_liquidity?.toLocaleString() || 'N/A'}
+        <br /><span className="text-foreground">${stats.total_liquidity?.toLocaleString() || 'N/A'}</span>
       </div>
     </div>
   </div>
