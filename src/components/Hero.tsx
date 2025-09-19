@@ -190,12 +190,12 @@ export default function Hero() {
             </div>
 
             {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-3 md:gap-4">
+            <div className="flex flex-col sm:flex-row gap-3">
               <a 
                 href="https://pepuswap.com/#/swap?outputCurrency=0x8746d6fc80708775461226657a6947497764bbe6"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="border-2 border-pepu-dark-green text-primary px-4 py-2 md:px-8 md:py-4 rounded-xl font-bold text-sm md:text-lg hover:bg-primary hover:text-primary-foreground transition-colors inline-block text-center"
+                className="border-2 border-pepu-dark-green text-primary px-4 py-2 rounded-lg font-semibold text-sm hover:bg-primary hover:text-primary-foreground transition-colors inline-block text-center"
               >
                 Buy $Vault
               </a>
@@ -203,13 +203,13 @@ export default function Hero() {
                 href="https://penkmarket.pepubank.net"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="bg-pepu-light-green text-primary px-4 py-2 md:px-8 md:py-4 rounded-xl font-bold text-sm md:text-lg hover:bg-pepu-light-green/90 transition-colors inline-block text-center"
+                className="bg-pepu-light-green text-primary px-4 py-2 rounded-lg font-semibold text-sm hover:bg-pepu-light-green/90 transition-colors inline-block text-center"
               >
                 Buy from L1
               </a>
               <a 
                 href="/bridge"
-                className="bg-pepu-yellow-orange text-primary px-4 py-2 md:px-8 md:py-4 rounded-xl font-bold text-sm md:text-lg hover:bg-pepu-yellow-orange/90 transition-colors inline-block text-center"
+                className="bg-pepu-yellow-orange text-primary px-4 py-2 rounded-lg font-semibold text-sm hover:bg-pepu-yellow-orange/90 transition-colors inline-block text-center"
               >
                 Bridge Assets
               </a>
@@ -245,21 +245,21 @@ export default function Hero() {
                       }
                     </span>
                   </div>
-                  <div className="mt-3 flex items-center space-x-3">
+                  <div className="mt-4">
                     {rewardPartner.logo_url && (
-                      <div className="w-20 h-20 md:w-24 md:h-24 flex items-center justify-center">
+                      <div className="w-full h-24 md:h-32 flex items-center justify-center mb-4">
                         <img 
                           src={rewardPartner.logo_url} 
                           alt={rewardPartner.name}
-                          className="w-full h-full object-contain"
+                          className="max-w-full max-h-full object-contain"
                         />
                       </div>
                     )}
-                    <div className="flex-1 min-w-0">
-                      <h4 className="font-bold text-primary text-sm md:text-base truncate">
+                    <div className="text-center">
+                      <h4 className="font-bold text-primary text-sm md:text-base mb-2">
                         {rewardPartner.name}
                       </h4>
-                      <p className="text-xs md:text-sm text-muted-foreground mt-1 line-clamp-2">
+                      <p className="text-xs md:text-sm text-muted-foreground leading-relaxed">
                         {rewardPartner.description}
                       </p>
                     </div>
