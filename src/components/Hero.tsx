@@ -200,6 +200,14 @@ export default function Hero() {
                 Buy $Vault
               </a>
               <a 
+                href="https://penkmarket.pepubank.net"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-pepu-light-green text-primary px-4 py-2 md:px-8 md:py-4 rounded-xl font-bold text-sm md:text-lg hover:bg-pepu-light-green/90 transition-colors inline-block text-center"
+              >
+                Buy from L1
+              </a>
+              <a 
                 href="/bridge"
                 className="bg-pepu-yellow-orange text-primary px-4 py-2 md:px-8 md:py-4 rounded-xl font-bold text-sm md:text-lg hover:bg-pepu-yellow-orange/90 transition-colors inline-block text-center"
               >
@@ -239,7 +247,7 @@ export default function Hero() {
                   </div>
                   <div className="mt-3 flex items-center space-x-3">
                     {rewardPartner.logo_url && (
-                      <div className="w-16 h-16 md:w-20 md:h-20 flex items-center justify-center">
+                      <div className="w-20 h-20 md:w-24 md:h-24 flex items-center justify-center">
                         <img 
                           src={rewardPartner.logo_url} 
                           alt={rewardPartner.name}

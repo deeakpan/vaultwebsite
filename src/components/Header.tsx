@@ -110,9 +110,15 @@ export default function Header() {
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               className="lg:hidden text-primary-foreground p-1 md:p-2"
             >
-              <svg className="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
+              {isMenuOpen ? (
+                <svg className="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              ) : (
+                <svg className="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              )}
             </button>
           </div>
         </div>
@@ -121,25 +127,25 @@ export default function Header() {
         {isMenuOpen && (
           <nav className="lg:hidden mt-3 pb-3 border-t border-accent/20">
             <div className="flex flex-col space-y-2 pt-3">
-              <a href="#treasury" className="hover:text-accent transition-colors text-sm py-2">
+              <a href="#treasury" className="hover:text-accent transition-colors text-sm py-2" onClick={() => setIsMenuOpen(false)}>
                 Treasury
               </a>
-              <a href="#analytics" className="hover:text-accent transition-colors text-sm py-2">
+              <a href="#analytics" className="hover:text-accent transition-colors text-sm py-2" onClick={() => setIsMenuOpen(false)}>
                 Analytics
               </a>
-              <a href="#rewards" className="hover:text-accent transition-colors text-sm py-2">
+              <a href="#rewards" className="hover:text-accent transition-colors text-sm py-2" onClick={() => setIsMenuOpen(false)}>
                 Rewards
               </a>
-              <a href="#news" className="hover:text-accent transition-colors text-sm py-2">
+              <a href="#news" className="hover:text-accent transition-colors text-sm py-2" onClick={() => setIsMenuOpen(false)}>
                 News
               </a>
-              <a href="#tools" className="hover:text-accent transition-colors text-sm py-2">
+              <a href="#tools" className="hover:text-accent transition-colors text-sm py-2" onClick={() => setIsMenuOpen(false)}>
                 Tools
               </a>
-              <a href="#bridge" className="hover:text-accent transition-colors text-sm py-2">
+              <a href="#bridge" className="hover:text-accent transition-colors text-sm py-2" onClick={() => setIsMenuOpen(false)}>
                 Bridge
               </a>
-              <a href="/admin" className="hover:text-accent transition-colors text-sm py-2">
+              <a href="/admin" className="hover:text-accent transition-colors text-sm py-2" onClick={() => setIsMenuOpen(false)}>
                 Admin
               </a>
             </div>

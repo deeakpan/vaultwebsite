@@ -71,7 +71,7 @@ export default function News() {
       // Extract emoji and content
       const emojiMatch = section.match(/^[^\w]*/);
       const emoji = emojiMatch ? emojiMatch[0] : '';
-      const content = section.replace(/^[^\w]*/, '').trim();
+      const content = section.replace(/^[^\w]*/, '').trim().replace(/\s+/g, ' ');
       
       // Determine type based on emoji or content
       let type: 'whale' | 'launch' | 'snapshot' | 'alert' | 'signal' = 'alert';
@@ -241,7 +241,7 @@ export default function News() {
                 </div>
               </div>
 
-              <div className="space-y-4">
+              <div className="space-y-5">
                 {isLoading ? (
                   <div className="flex items-center justify-center py-8">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-pepu-yellow-orange"></div>
@@ -268,17 +268,17 @@ export default function News() {
                   </div>
                 ) : (
                   newsItems.map((item) => (
-                  <div key={item.id} className="p-4 border rounded-lg hover:shadow-md transition-shadow">
+                  <div key={item.id} className="p-5 border rounded-lg hover:shadow-md transition-shadow">
                     <div className="flex items-start space-x-3">
                       <div className={`w-8 h-8 rounded-full flex items-center justify-center ${getTypeColor(item.type)}`}>
                         {getTypeIcon(item.type)}
                       </div>
                       <div className="flex-1">
-                        <div className="flex items-center space-x-2 mb-2">
-                          <h4 className="font-semibold text-primary">{item.title}</h4>
+                        <div className="flex items-center space-x-2 mb-3">
+                          <h4 className="font-semibold text-primary leading-tight">{item.title}</h4>
                           <div className={`w-2 h-2 rounded-full ${getPriorityColor(item.priority)}`}></div>
                         </div>
-                        <p className="text-muted-foreground text-sm mb-2">{item.description}</p>
+                        <p className="text-muted-foreground text-sm mb-2 leading-relaxed">{item.description}</p>
                         <div className="flex items-center justify-between">
                           <span className="text-xs text-muted-foreground">{item.timestamp}</span>
                           {item.link && (
