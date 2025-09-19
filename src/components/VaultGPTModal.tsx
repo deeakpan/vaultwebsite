@@ -904,8 +904,8 @@ export default function VaultGPTModal({ isOpen, onClose }: VaultGPTModalProps) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center z-50 p-4 bg-black/20 backdrop-blur-sm" onClick={onClose}>
-        <div className="bg-card rounded-2xl shadow-2xl w-full max-w-md h-[500px] flex flex-col border border-border" onClick={(e) => e.stopPropagation()}>
+    <div className="fixed inset-0 flex items-center justify-center z-50 p-0 md:p-4 bg-black/20 backdrop-blur-sm" onClick={onClose}>
+        <div className="bg-card rounded-none md:rounded-2xl shadow-2xl w-full max-w-md h-screen md:h-[500px] flex flex-col border border-border" onClick={(e) => e.stopPropagation()}>
         <div className="flex-shrink-0 flex items-center justify-between p-4 border-b border-border">
           <div className="flex items-center space-x-3">
             <div className="w-8 h-8 bg-gradient-to-r from-pepu-dark-green to-pepu-light-green rounded-full flex items-center justify-center">
