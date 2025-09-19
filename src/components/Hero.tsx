@@ -208,7 +208,9 @@ export default function Hero() {
                 Buy from L1
               </a>
               <a 
-                href="/bridge"
+                href="https://superbridge.pepubank.net"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="bg-pepu-yellow-orange text-primary px-4 py-2 rounded-lg font-semibold text-sm hover:bg-pepu-yellow-orange/90 transition-colors inline-block text-center"
               >
                 Bridge Assets
