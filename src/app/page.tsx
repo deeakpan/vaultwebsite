@@ -7,7 +7,6 @@ import Treasury from '@/components/Treasury';
 import Analytics from '@/components/Analytics';
 import Rewards from '@/components/Rewards';
 import News from '@/components/News';
-import Tools from '@/components/Tools';
 import WalletSection from '@/components/WalletSection';
 import ProjectInfo from '@/components/ProjectInfo';
 import SuperBridge from '@/components/SuperBridge';
@@ -30,7 +29,6 @@ export default function HomePage() {
         
         <News />
         
-        <Tools />
         
         <WalletSection />
         

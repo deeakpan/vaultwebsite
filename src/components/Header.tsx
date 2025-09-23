@@ -44,9 +44,6 @@ export default function Header() {
             <a href="#news" className="hover:text-accent transition-colors text-sm md:text-base">
               News
             </a>
-            <a href="#tools" className="hover:text-accent transition-colors text-sm md:text-base">
-              Tools
-            </a>
             <a href="#bridge" className="hover:text-accent transition-colors text-sm md:text-base">
               Bridge
             </a>
@@ -138,9 +135,6 @@ export default function Header() {
               </a>
               <a href="#news" className="hover:text-accent transition-colors text-sm py-2" onClick={() => setIsMenuOpen(false)}>
                 News
-              </a>
-              <a href="#tools" className="hover:text-accent transition-colors text-sm py-2" onClick={() => setIsMenuOpen(false)}>
-                Tools
               </a>
               <a href="#bridge" className="hover:text-accent transition-colors text-sm py-2" onClick={() => setIsMenuOpen(false)}>
                 Bridge
