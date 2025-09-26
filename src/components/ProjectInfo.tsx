@@ -481,8 +481,12 @@ export default function ProjectInfo() {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                       </svg>
                     </div>
-                    <h4 className="text-lg font-semibold text-primary mb-2">Phase 1: Foundation (Q1 2024)</h4>
-                    <p className="text-muted-foreground">Launch of $Vault token, treasury setup, and initial community building</p>
+                    <h4 className="text-lg font-semibold text-primary mb-2">✅ Phase 1: Foundation (Q2 2025 – completed)</h4>
+                    <div className="text-muted-foreground space-y-1">
+                      <p>• Launch of $Vault Token</p>
+                      <p>• Treasury setup & first investments</p>
+                      <p>• Community building started</p>
+                    </div>
                   </div>
 
                   <div className="relative pl-12 pb-8">
@@ -491,28 +495,28 @@ export default function ProjectInfo() {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                       </svg>
                     </div>
-                    <h4 className="text-lg font-semibold text-primary mb-2">Phase 2: Growth (Q2 2024)</h4>
-                    <p className="text-muted-foreground">AI analytics integration, governance features, and expanded treasury strategies</p>
+                    <h4 className="text-lg font-semibold text-primary mb-2">🚀 Phase 2: Growth (Q3 – Q4 2025)</h4>
+                    <div className="text-muted-foreground space-y-1">
+                      <p>• VaultGPT launch</p>
+                      <p>• Increase of investment budget</p>
+                      <p>• Expanded treasury strategies</p>
+                      <p>• More utilities for holders</p>
+                    </div>
                   </div>
 
-                  <div className="relative pl-12 pb-8">
+                  <div className="relative pl-12">
                     <div className="absolute left-0 top-0 w-8 h-8 bg-pepu-dark-green rounded-full flex items-center justify-center">
                       <svg className="w-4 h-4 text-pepu-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                       </svg>
                     </div>
-                    <h4 className="text-lg font-semibold text-primary mb-2">Phase 3: Innovation (Q3 2024)</h4>
-                    <p className="text-muted-foreground">Advanced DeFi integrations, cross-chain bridges, and ecosystem partnerships</p>
-                  </div>
-
-                  <div className="relative pl-12">
-                    <div className="absolute left-0 top-0 w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
-                      <svg className="w-4 h-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                      </svg>
+                    <h4 className="text-lg font-semibold text-primary mb-2">⚡ Phase 3: Innovation (from Q1 2026)</h4>
+                    <div className="text-muted-foreground space-y-1">
+                      <p>• VaultGPT improvements</p>
+                      <p>• Launch of the Pepu Vault Game</p>
+                      <p>• Exciting surprises for the community 🎁</p>
+                      <p>• Stronger community integration & interactivity</p>
                     </div>
-                    <h4 className="text-lg font-semibold text-primary mb-2">Phase 4: Expansion (Q4 2024)</h4>
-                    <p className="text-muted-foreground">Multi-chain deployment, institutional partnerships, and global adoption</p>
                   </div>
                 </div>
               </div>
