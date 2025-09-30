@@ -10,6 +10,7 @@ import News from '@/components/News';
 import WalletSection from '@/components/WalletSection';
 import ProjectInfo from '@/components/ProjectInfo';
 import SuperBridge from '@/components/SuperBridge';
+import Vote from '@/components/Vote';
 import Footer from '@/components/Footer';
 
 export default function HomePage() {
@@ -27,8 +28,9 @@ export default function HomePage() {
         
         <Rewards />
         
-        <News />
+        <Vote />
         
+        <News />
         
         <WalletSection />
         
