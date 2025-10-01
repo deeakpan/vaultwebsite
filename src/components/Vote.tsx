@@ -141,30 +141,30 @@ export default function VoteComponent() {
 
   if (tokens.length === 0) {
     return (
-      <section id="vote" className="py-20 px-6">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-4xl font-bold mb-3 bg-gradient-to-r from-pepu-yellow-orange to-pepu-light-green bg-clip-text text-transparent">
-            Token Voting
-          </h2>
-          <p className="text-base text-gray-600 dark:text-gray-400">
-            No tokens available for voting yet
-          </p>
-        </div>
-      </section>
+       <section id="vote" className="py-12 sm:py-20 px-4 sm:px-6">
+         <div className="max-w-4xl mx-auto text-center">
+           <h2 className="text-3xl sm:text-4xl font-bold mb-3 bg-gradient-to-r from-pepu-yellow-orange to-pepu-light-green bg-clip-text text-transparent">
+             Token Voting
+           </h2>
+           <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
+             No tokens available for voting yet
+           </p>
+         </div>
+       </section>
     );
   }
 
   return (
-    <section id="vote" className="py-20 px-6">
-      <div className="max-w-4xl mx-auto">
-        <div className="mb-12">
-          <h2 className="text-4xl font-bold mb-3 bg-gradient-to-r from-pepu-yellow-orange to-pepu-light-green bg-clip-text text-transparent">
-            Vote for Treasury Tokens
-          </h2>
-           <p className="text-base text-gray-600 dark:text-gray-400">
+     <section id="vote" className="py-12 sm:py-20 px-4 sm:px-6">
+       <div className="max-w-4xl mx-auto">
+         <div className="mb-8 sm:mb-12">
+           <h2 className="text-3xl sm:text-4xl font-bold mb-3 bg-gradient-to-r from-pepu-yellow-orange to-pepu-light-green bg-clip-text text-transparent">
+             Vote for Treasury Tokens
+           </h2>
+           <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
              VAULT holders (1M+ tokens) decide which tokens get treasury support
            </p>
-        </div>
+         </div>
 
         {message && (
           <div className={`mb-6 p-4 rounded-xl border ${
@@ -176,32 +176,34 @@ export default function VoteComponent() {
           </div>
         )}
 
-        <div className="flex items-center justify-between mb-8 text-sm">
-          <div className="flex items-center gap-4">
-            {isConnected && address ? (
-              <>
-                <span className="text-gray-600 dark:text-gray-400">
-                  {address.slice(0, 6)}...{address.slice(-4)}
-                </span>
-                {userVote && (
-                  <>
-                    <span className="text-gray-400">•</span>
-                    <span className="text-green-600 dark:text-green-400">
-                      Voted for {userVote}
-                    </span>
-                  </>
-                )}
-              </>
-            ) : (
-              <span className="text-gray-500 dark:text-gray-400">Connect wallet to vote</span>
-            )}
-          </div>
-          {leadingToken && (
-            <span className="text-gray-600 dark:text-gray-400">
-              <span className="font-semibold text-pepu-yellow-orange">{leadingToken[0]}</span> leads with {leadingToken[1]} votes
-            </span>
-          )}
-        </div>
+         <div className="mb-8 space-y-3">
+           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-sm">
+             <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+               {isConnected && address ? (
+                 <>
+                   <span className="text-gray-600 dark:text-gray-400 font-mono text-xs">
+                     {address.slice(0, 6)}...{address.slice(-4)}
+                   </span>
+                   {userVote && (
+                     <>
+                       <span className="text-gray-400 hidden sm:inline">•</span>
+                       <span className="text-green-600 dark:text-green-400 text-xs">
+                         Voted for {userVote}
+                       </span>
+                     </>
+                   )}
+                 </>
+               ) : (
+                 <span className="text-gray-500 dark:text-gray-400 text-xs">Connect wallet to vote</span>
+               )}
+             </div>
+             {leadingToken && (
+               <span className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm">
+                 <span className="font-semibold text-pepu-yellow-orange">{leadingToken[0]}</span> leads with {leadingToken[1]} votes
+               </span>
+             )}
+           </div>
+         </div>
 
         <div className="space-y-3">
           {sortedTokens.map((token, index) => {
@@ -222,64 +224,68 @@ export default function VoteComponent() {
                 <div className="absolute left-0 top-0 bottom-0 bg-gradient-to-r from-pepu-yellow-orange/15 to-pepu-light-green/15 dark:from-pepu-yellow-orange/10 dark:to-pepu-light-green/10 transition-all"
                      style={{ width: `${percentage}%` }} />
                 
-                <div className="relative p-5">
-                  <div className="flex items-center gap-5 mb-3">
-                    <div className="text-center min-w-[60px]">
-                      <div className="text-2xl font-bold text-pepu-yellow-orange">
-                        {voteCount}
-                      </div>
-                      <div className="text-xs text-gray-500 dark:text-gray-400">
-                        {percentage}%
-                      </div>
-                    </div>
+                 <div className="relative p-4 sm:p-5">
+                   <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-5">
+                     <div className="flex items-center gap-3 sm:gap-5">
+                       <div className="text-center min-w-[50px] sm:min-w-[60px]">
+                         <div className="text-xl sm:text-2xl font-bold text-pepu-yellow-orange">
+                           {voteCount}
+                         </div>
+                         <div className="text-xs text-gray-500 dark:text-gray-400">
+                           {percentage}%
+                         </div>
+                       </div>
 
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <h3 className="text-lg font-bold text-gray-900 dark:text-white">
-                          {token.name}
-                        </h3>
-                        {index === 0 && isLeading && (
-                          <span className="px-2 py-0.5 bg-pepu-yellow-orange/20 text-pepu-yellow-orange text-xs font-semibold rounded">
-                            Leading
-                          </span>
-                        )}
-                        {hasUserVoted && (
-                          <span className="px-2 py-0.5 bg-green-500/20 text-green-600 dark:text-green-400 text-xs font-semibold rounded">
-                            Your Vote
-                          </span>
-                        )}
-                      </div>
-                       <p className="text-xs font-mono text-gray-700 dark:text-gray-300 truncate">
-                         {token.address}
-                       </p>
-                    </div>
+                       <div className="flex-1 min-w-0">
+                         <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mb-1">
+                           <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white">
+                             {token.name}
+                           </h3>
+                           <div className="flex gap-2">
+                             {index === 0 && isLeading && (
+                               <span className="px-2 py-0.5 bg-pepu-yellow-orange/20 text-pepu-yellow-orange text-xs font-semibold rounded">
+                                 Leading
+                               </span>
+                             )}
+                             {hasUserVoted && (
+                               <span className="px-2 py-0.5 bg-green-500/20 text-green-600 dark:text-green-400 text-xs font-semibold rounded">
+                                 Your Vote
+                               </span>
+                             )}
+                           </div>
+                         </div>
+                         <p className="text-xs font-mono text-gray-700 dark:text-gray-300 break-all sm:truncate">
+                           {token.address}
+                         </p>
+                       </div>
+                     </div>
 
-                    <div className="flex items-center gap-2">
-                      <a 
-                        href={token.link} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="px-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
-                      >
-                        Chart
-                      </a>
-                      
-                      <button
-                        onClick={() => handleVote(token.name)}
-                        disabled={isLoading || !isConnected || userVote !== null}
-                        className={`px-5 py-2 rounded-lg text-sm font-semibold transition-all ${
-                          hasUserVoted
-                            ? 'bg-green-500 text-white'
-                            : !isConnected || userVote !== null
-                            ? 'bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed'
-                            : 'bg-gradient-to-r from-pepu-yellow-orange to-pepu-light-green text-gray-900 hover:shadow-lg'
-                        }`}
-                      >
-                        {hasUserVoted ? 'Voted' : !isConnected ? 'Connect' : isLoading ? '...' : 'Vote'}
-                      </button>
-                    </div>
-                  </div>
-                </div>
+                     <div className="flex items-center gap-2 sm:gap-2">
+                       <a 
+                         href={token.link} 
+                         target="_blank" 
+                         rel="noopener noreferrer"
+                         className="px-3 sm:px-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs sm:text-sm font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                       >
+                         Chart
+                       </a>
+                       
+                       <button
+                         onClick={() => handleVote(token.name)}
+                         disabled={isLoading || !isConnected || userVote !== null}
+                         className={`px-4 sm:px-5 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all ${
+                           hasUserVoted
+                             ? 'bg-green-500 text-white'
+                             : !isConnected || userVote !== null
+                             ? 'bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed'
+                             : 'bg-gradient-to-r from-pepu-yellow-orange to-pepu-light-green text-gray-900 hover:shadow-lg'
+                         }`}
+                       >
+                         {hasUserVoted ? 'Voted' : !isConnected ? 'Connect' : isLoading ? '...' : 'Vote'}
+                       </button>
+                     </div>
+                   </div>
+                 </div>
               </div>
             );
           })}

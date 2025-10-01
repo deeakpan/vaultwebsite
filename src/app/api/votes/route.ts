@@ -43,10 +43,8 @@ export async function POST(request: NextRequest) {
 
     // Check VAULT balance (1M minimum)
     try {
-      const vaultResponse = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/vault-holders-rpc`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ address })
+      const vaultResponse = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/vault-holders?address=${address}`, {
+        method: 'GET'
       });
 
       if (vaultResponse.ok) {
