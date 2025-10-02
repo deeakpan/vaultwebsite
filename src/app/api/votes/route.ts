@@ -41,29 +41,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
-    // Check VAULT balance (1M minimum)
-    try {
-      const vaultResponse = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/vault-holders?address=${address}`, {
-        method: 'GET'
-      });
-
-      if (vaultResponse.ok) {
-        const vaultData = await vaultResponse.json();
-        const vaultBalance = parseFloat(vaultData.balance || '0');
-        
-        if (vaultBalance < 1000000) {
-          return NextResponse.json({ 
-            error: `Minimum 1M VAULT required to vote. You have ${vaultBalance.toLocaleString()} VAULT.` 
-          }, { status: 400 });
-        }
-      } else {
-        return NextResponse.json({ error: 'Unable to verify VAULT balance' }, { status: 400 });
-      }
-    } catch (error) {
-      console.error('Error checking VAULT balance:', error);
-      return NextResponse.json({ error: 'Unable to verify VAULT balance' }, { status: 400 });
-    }
-
     // Check if user has already voted
     const { data: existingVote, error: checkError } = await supabase
       .from('votes')

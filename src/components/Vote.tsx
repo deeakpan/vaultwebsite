@@ -28,6 +28,10 @@ export default function VoteComponent() {
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [userVote, setUserVote] = useState<string | null>(null);
+  const [vaultBalance, setVaultBalance] = useState<number>(0);
+  const [isCheckingBalance, setIsCheckingBalance] = useState(false);
+
+  const MIN_VAULT_BALANCE_TO_VOTE = 1000000; // 1M VAULT tokens required
 
   useEffect(() => {
     fetchTokens();
@@ -37,8 +41,32 @@ export default function VoteComponent() {
   useEffect(() => {
     if (isConnected && address) {
       checkUserVote();
+      checkVaultBalance();
+    } else {
+      setVaultBalance(0);
     }
   }, [isConnected, address, voteData.votes]);
+
+  const checkVaultBalance = async () => {
+    if (!address) return;
+    
+    setIsCheckingBalance(true);
+    try {
+      const response = await fetch(`/api/vault-holders?address=${address}`);
+      if (response.ok) {
+        const data = await response.json();
+        const balance = parseFloat(data.balance || '0');
+        setVaultBalance(balance);
+      } else {
+        setVaultBalance(0);
+      }
+    } catch (error) {
+      console.error('Error checking VAULT balance:', error);
+      setVaultBalance(0);
+    } finally {
+      setIsCheckingBalance(false);
+    }
+  };
 
   const fetchTokens = async () => {
     try {
@@ -82,6 +110,12 @@ export default function VoteComponent() {
 
     if (userVote) {
       setMessage('You have already voted');
+      return;
+    }
+
+    // Check VAULT balance using same method as VaultGPT
+    if (vaultBalance < MIN_VAULT_BALANCE_TO_VOTE) {
+      setMessage(`Minimum 1M VAULT required to vote. You have ${vaultBalance.toLocaleString()} VAULT.`);
       return;
     }
 

@@ -143,7 +143,7 @@ export default function VaultGPTModal({ isOpen, onClose }: VaultGPTModalProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const VAULT_TOKEN_ADDRESS = '0x8746D6Fc80708775461226657a6947497764BBe6';
-  const MINIMUM_VAULT_BALANCE = 0; // No tokens required
+  const MINIMUM_VAULT_BALANCE = 1000000; // 1M VAULT tokens required
 
   // Get native PEPU balance (like Treasury component)
   const { data: nativeBalance, isLoading: nativeLoading } = useBalance({
@@ -153,12 +153,29 @@ export default function VaultGPTModal({ isOpen, onClose }: VaultGPTModalProps) {
 
   useEffect(() => {
     if (isConnected && address) {
-      // Always allow access when connected (MINIMUM_VAULT_BALANCE = 0)
-      setHasAccess(true);
+      checkVaultBalance();
     } else if (!isConnected || !address) {
       setHasAccess(false);
     }
   }, [isConnected, address]);
+
+  const checkVaultBalance = async () => {
+    if (!address) return;
+    
+    try {
+      const response = await fetch(`/api/vault-holders?address=${address}`);
+      if (response.ok) {
+        const data = await response.json();
+        const vaultBalance = parseFloat(data.balance || '0');
+        setHasAccess(vaultBalance >= MINIMUM_VAULT_BALANCE);
+      } else {
+        setHasAccess(false);
+      }
+    } catch (error) {
+      console.error('Error checking VAULT balance:', error);
+      setHasAccess(false);
+    }
+  };
 
   useEffect(() => {
     if (isOpen) {
@@ -938,7 +955,8 @@ export default function VaultGPTModal({ isOpen, onClose }: VaultGPTModalProps) {
                   </svg>
                 </div>
                 <h3 className="text-lg font-semibold text-foreground mb-2">Connect Your Wallet</h3>
-                <p className="text-base text-muted-foreground mb-4">Connect your wallet to access VaultGPT analytics</p>
+                <p className="text-base text-muted-foreground mb-2">Connect your wallet to access VaultGPT analytics</p>
+                <p className="text-sm text-muted-foreground mb-4">Requires 1M+ VAULT tokens</p>
                 <ConnectButton.Custom>
                   {({ openConnectModal }) => (
                     <button
@@ -949,6 +967,23 @@ export default function VaultGPTModal({ isOpen, onClose }: VaultGPTModalProps) {
                     </button>
                   )}
                 </ConnectButton.Custom>
+              </div>
+            </div>
+          ) : !hasAccess ? (
+            <div className="flex-1 flex items-center justify-center p-6">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-red-100 dark:bg-red-900/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-8 h-8 text-red-500 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-semibold text-foreground mb-2">Insufficient VAULT Balance</h3>
+                <p className="text-base text-muted-foreground mb-4">You need at least 1M VAULT tokens to access VaultGPT</p>
+                <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-900/50 rounded-lg p-3 mb-4">
+                  <p className="text-sm text-red-700 dark:text-red-400">
+                    VaultGPT is exclusive to VAULT token holders with 1M+ tokens
+                  </p>
+                </div>
               </div>
             </div>
           ) : (
