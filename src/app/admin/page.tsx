@@ -23,15 +23,25 @@ interface Token {
   created_at?: string;
 }
 
+interface DetailsData {
+  total: string;
+  snapshot: string;
+}
+
 export default function AdminPage() {
   const { address, isConnected } = useAccount();
   const [partners, setPartners] = useState<Partner[]>([]);
   const [tokens, setTokens] = useState<Token[]>([]);
+  const [detailsData, setDetailsData] = useState<DetailsData>({
+    total: '1,250,000',
+    snapshot: new Date().toISOString()
+  });
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingDetails, setIsLoadingDetails] = useState(false);
   const [message, setMessage] = useState('');
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'partners' | 'tokens'>('partners');
+  const [activeTab, setActiveTab] = useState<'partners' | 'tokens' | 'details'>('partners');
 
   const [formData, setFormData] = useState({
     name: '',
@@ -46,11 +56,21 @@ export default function AdminPage() {
     link: ''
   });
 
-  const ADMIN_WALLET = '0xC96694BEA572073D19C41aA9C014Dd3c7C193B8E';
+  const [detailsFormData, setDetailsFormData] = useState({
+    total: '',
+    snapshot: ''
+  });
+
+  const ADMIN_WALLETS = [
+    '0xC96694BEA572073D19C41aA9C014Dd3c7C193B8E',
+    '0x62942BbBb86482bFA0C064d0262E23Ca04ea99C5'
+  ];
 
   useEffect(() => {
     if (isConnected && address) {
-      setIsAuthorized(address.toLowerCase() === ADMIN_WALLET.toLowerCase());
+      setIsAuthorized(ADMIN_WALLETS.some(wallet => 
+        address.toLowerCase() === wallet.toLowerCase()
+      ));
     } else {
       setIsAuthorized(false);
     }
@@ -60,6 +80,7 @@ export default function AdminPage() {
     if (isAuthorized) {
       fetchPartners();
       fetchTokens();
+      fetchDetails();
     }
   }, [isAuthorized]);
 
@@ -72,6 +93,22 @@ export default function AdminPage() {
       }
     } catch (error) {
       console.error('Error fetching partners:', error);
+    }
+  };
+
+  const fetchDetails = async () => {
+    try {
+      const response = await fetch('/api/details');
+      if (response.ok) {
+        const data = await response.json();
+        setDetailsData(data);
+        setDetailsFormData({
+          total: data.total,
+          snapshot: data.snapshot
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching details:', error);
     }
   };
 
@@ -180,6 +217,43 @@ export default function AdminPage() {
       console.error('Error:', error);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleDetailsSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!isAuthorized) {
+      setMessage('Unauthorized: Only the admin wallet can update details');
+      return;
+    }
+
+    if (!detailsFormData.total || !detailsFormData.snapshot) {
+      setMessage('Please fill in all details fields');
+      return;
+    }
+
+    setIsLoadingDetails(true);
+    setMessage('');
+
+    try {
+      const response = await fetch('/api/details', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(detailsFormData),
+      });
+
+      if (response.ok) {
+        setMessage('Details updated successfully!');
+        fetchDetails();
+      } else {
+        const error = await response.json();
+        setMessage(`Error: ${error.error}`);
+      }
+    } catch (error) {
+      setMessage('Error updating details');
+      console.error('Error:', error);
+    } finally {
+      setIsLoadingDetails(false);
     }
   };
 
@@ -321,11 +395,11 @@ export default function AdminPage() {
 
             {/* Tab Navigation */}
             <div className="flex justify-center mb-6">
-              <div className="bg-secondary rounded-lg p-1 shadow-sm border border-border max-w-md w-full">
-                <div className="grid grid-cols-2 gap-1">
+              <div className="bg-secondary rounded-lg p-1 shadow-sm border border-border max-w-lg w-full">
+                <div className="grid grid-cols-3 gap-1">
                   <button
                     onClick={() => setActiveTab('partners')}
-                    className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                    className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                       activeTab === 'partners'
                         ? 'bg-accent text-accent-foreground'
                         : 'text-muted-foreground hover:text-primary'
@@ -335,13 +409,23 @@ export default function AdminPage() {
                   </button>
                   <button
                     onClick={() => setActiveTab('tokens')}
-                    className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                    className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                       activeTab === 'tokens'
                         ? 'bg-accent text-accent-foreground'
                         : 'text-muted-foreground hover:text-primary'
                     }`}
                   >
                     Voting Tokens
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('details')}
+                    className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                      activeTab === 'details'
+                        ? 'bg-accent text-accent-foreground'
+                        : 'text-muted-foreground hover:text-primary'
+                    }`}
+                  >
+                    Details
                   </button>
                 </div>
               </div>
@@ -586,6 +670,71 @@ export default function AdminPage() {
                     </div>
                   </div>
                 )}
+              </>
+            )}
+
+            {/* Details Tab */}
+            {activeTab === 'details' && (
+              <>
+                <form onSubmit={handleDetailsSubmit} className="space-y-5">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-foreground mb-2">
+                        Total Rewards Distributed *
+                      </label>
+                      <input
+                        type="text"
+                        value={detailsFormData.total}
+                        onChange={(e) => setDetailsFormData({ ...detailsFormData, total: e.target.value })}
+                        className="w-full p-2.5 border border-input rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent text-foreground bg-background placeholder-muted-foreground text-sm"
+                        placeholder="e.g., 1,250,000"
+                        required
+                      />
+                      <p className="text-xs text-muted-foreground mt-1">Enter the total PEPU rewards distributed (with commas)</p>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-foreground mb-2">
+                        Next Snapshot Date *
+                      </label>
+                      <input
+                        type="datetime-local"
+                        value={detailsFormData.snapshot}
+                        onChange={(e) => setDetailsFormData({ ...detailsFormData, snapshot: e.target.value })}
+                        className="w-full p-2.5 border border-input rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent text-foreground bg-background placeholder-muted-foreground text-sm"
+                        required
+                      />
+                      <p className="text-xs text-muted-foreground mt-1">Set the next snapshot date and time</p>
+                    </div>
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={isLoadingDetails}
+                    className="w-full bg-accent text-accent-foreground py-3 px-6 rounded-lg font-semibold hover:bg-accent/90 transition-colors disabled:opacity-50 text-base"
+                  >
+                    {isLoadingDetails ? 'Updating Details...' : 'Update Details'}
+                  </button>
+                </form>
+
+                {/* Current Details Display */}
+                <div className="mt-8 pt-6 border-t border-border">
+                  <h2 className="text-xl font-bold text-primary mb-4">Current Details</h2>
+                  <div className="bg-secondary rounded-lg p-4 border border-border">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <h3 className="font-semibold text-primary text-sm mb-2">Total Rewards Distributed</h3>
+                        <p className="text-accent font-mono text-lg">{detailsData.total} PEPU</p>
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-primary text-sm mb-2">Next Snapshot</h3>
+                        <p className="text-accent font-mono text-lg">
+                          {new Date(detailsData.snapshot).toLocaleString()}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </>
             )}
           </div>

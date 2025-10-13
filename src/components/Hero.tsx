@@ -11,12 +11,17 @@ interface Partner {
   created_at?: string;
 }
 
+interface DetailsData {
+  total: string;
+  snapshot: string;
+}
+
 export default function Hero() {
-  const [snapshotData, setSnapshotData] = useState({
-    totalRewards: 1250000,
-    lastSnapshot: new Date('2025-09-14'), // Last snapshot was September 14th
-    nextSnapshot: new Date('2025-09-28')  // Next snapshot is September 28th
+  const [detailsData, setDetailsData] = useState<DetailsData>({
+    total: '1,250,000',
+    snapshot: new Date().toISOString()
   });
+  const [isLoadingDetails, setIsLoadingDetails] = useState(true);
   const [treasuryValue, setTreasuryValue] = useState('$2.4M');
   const [isLoadingTreasury, setIsLoadingTreasury] = useState(true);
   const [partners, setPartners] = useState<Partner[]>([]);
@@ -29,9 +34,25 @@ export default function Hero() {
   // Calculate next auction date (every 14 days)
   const calculateNextAuctionDate = () => {
     const now = new Date();
-    const lastSnapshot = new Date(snapshotData.lastSnapshot);
-    const nextAuction = new Date(lastSnapshot.getTime() + 14 * 24 * 60 * 60 * 1000); // 14 days
+    const snapshotDate = new Date(detailsData.snapshot);
+    const nextAuction = new Date(snapshotDate.getTime() + 14 * 24 * 60 * 60 * 1000); // 14 days
     setNextAuctionDate(nextAuction);
+  };
+
+  // Fetch details data
+  const fetchDetailsData = async () => {
+    try {
+      setIsLoadingDetails(true);
+      const response = await fetch('/api/details');
+      if (response.ok) {
+        const data = await response.json();
+        setDetailsData(data);
+      }
+    } catch (error) {
+      console.error('Error fetching details data:', error);
+    } finally {
+      setIsLoadingDetails(false);
+    }
   };
 
   // Fetch treasury data
@@ -74,28 +95,32 @@ export default function Hero() {
   };
 
   useEffect(() => {
+    fetchDetailsData();
     fetchTreasuryData();
     fetchPartnersData();
-    calculateNextAuctionDate();
   }, []);
+
+  useEffect(() => {
+    if (detailsData.snapshot) {
+      calculateNextAuctionDate();
+    }
+  }, [detailsData.snapshot]);
 
   useEffect(() => {
     const calculateTimeUntilSnapshot = () => {
       const now = new Date();
-      const lastSnapshot = new Date(snapshotData.lastSnapshot);
-      const nextSnapshot = new Date(lastSnapshot.getTime() + 14 * 24 * 60 * 60 * 1000); // 14 days
-      const timeDiff = nextSnapshot.getTime() - now.getTime();
+      const snapshotDate = new Date(detailsData.snapshot);
+      const timeDiff = snapshotDate.getTime() - now.getTime();
 
       if (timeDiff <= 0) {
         setTimeUntilNextSnapshot('Snapshot due!');
         return;
       }
 
-      // Format next snapshot date
-      const nextSnapshotDate = new Date(lastSnapshot.getTime() + 14 * 24 * 60 * 60 * 1000);
-      const day = nextSnapshotDate.getDate();
-      const month = nextSnapshotDate.getMonth() + 1; // getMonth() returns 0-11
-      const year = nextSnapshotDate.getFullYear();
+      // Format snapshot date
+      const day = snapshotDate.getDate();
+      const month = snapshotDate.getMonth() + 1; // getMonth() returns 0-11
+      const year = snapshotDate.getFullYear();
       
       setTimeUntilNextSnapshot(`${day}/${month}/${year}`);
     };
@@ -104,7 +129,7 @@ export default function Hero() {
     const interval = setInterval(calculateTimeUntilSnapshot, 60000); // Update every minute
 
     return () => clearInterval(interval);
-  }, [snapshotData.lastSnapshot]);
+  }, [detailsData.snapshot]);
 
   // Check if today is auction day
   const isTodayAuctionDay = () => {
@@ -226,7 +251,9 @@ export default function Hero() {
               <div className="space-y-3 md:space-y-4">
                 <div className="flex justify-between items-center p-3 md:p-4 bg-pepu-yellow-orange/10 rounded-lg">
                   <span className="text-muted-foreground text-sm md:text-base">Total Rewards Distributed</span>
-                  <span className="font-bold text-pepu-yellow-orange text-sm md:text-base">{snapshotData.totalRewards.toLocaleString()} PEPU</span>
+                  <span className="font-bold text-pepu-yellow-orange text-sm md:text-base">
+                    {isLoadingDetails ? 'Loading...' : `${detailsData.total} PEPU`}
+                  </span>
                 </div>
                 
                 <div className="flex justify-between items-center p-3 md:p-4 bg-primary/10 rounded-lg">
@@ -298,4 +325,4 @@ export default function Hero() {
       </div>
     </section>
   );
-}  
+}
