@@ -143,7 +143,7 @@ export default function VaultGPTModal({ isOpen, onClose }: VaultGPTModalProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const VAULT_TOKEN_ADDRESS = '0x8746D6Fc80708775461226657a6947497764BBe6';
-  const MINIMUM_VAULT_BALANCE = 1000000; // 1M VAULT tokens required
+  const MINIMUM_VAULT_BALANCE = 100000; // 100K VAULT tokens required
 
   // Get native PEPU balance (like Treasury component)
   const { data: nativeBalance, isLoading: nativeLoading } = useBalance({
@@ -956,7 +956,7 @@ export default function VaultGPTModal({ isOpen, onClose }: VaultGPTModalProps) {
                 </div>
                 <h3 className="text-lg font-semibold text-foreground mb-2">Connect Your Wallet</h3>
                 <p className="text-base text-muted-foreground mb-2">Connect your wallet to access VaultGPT analytics</p>
-                <p className="text-sm text-muted-foreground mb-4">Requires 1M+ VAULT tokens</p>
+                <p className="text-sm text-muted-foreground mb-4">Requires 100K+ VAULT tokens</p>
                 <ConnectButton.Custom>
                   {({ openConnectModal }) => (
                     <button
@@ -978,10 +978,10 @@ export default function VaultGPTModal({ isOpen, onClose }: VaultGPTModalProps) {
                   </svg>
                 </div>
                 <h3 className="text-lg font-semibold text-foreground mb-2">Insufficient VAULT Balance</h3>
-                <p className="text-base text-muted-foreground mb-4">You need at least 1M VAULT tokens to access VaultGPT</p>
+                <p className="text-base text-muted-foreground mb-4">You need at least 100K VAULT tokens to access VaultGPT</p>
                 <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-900/50 rounded-lg p-3 mb-4">
                   <p className="text-sm text-red-700 dark:text-red-400">
-                    VaultGPT is exclusive to VAULT token holders with 1M+ tokens
+                    VaultGPT is exclusive to VAULT token holders with 100K+ tokens
                   </p>
                 </div>
               </div>
