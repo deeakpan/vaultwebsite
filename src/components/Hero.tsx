@@ -77,18 +77,28 @@ export default function Hero() {
   const fetchPartnersData = async () => {
     try {
       setIsLoadingPartners(true);
+      console.log('Fetching partners data...');
       const response = await fetch('/api/partners');
       if (response.ok) {
         const data = await response.json();
+        console.log('Partners data received:', data);
         setPartners(data.partners || []);
         
         // Show the latest partner (last row)
         if (data.partners && data.partners.length > 0) {
+          console.log('Setting reward partner:', data.partners[0]);
           setRewardPartner(data.partners[0]); // First item is the latest due to DESC order
+        } else {
+          console.log('No partners found, clearing reward partner');
+          setRewardPartner(null);
         }
+      } else {
+        console.error('Failed to fetch partners:', response.status, response.statusText);
+        setRewardPartner(null);
       }
     } catch (error) {
       console.error('Error fetching partners data:', error);
+      setRewardPartner(null);
     } finally {
       setIsLoadingPartners(false);
     }
@@ -194,7 +204,9 @@ export default function Hero() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <h3 className="font-bold text-primary text-sm md:text-base mb-1">Community Rewards</h3>
-                    <p className="text-xs md:text-sm text-muted-foreground leading-relaxed">Next snapshot: September 28th with automatic PEPU distribution</p>
+                    <p className="text-xs md:text-sm text-muted-foreground leading-relaxed">
+                      Next snapshot: {timeUntilNextSnapshot === 'Snapshot due!' ? 'Due now!' : timeUntilNextSnapshot} with automatic PEPU distribution
+                    </p>
                   </div>
                 </div>
               </div>
@@ -263,12 +275,24 @@ export default function Hero() {
               </div>
 
               {/* Reward Partner Section */}
-              {rewardPartner && (
+              {isLoadingPartners ? (
+                <div className="mt-4 md:mt-6 p-4 md:p-5 bg-gradient-to-r from-pepu-yellow-orange/20 to-pepu-light-green/20 rounded-xl border border-pepu-yellow-orange/30">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-3 h-3 bg-pepu-yellow-orange rounded-full animate-pulse"></div>
+                    <span className="text-sm md:text-base font-bold text-primary">Loading Partners...</span>
+                  </div>
+                  <div className="mt-4 text-center">
+                    <p className="text-xs md:text-sm text-muted-foreground">Fetching reward partner information...</p>
+                  </div>
+                </div>
+              ) : rewardPartner ? (
                 <div className="mt-4 md:mt-6 p-4 md:p-5 bg-gradient-to-r from-pepu-yellow-orange/20 to-pepu-light-green/20 rounded-xl border border-pepu-yellow-orange/30">
                   <div className="flex items-center space-x-3">
                     <div className="w-3 h-3 bg-pepu-yellow-orange rounded-full animate-pulse"></div>
                     <span className="text-sm md:text-base font-bold text-primary">
-                      {isTodayAuctionDay() 
+                      {timeUntilNextSnapshot === 'Snapshot due!' 
+                        ? "Current Reward Partner" 
+                        : isTodayAuctionDay() 
                         ? "Today's Reward Partner" 
                         : `Reward Partner (${formatAuctionDate(nextAuctionDate!)})`
                       }
@@ -302,6 +326,23 @@ export default function Hero() {
                     Visit Partner →
                   </a>
                 </div>
+              ) : (
+                <div className="mt-4 md:mt-6 p-4 md:p-5 bg-gradient-to-r from-pepu-yellow-orange/20 to-pepu-light-green/20 rounded-xl border border-pepu-yellow-orange/30">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-3 h-3 bg-pepu-yellow-orange rounded-full animate-pulse"></div>
+                    <span className="text-sm md:text-base font-bold text-primary">
+                      {timeUntilNextSnapshot === 'Snapshot due!' 
+                        ? "Current Reward Partner" 
+                        : "Reward Partner"
+                      }
+                    </span>
+                  </div>
+                  <div className="mt-4 text-center">
+                    <p className="text-xs md:text-sm text-muted-foreground">
+                      No reward partner available at this time. Check back soon!
+                    </p>
+                  </div>
+                </div>
               )}
 
               <div className="mt-4 md:mt-6 p-3 md:p-4 bg-gradient-to-r from-pepu-light-green/20 to-pepu-yellow-orange/20 rounded-lg">
@@ -315,7 +356,9 @@ export default function Hero() {
               <div className="mt-4 md:mt-6 p-3 md:p-4 bg-gradient-to-r from-pepu-light-green/20 to-pepu-yellow-orange/20 rounded-lg">
                 <div className="flex items-center space-x-2">
                   <div className="w-3 h-3 bg-pepu-yellow-orange rounded-full animate-pulse"></div>
-                  <span className="text-xs md:text-sm font-semibold text-primary">Sept 28</span>
+                  <span className="text-xs md:text-sm font-semibold text-primary">
+                    {timeUntilNextSnapshot === 'Snapshot due!' ? 'Due Now!' : timeUntilNextSnapshot}
+                  </span>
                 </div>
                 <p className="text-xs md:text-sm text-muted-foreground mt-1">Next Snapshot</p>
               </div>

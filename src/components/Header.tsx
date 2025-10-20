@@ -32,19 +32,22 @@ export default function Header() {
 
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center space-x-6 md:space-x-8">
-            <a href="#treasury" className="hover:text-accent transition-colors text-sm md:text-base">
+            <a href="/" className="hover:text-accent transition-colors text-sm md:text-base">
+              Home
+            </a>
+            <a href="/#treasury" className="hover:text-accent transition-colors text-sm md:text-base">
               Treasury
             </a>
-            <a href="#analytics" className="hover:text-accent transition-colors text-sm md:text-base">
+            <a href="/#analytics" className="hover:text-accent transition-colors text-sm md:text-base">
               Analytics
             </a>
-            <a href="#rewards" className="hover:text-accent transition-colors text-sm md:text-base">
+            <a href="/#rewards" className="hover:text-accent transition-colors text-sm md:text-base">
               Rewards
             </a>
-            <a href="#news" className="hover:text-accent transition-colors text-sm md:text-base">
+            <a href="/#news" className="hover:text-accent transition-colors text-sm md:text-base">
               News
             </a>
-            <a href="#bridge" className="hover:text-accent transition-colors text-sm md:text-base">
+            <a href="/#bridge" className="hover:text-accent transition-colors text-sm md:text-base">
               Bridge
             </a>
             <a href="/admin" className="hover:text-accent transition-colors text-sm md:text-base">
@@ -124,19 +127,22 @@ export default function Header() {
         {isMenuOpen && (
           <nav className="lg:hidden mt-3 pb-3 border-t border-accent/20">
             <div className="flex flex-col space-y-2 pt-3">
-              <a href="#treasury" className="hover:text-accent transition-colors text-sm py-2" onClick={() => setIsMenuOpen(false)}>
+              <a href="/" className="hover:text-accent transition-colors text-sm py-2" onClick={() => setIsMenuOpen(false)}>
+                Home
+              </a>
+              <a href="/#treasury" className="hover:text-accent transition-colors text-sm py-2" onClick={() => setIsMenuOpen(false)}>
                 Treasury
               </a>
-              <a href="#analytics" className="hover:text-accent transition-colors text-sm py-2" onClick={() => setIsMenuOpen(false)}>
+              <a href="/#analytics" className="hover:text-accent transition-colors text-sm py-2" onClick={() => setIsMenuOpen(false)}>
                 Analytics
               </a>
-              <a href="#rewards" className="hover:text-accent transition-colors text-sm py-2" onClick={() => setIsMenuOpen(false)}>
+              <a href="/#rewards" className="hover:text-accent transition-colors text-sm py-2" onClick={() => setIsMenuOpen(false)}>
                 Rewards
               </a>
-              <a href="#news" className="hover:text-accent transition-colors text-sm py-2" onClick={() => setIsMenuOpen(false)}>
+              <a href="/#news" className="hover:text-accent transition-colors text-sm py-2" onClick={() => setIsMenuOpen(false)}>
                 News
               </a>
-              <a href="#bridge" className="hover:text-accent transition-colors text-sm py-2" onClick={() => setIsMenuOpen(false)}>
+              <a href="/#bridge" className="hover:text-accent transition-colors text-sm py-2" onClick={() => setIsMenuOpen(false)}>
                 Bridge
               </a>
               <a href="/admin" className="hover:text-accent transition-colors text-sm py-2" onClick={() => setIsMenuOpen(false)}>

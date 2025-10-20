@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface RewardData {
   wallet: string;
@@ -10,11 +10,63 @@ interface RewardData {
   totalPepuReward: string;
 }
 
+interface DetailsData {
+  total: string;
+  snapshot: string;
+}
+
 export default function Rewards() {
   const [walletAddress, setWalletAddress] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [rewardData, setRewardData] = useState<RewardData | null>(null);
   const [error, setError] = useState('');
+  const [detailsData, setDetailsData] = useState<DetailsData>({
+    total: '1,250,000',
+    snapshot: new Date().toISOString()
+  });
+  const [timeUntilNextSnapshot, setTimeUntilNextSnapshot] = useState('');
+
+  // Fetch details data
+  const fetchDetailsData = async () => {
+    try {
+      const response = await fetch('/api/details');
+      if (response.ok) {
+        const data = await response.json();
+        setDetailsData(data);
+      }
+    } catch (error) {
+      console.error('Error fetching details data:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchDetailsData();
+  }, []);
+
+  useEffect(() => {
+    const calculateTimeUntilSnapshot = () => {
+      const now = new Date();
+      const snapshotDate = new Date(detailsData.snapshot);
+      const timeDiff = snapshotDate.getTime() - now.getTime();
+
+      if (timeDiff <= 0) {
+        setTimeUntilNextSnapshot('Snapshot due!');
+        return;
+      }
+
+      // Format snapshot date
+      const day = snapshotDate.getDate();
+      const month = snapshotDate.getMonth() + 1; // getMonth() returns 0-11
+      const year = snapshotDate.getFullYear();
+      
+      setTimeUntilNextSnapshot(`${day}/${month}/${year}`);
+    };
+
+    calculateTimeUntilSnapshot();
+    const interval = setInterval(calculateTimeUntilSnapshot, 60000); // Update every minute
+
+    return () => clearInterval(interval);
+  }, [detailsData.snapshot]);
 
   const checkRewards = async () => {
     console.log('Check rewards function called with wallet:', walletAddress);
@@ -66,7 +118,7 @@ export default function Rewards() {
             Check Your Rewards
           </h2>
           <p className="text-xl text-black max-w-3xl mx-auto">
-            Enter your wallet address to check your $Vault and $PEPU rewards from our snapshot system. Next snapshot: September 28th.
+            Enter your wallet address to check your $Vault and $PEPU rewards from our snapshot system. Next snapshot: {timeUntilNextSnapshot === 'Snapshot due!' ? 'Due now!' : timeUntilNextSnapshot}.
           </p>
         </div>
 
@@ -194,7 +246,7 @@ export default function Rewards() {
               <ul className="text-base text-black space-y-4 mb-8">
                 <li className="flex items-start">
                   <span className="w-2 h-2 bg-pepu-yellow-orange rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                  Next snapshot: September 28th (every 14 days automatically)
+                  Next snapshot: {timeUntilNextSnapshot === 'Snapshot due!' ? 'Due now!' : timeUntilNextSnapshot} (every 14 days automatically)
                 </li>
                 <li className="flex items-start">
                   <span className="w-2 h-2 bg-pepu-yellow-orange rounded-full mt-2 mr-3 flex-shrink-0"></span>
