@@ -197,10 +197,10 @@ export default function VaultGPTModal({ isOpen, onClose }: VaultGPTModalProps) {
     }
   }, [isOpen]);
 
-  // Scan wallet for tokens using same approach as Treasury
+  // Scan wallet for tokens using API
   const scanWalletTokens = async () => {
-    if (!address || !publicClient) {
-      console.log('Missing address or publicClient:', { address, publicClient });
+    if (!address) {
+      console.log('Missing address:', { address });
       return;
     }
     
@@ -243,118 +243,61 @@ export default function VaultGPTModal({ isOpen, onClose }: VaultGPTModalProps) {
         }
       }
       
-      // Now scan for ERC20 tokens using getLogs (same as Treasury)
+      // Fetch ERC20 token balances from API
       try {
-        const logs = await publicClient.getLogs({
-          address: undefined, // All addresses
-          event: {
-            type: 'event',
-            name: 'Transfer',
-            inputs: [
-              { type: 'address', name: 'from', indexed: true },
-              { type: 'address', name: 'to', indexed: true },
-              { type: 'uint256', name: 'value', indexed: false }
-            ]
-          },
-          args: {
-            to: address as `0x${string}`
-          },
-          fromBlock: 'earliest',
-          toBlock: 'latest'
-        });
-
-        console.log(`Found ${logs.length} transfer events`);
-
-        // Extract unique token contracts from transfer events
-        const uniqueTokens = new Map<string, { address: string; symbol: string; name: string; decimals: number }>();
-        
-        for (const log of logs) {
-          const tokenAddress = log.address.toLowerCase();
-          
-          if (!uniqueTokens.has(tokenAddress)) {
-            try {
-              // Get token details using erc20Abi
-              const [symbol, name, decimals] = await Promise.all([
-                publicClient.readContract({
-                  address: log.address,
-                  abi: erc20Abi,
-                  functionName: 'symbol'
-                }),
-                publicClient.readContract({
-                  address: log.address,
-                  abi: erc20Abi,
-                  functionName: 'name'
-                }),
-                publicClient.readContract({
-                  address: log.address,
-                  abi: erc20Abi,
-                  functionName: 'decimals'
-                })
-              ]);
-
-              uniqueTokens.set(tokenAddress, {
-                address: log.address,
-                symbol: symbol as string,
-                name: name as string,
-                decimals: decimals as number
-              });
-            } catch (error) {
-              console.warn(`Failed to get details for token ${log.address}:`, error);
-            }
-          }
+        const response = await fetch(`/api/token-balances?address=${address}`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch token balances');
         }
+        const data = await response.json();
+        const tokenBalances = data.balances || [];
 
-        console.log(`Found ${uniqueTokens.size} unique tokens`);
+        console.log(`Found ${tokenBalances.length} token balances from API`);
 
-        // Check balance for each token
-        for (const tokenInfo of uniqueTokens.values()) {
+        // Process each token balance
+        for (const tokenBalance of tokenBalances) {
           try {
-            const balance = await publicClient.readContract({
-              address: tokenInfo.address as `0x${string}`,
-              abi: erc20Abi,
-              functionName: 'balanceOf',
-              args: [address as `0x${string}`]
-            });
-
-            const balanceFormatted = (Number(balance) / Math.pow(10, tokenInfo.decimals)).toString();
-            console.log(`${tokenInfo.symbol} balance:`, balanceFormatted);
+            const rawBalance = BigInt(tokenBalance.rawBalance || '0');
+            const balanceFormatted = (Number(rawBalance) / Math.pow(10, tokenBalance.decimals)).toString();
+            
+            console.log(`${tokenBalance.symbol} balance:`, balanceFormatted);
             
             if (Number(balanceFormatted) > 0) {
               // Get token price
               try {
-                const priceResponse = await fetch(`/api/token-price?address=${tokenInfo.address}`);
+                const priceResponse = await fetch(`/api/token-price?address=${tokenBalance.address}`);
                 const priceData = await priceResponse.json();
                 const usdValue = Number(balanceFormatted) * (priceData.price || 0);
 
                 tokens.push({
-                  address: tokenInfo.address,
-                  symbol: tokenInfo.symbol,
-                  name: tokenInfo.name,
+                  address: tokenBalance.address,
+                  symbol: tokenBalance.symbol,
+                  name: tokenBalance.name,
                   balance: balanceFormatted,
-                  decimals: tokenInfo.decimals,
+                  decimals: tokenBalance.decimals,
                   usdValue
                 });
                 
-                console.log(`Added ${tokenInfo.symbol} to wallet tokens`);
+                console.log(`Added ${tokenBalance.symbol} to wallet tokens`);
               } catch (priceError) {
-                console.error(`Error fetching price for ${tokenInfo.symbol}:`, priceError);
+                console.error(`Error fetching price for ${tokenBalance.symbol}:`, priceError);
                 // Add token without price
                 tokens.push({
-                  address: tokenInfo.address,
-                  symbol: tokenInfo.symbol,
-                  name: tokenInfo.name,
+                  address: tokenBalance.address,
+                  symbol: tokenBalance.symbol,
+                  name: tokenBalance.name,
                   balance: balanceFormatted,
-                  decimals: tokenInfo.decimals,
+                  decimals: tokenBalance.decimals,
                   usdValue: 0
                 });
               }
             }
           } catch (error) {
-            console.error(`Error checking balance for ${tokenInfo.symbol}:`, error);
+            console.error(`Error processing token ${tokenBalance.symbol}:`, error);
           }
         }
       } catch (error) {
-        console.error('Error scanning for ERC20 tokens:', error);
+        console.error('Error fetching token balances from API:', error);
       }
 
       // Sort tokens by USD value (highest first)
@@ -367,8 +310,7 @@ export default function VaultGPTModal({ isOpen, onClose }: VaultGPTModalProps) {
         console.log('No tokens found. This could mean:');
         console.log('1. Wallet has no PEPU or ERC20 tokens');
         console.log('2. Wallet is on wrong network (should be Pepe Unchained)');
-        console.log('3. RPC connection issues');
-        console.log('4. Token contracts not responding');
+        console.log('3. API connection issues');
       }
     } catch (error) {
       console.error('Error scanning wallet tokens:', error);
@@ -389,7 +331,7 @@ export default function VaultGPTModal({ isOpen, onClose }: VaultGPTModalProps) {
       // Scan wallet tokens when modal opens
       scanWalletTokens();
     }
-  }, [isOpen, hasAccess, address, publicClient, nativeBalance]);
+  }, [isOpen, hasAccess, address, nativeBalance]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });

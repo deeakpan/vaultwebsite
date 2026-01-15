@@ -1,9 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useBalance, useReadContract, usePublicClient } from 'wagmi';
-import { erc20Abi } from 'viem';
-import { getLogs } from 'viem/actions';
+import { useBalance } from 'wagmi';
 
 interface TokenBalance {
   token: string;
@@ -12,6 +10,7 @@ interface TokenBalance {
   decimals: number;
   usdValue?: number;
   percentage?: number;
+  address?: string; // Add address for token links
 }
 
 interface TreasuryData {
@@ -41,7 +40,6 @@ export default function Treasury() {
     isLoading: true
   });
 
-  const [tokenContracts, setTokenContracts] = useState<TokenContract[]>([]);
   const [isLoadingTokens, setIsLoadingTokens] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -56,97 +54,6 @@ export default function Treasury() {
     address: treasuryData.walletAddress as `0x${string}`,
     chainId: 97741, // PEPU Chain ID
   });
-
-  const publicClient = usePublicClient();
-
-  // Function to scan blockchain for ERC20 tokens held by the wallet
-  const scanBlockchainForTokens = async () => {
-    if (!publicClient) {
-      console.error('Public client not available');
-      return;
-    }
-
-    setIsLoadingTokens(true);
-    try {
-      // Get all Transfer events where the wallet is the recipient
-      const logs = await publicClient.getLogs({
-        address: undefined, // All addresses
-        event: {
-          type: 'event',
-          name: 'Transfer',
-          inputs: [
-            { type: 'address', name: 'from', indexed: true },
-            { type: 'address', name: 'to', indexed: true },
-            { type: 'uint256', name: 'value', indexed: false }
-          ]
-        },
-        args: {
-          to: treasuryData.walletAddress as `0x${string}`
-        },
-        fromBlock: 'earliest',
-        toBlock: 'latest'
-      });
-
-      // Extract unique token contracts from transfer events
-      const uniqueTokens = new Map<string, TokenContract>();
-      
-      for (const log of logs) {
-        const tokenAddress = log.address.toLowerCase();
-        
-        if (!uniqueTokens.has(tokenAddress)) {
-          try {
-            // Get token details
-            const [symbol, name, decimals] = await Promise.all([
-              publicClient.readContract({
-                address: log.address,
-                abi: erc20Abi,
-                functionName: 'symbol'
-              }),
-              publicClient.readContract({
-                address: log.address,
-                abi: erc20Abi,
-                functionName: 'name'
-              }),
-              publicClient.readContract({
-                address: log.address,
-                abi: erc20Abi,
-                functionName: 'decimals'
-              })
-            ]);
-
-            uniqueTokens.set(tokenAddress, {
-              address: log.address,
-              symbol: symbol as string,
-              name: name as string,
-              decimals: decimals as number
-            });
-          } catch (error) {
-            console.warn(`Failed to get details for token ${log.address}:`, error);
-          }
-        }
-      }
-
-      setTokenContracts(Array.from(uniqueTokens.values()));
-    } catch (error) {
-      console.error('Error scanning blockchain for tokens:', error);
-      // Fallback to known tokens
-      setTokenContracts([
-        {
-          address: '0x8746D6Fc80708775461226657a6947497764BBe6',
-          symbol: 'VAULT',
-          name: 'Vault Token',
-          decimals: 18
-        }
-      ]);
-    } finally {
-      setIsLoadingTokens(false);
-    }
-  };
-
-  // Scan blockchain for tokens on component mount
-  useEffect(() => {
-    scanBlockchainForTokens();
-  }, []);
 
   // Function to get PEPU price from API
   const getPepuPrice = async () => {
@@ -178,31 +85,33 @@ export default function Treasury() {
     }
   };
 
-  // Function to check balance for a specific token
-  const checkTokenBalance = async (tokenAddress: string) => {
-    if (!publicClient) return '0';
-    
-    try {
-      const balance = await publicClient.readContract({
-        address: tokenAddress as `0x${string}`,
-        abi: erc20Abi,
-        functionName: 'balanceOf',
-        args: [treasuryData.walletAddress as `0x${string}`]
-      });
-      return balance?.toString() || '0';
-    } catch (error) {
-      console.warn(`Failed to get balance for token ${tokenAddress}:`, error);
-      return '0';
-    }
-  };
-
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [pepuPrice, setPepuPrice] = useState(0);
+
+  // Fetch token balances from API
+  const fetchTokenBalances = async () => {
+    setIsLoadingTokens(true);
+    try {
+      const response = await fetch(`/api/token-balances?address=${treasuryData.walletAddress}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch token balances');
+      }
+      const data = await response.json();
+      return data.balances || [];
+    } catch (error) {
+      console.error('Error fetching token balances:', error);
+      return [];
+    } finally {
+      setIsLoadingTokens(false);
+    }
+  };
 
   const refreshTreasuryData = async () => {
     setIsRefreshing(true);
     try {
-      await scanBlockchainForTokens();
+      await fetchTokenBalances();
+      // Trigger updateHoldings by updating a dependency
+      setTreasuryData(prev => ({ ...prev }));
     } finally {
       setIsRefreshing(false);
     }
@@ -210,10 +119,13 @@ export default function Treasury() {
 
   useEffect(() => {
     const updateHoldings = async () => {
-      if (!nativeLoading && !isLoadingTokens) {
-        const holdings: TokenBalance[] = [];
-        let totalValue = 0;
+      if (nativeLoading) return;
 
+      setIsLoadingTokens(true);
+      const holdings: TokenBalance[] = [];
+      let totalValue = 0;
+
+      try {
         // Get PEPU price for native balance
         const pepuPriceValue = await getPepuPrice();
         setPepuPrice(pepuPriceValue);
@@ -237,29 +149,34 @@ export default function Treasury() {
           });
         }
 
-        // Add ERC20 token balances with real prices
-        for (const token of tokenContracts) {
-          const balance = await checkTokenBalance(token.address);
-          if (balance && parseFloat(balance) > 0) {
-            const amount = parseFloat(balance) / Math.pow(10, token.decimals);
-            const tokenPrice = await getTokenPrice(token.address);
+        // Fetch ERC20 token balances from API
+        const tokenBalances = await fetchTokenBalances();
+        
+        // Process each token balance
+        for (const tokenBalance of tokenBalances) {
+          const rawBalance = BigInt(tokenBalance.rawBalance || '0');
+          const amount = Number(rawBalance) / Math.pow(10, tokenBalance.decimals);
+          
+          if (amount > 0) {
+            const tokenPrice = await getTokenPrice(tokenBalance.address);
             const usdValue = amount * tokenPrice;
             
-            console.log(`Token: ${token.symbol}, Amount: ${amount}, Price: $${tokenPrice}, USD Value: $${usdValue}`);
+            console.log(`Token: ${tokenBalance.symbol}, Amount: ${amount}, Price: $${tokenPrice}, USD Value: $${usdValue}`);
             
             holdings.push({
-              token: token.name,
-              symbol: token.symbol,
+              token: tokenBalance.name,
+              symbol: tokenBalance.symbol,
               amount: amount.toString(),
-              decimals: token.decimals,
+              decimals: tokenBalance.decimals,
               usdValue,
-              percentage: 0
+              percentage: 0,
+              address: tokenBalance.address
             });
             totalValue += usdValue;
           }
         }
 
-        // Calculate percentages for ERC20 tokens only
+        // Calculate percentages
         holdings.forEach(holding => {
           if (holding.usdValue && totalValue > 0) {
             holding.percentage = (holding.usdValue / totalValue) * 100;
@@ -273,11 +190,18 @@ export default function Treasury() {
           holdings,
           isLoading: false
         });
+      } catch (error) {
+        console.error('Error updating holdings:', error);
+        setTreasuryData(prev => ({
+          ...prev,
+          isLoading: false,
+          error: 'Failed to load token balances'
+        }));
       }
     };
 
     updateHoldings();
-  }, [nativeBalance, nativeLoading, tokenContracts, isLoadingTokens]);
+  }, [nativeBalance, nativeLoading]);
 
   const formatAddress = (address: string) => {
     return `${address.slice(0, 8)}...${address.slice(-6)}`;
@@ -388,17 +312,15 @@ export default function Treasury() {
               {treasuryData.holdings.length > 0 ? (
               <div className="max-h-96 overflow-y-auto space-y-2 custom-scrollbar">
                 {filteredHoldings.map((holding, index) => {
-                  // Find the token contract for this holding
-                  const tokenContract = tokenContracts.find(t => t.symbol === holding.symbol);
-                  
-                  // Set GeckoTerminal URL based on token type
+                  // Find the token address from holdings (we'll need to store it)
+                  // For now, we'll construct the URL based on symbol or use a default
                   let geckoTerminalUrl = '#';
                   if (holding.symbol === 'PEPU') {
                     // Native PEPU token - use the USDT/WPEPU pool
                     geckoTerminalUrl = 'https://www.geckoterminal.com/pepe-unchained/pools/0x4be3af53800aade09201654cd76d55063c7bde70';
-                  } else if (tokenContract) {
-                    // ERC20 token - try to find a pool or use token page
-                    geckoTerminalUrl = `https://www.geckoterminal.com/pepe-unchained/tokens/${tokenContract.address}`;
+                  } else if (holding.address) {
+                    // ERC20 token - use the token address
+                    geckoTerminalUrl = `https://www.geckoterminal.com/pepe-unchained/tokens/${holding.address}`;
                   }
                   
                   return (
