@@ -29,6 +29,14 @@ interface TokenContract {
   decimals: number;
 }
 
+interface TokenBalanceFromAPI {
+  address: string;
+  symbol: string;
+  name: string;
+  rawBalance: string;
+  decimals: number;
+}
+
 
 
 export default function Treasury() {
@@ -89,7 +97,7 @@ export default function Treasury() {
   const [pepuPrice, setPepuPrice] = useState(0);
 
   // Fetch token balances from API
-  const fetchTokenBalances = async () => {
+  const fetchTokenBalances = async (): Promise<TokenBalanceFromAPI[]> => {
     setIsLoadingTokens(true);
     try {
       const response = await fetch(`/api/token-balances?address=${treasuryData.walletAddress}`);
@@ -154,7 +162,7 @@ export default function Treasury() {
         console.log(`Processing ${tokenBalances.length} token balances`);
         
         // Process all token balances - fetch prices in parallel for better performance
-        const pricePromises = tokenBalances.map(async (tokenBalance) => {
+        const pricePromises = tokenBalances.map(async (tokenBalance: TokenBalanceFromAPI) => {
           try {
             const rawBalance = BigInt(tokenBalance.rawBalance || '0');
             const amount = Number(rawBalance) / Math.pow(10, tokenBalance.decimals);
