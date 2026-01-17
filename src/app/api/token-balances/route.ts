@@ -22,14 +22,18 @@ export async function GET(req: Request) {
       ? resp.data
       : Array.isArray(resp.data.items)
         ? resp.data.items
-        : []
+        : Array.isArray(resp.data.data)
+          ? resp.data.data
+          : []
+
+    console.log(`[token-balances] Found ${items.length} token balances`)
 
     const balances = items.map((i: any) => ({
-      address:    i.token.address_hash || i.token.address,
-      symbol:     i.token.symbol,
-      name:       i.token.name,
-      rawBalance: i.value,
-      decimals:   Number(i.token.decimals),
+      address:    i.token?.address_hash || i.token?.address || i.address,
+      symbol:     i.token?.symbol || i.symbol,
+      name:       i.token?.name || i.name,
+      rawBalance: i.value || i.balance || '0',
+      decimals:   Number(i.token?.decimals || i.decimals || 18),
     }))
 
     return NextResponse.json({ balances })

@@ -151,28 +151,51 @@ export default function Treasury() {
 
         // Fetch ERC20 token balances from API
         const tokenBalances = await fetchTokenBalances();
+        console.log(`Processing ${tokenBalances.length} token balances`);
         
-        // Process each token balance
-        for (const tokenBalance of tokenBalances) {
-          const rawBalance = BigInt(tokenBalance.rawBalance || '0');
-          const amount = Number(rawBalance) / Math.pow(10, tokenBalance.decimals);
-          
-          if (amount > 0) {
-            const tokenPrice = await getTokenPrice(tokenBalance.address);
-            const usdValue = amount * tokenPrice;
+        // Process all token balances - fetch prices in parallel for better performance
+        const pricePromises = tokenBalances.map(async (tokenBalance) => {
+          try {
+            const rawBalance = BigInt(tokenBalance.rawBalance || '0');
+            const amount = Number(rawBalance) / Math.pow(10, tokenBalance.decimals);
             
-            console.log(`Token: ${tokenBalance.symbol}, Amount: ${amount}, Price: $${tokenPrice}, USD Value: $${usdValue}`);
-            
-            holdings.push({
-              token: tokenBalance.name,
-              symbol: tokenBalance.symbol,
-              amount: amount.toString(),
-              decimals: tokenBalance.decimals,
-              usdValue,
-              percentage: 0,
-              address: tokenBalance.address
-            });
-            totalValue += usdValue;
+            if (amount > 0) {
+              let tokenPrice = 0;
+              try {
+                tokenPrice = await getTokenPrice(tokenBalance.address);
+              } catch (error) {
+                console.warn(`Failed to get price for ${tokenBalance.symbol}:`, error);
+                tokenPrice = 0;
+              }
+              const usdValue = amount * tokenPrice;
+              
+              console.log(`Token: ${tokenBalance.symbol}, Amount: ${amount}, Price: $${tokenPrice}, USD Value: $${usdValue}`);
+              
+              return {
+                token: tokenBalance.name,
+                symbol: tokenBalance.symbol,
+                amount: amount.toString(),
+                decimals: tokenBalance.decimals,
+                usdValue: usdValue || 0,
+                percentage: 0,
+                address: tokenBalance.address
+              };
+            }
+            return null;
+          } catch (error) {
+            console.error(`Error processing token ${tokenBalance.symbol}:`, error);
+            return null;
+          }
+        });
+
+        // Wait for all price fetches to complete
+        const tokenHoldings = await Promise.all(pricePromises);
+        
+        // Filter out nulls and add to holdings
+        for (const holding of tokenHoldings) {
+          if (holding) {
+            holdings.push(holding);
+            totalValue += holding.usdValue || 0;
           }
         }
 
@@ -348,10 +371,10 @@ export default function Treasury() {
                         }`}>
                           {formatTokenAmount(holding.amount, holding.decimals)} {holding.symbol}
                         </div>
-                        {holding.usdValue && (
-                          <div className={`text-xs ${
-                            holding.symbol === 'PEPU' ? 'text-white opacity-90' : 'text-muted-foreground'
-                          }`}>
+                        <div className={`text-xs ${
+                          holding.symbol === 'PEPU' ? 'text-white opacity-90' : 'text-muted-foreground'
+                        }`}>
+                          {holding.usdValue !== undefined && holding.usdValue > 0 ? (
                             <a 
                               href={geckoTerminalUrl}
                               target="_blank"
@@ -362,8 +385,12 @@ export default function Treasury() {
                             >
                               {formatUSD(holding.usdValue)}
                             </a>
-                          </div>
-                        )}
+                          ) : (
+                            <span className={holding.symbol === 'PEPU' ? 'text-white opacity-75' : 'text-muted-foreground'}>
+                              Price unavailable
+                            </span>
+                          )}
+                        </div>
                         {holding.percentage && (
                           <div className={`text-xs ${
                             holding.symbol === 'PEPU' ? 'text-white opacity-75' : 'text-muted-foreground'
