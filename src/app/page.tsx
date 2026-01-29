@@ -8,6 +8,7 @@ import Analytics from '@/components/Analytics';
 import Rewards from '@/components/Rewards';
 import News from '@/components/News';
 import WalletSection from '@/components/WalletSection';
+import Wallet from '@/components/Wallet';
 import ProjectInfo from '@/components/ProjectInfo';
 import SuperBridge from '@/components/SuperBridge';
 import Vote from '@/components/Vote';
@@ -33,6 +34,8 @@ export default function HomePage() {
         <News />
         
         <WalletSection />
+        
+        <Wallet />
         
         <ProjectInfo />
         

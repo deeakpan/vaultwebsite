@@ -106,6 +106,16 @@ export default function Footer() {
                   News
                 </a>
               </li>
+              <li>
+                <a 
+                  href="https://wallet.pepuvault.com" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-muted-foreground hover:text-accent transition-colors"
+                >
+                  Web Wallet
+                </a>
+              </li>
             </ul>
           </div>
 
