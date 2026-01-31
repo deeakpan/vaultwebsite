@@ -50,6 +50,14 @@ export default function Header() {
             <a href="/#bridge" className="hover:text-accent transition-colors text-sm md:text-base">
               Bridge
             </a>
+            <a 
+              href="https://wallet.pepuvault.com" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="hover:text-accent transition-colors text-sm md:text-base"
+            >
+              Web Wallet
+            </a>
             <a href="/admin" className="hover:text-accent transition-colors text-sm md:text-base">
               Admin
             </a>
@@ -144,6 +152,15 @@ export default function Header() {
               </a>
               <a href="/#bridge" className="hover:text-accent transition-colors text-sm py-2" onClick={() => setIsMenuOpen(false)}>
                 Bridge
+              </a>
+              <a 
+                href="https://wallet.pepuvault.com" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="hover:text-accent transition-colors text-sm py-2" 
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Web Wallet
               </a>
               <a href="/admin" className="hover:text-accent transition-colors text-sm py-2" onClick={() => setIsMenuOpen(false)}>
                 Admin
